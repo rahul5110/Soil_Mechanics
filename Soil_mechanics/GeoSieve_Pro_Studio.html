@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoSieve Pro - Soil Particle Size Distribution & Sieve Analysis Studio</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <!-- jsPDF & autoTable for reliable client-side lab report PDF downloads -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Math typography aesthetics */
+    .math-symbol {
+      font-style: italic;
+      font-family: "Times New Roman", Times, serif;
+    }
+
+    /* Print styles for lab reports */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-report-area, #printable-report-area * {
+        visibility: visible;
+      }
+      #printable-report-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+        background: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-indigo-600 to-blue-600 flex items-center justify-center text-white shadow-sm ring-2 ring-indigo-100">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">GeoSieve Pro Studio</h1>
+            <span class="text-[11px] bg-indigo-50 text-indigo-700 font-semibold px-2 py-0.5 rounded-full border border-indigo-200">IS: 1498 &bull; USCS ASTM D2487</span>
+          </div>
+          <p class="text-xs text-slate-500 hidden sm:block">Geotechnical Gradation Curve &amp; Automated Soil Classification</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <button id="btn-export-csv" class="px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-300 transition-colors flex items-center space-x-1.5 shadow-2xs">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          <span class="hidden sm:inline">Export</span> CSV
+        </button>
+        <button id="btn-open-report-modal" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-all flex items-center space-x-1.5 hover:shadow">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          <span>Official Lab Report</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+
+    <!-- Top Configuration & Mass Recovery Audit Panel -->
+    <section class="bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-slate-200">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        
+        <!-- Left: Initial Dry Soil Mass -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label for="input-total-mass" class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center space-x-1">
+              <span>Initial Dry Sample Mass (<span class="math-symbol">W</span><sub>total</sub>)</span>
+            </label>
+            <span class="text-xs text-indigo-600 font-semibold font-mono-num">Grams (g)</span>
+          </div>
+          <div class="relative">
+            <input type="text" inputmode="decimal" id="input-total-mass" value="1000" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-base font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-mono-num">
+            <span class="absolute right-3.5 top-2.5 text-sm font-semibold text-slate-400">g</span>
+          </div>
+          <!-- Mass Presets -->
+          <div class="flex items-center space-x-1.5 pt-0.5">
+            <span class="text-[11px] text-slate-400 font-medium">Quick Fill:</span>
+            <button type="button" class="mass-preset-btn px-2 py-0.5 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors" data-mass="1000">1000g</button>
+            <button type="button" class="mass-preset-btn px-2 py-0.5 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors" data-mass="500">500g</button>
+            <button type="button" class="mass-preset-btn px-2 py-0.5 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors" data-mass="300">300g</button>
+            <button type="button" class="mass-preset-btn px-2 py-0.5 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors" data-mass="200">200g</button>
+          </div>
+        </div>
+
+        <!-- Center: Input Mode & Pan Balancing Strategy -->
+        <div class="space-y-2 border-slate-100 md:border-l md:pl-5">
+          <label class="text-xs font-bold uppercase tracking-wider text-slate-700">Lab Data Entry Mode</label>
+          <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
+            <button type="button" id="mode-mass-btn" class="py-1.5 text-xs font-bold rounded-lg bg-white text-indigo-700 shadow-xs transition-all">Mass Retained (g)</button>
+            <button type="button" id="mode-finer-btn" class="py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition-all">Direct % Passing</button>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <span class="text-xs text-slate-500">Pan Strategy:</span>
+            <button type="button" id="btn-balance-pan" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center space-x-1 hover:underline">
+              <span>Auto-Fill Pan Dust to 100%</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Laboratory Mass Recovery Audit Card -->
+        <div class="space-y-2 border-slate-100 md:border-l md:pl-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Quality Mass Audit</span>
+            <span id="audit-badge" class="px-2 py-0.5 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Valid Test (Loss &le; 1%)</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 font-mono-num text-xs">
+            <div>
+              <span class="text-slate-500 block text-[10px] uppercase font-semibold">&Sigma; Retained Mass</span>
+              <span id="stat-retained-sum" class="font-bold text-slate-800 text-sm">1000.0 g</span>
+            </div>
+            <div>
+              <span class="text-slate-500 block text-[10px] uppercase font-semibold">Mass Loss (&Delta;<span class="math-symbol">W</span>)</span>
+              <span id="stat-mass-loss" class="font-bold text-slate-800 text-sm">0.00%</span>
+            </div>
+          </div>
+          <p id="audit-note" class="text-[11px] text-slate-500">Standard ASTM D6913 / IS 2720: Permissible mass variance &le; 2.0%.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Left Column: Sieve Data Entry Table (5 Cols) -->
+      <section class="lg:col-span-5 space-y-4">
+        <div class="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden flex flex-col">
+          
+          <!-- Sieve Toolbar -->
+          <div class="p-3.5 sm:p-4 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">Sieve Stack Configuration</h2>
+              <p class="text-xs text-slate-500">Edit values smoothly with keyboard navigation</p>
+            </div>
+            
+            <div class="flex items-center space-x-1.5">
+              <button type="button" id="btn-open-add-sieve" class="px-2.5 py-1 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition-colors flex items-center space-x-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                <span>Add Sieve</span>
+              </button>
+              
+              <!-- Presets Dropdown -->
+              <select id="preset-select" class="text-xs font-semibold bg-white border border-slate-300 rounded-lg px-2 py-1 text-slate-700 hover:border-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                <option value="" disabled selected>Load Preset...</option>
+                <option value="well">Well-Graded Sand (SW)</option>
+                <option value="uniform">Uniform Beach Sand (SP)</option>
+                <option value="gravel">Well-Graded Gravel (GW)</option>
+                <option value="gap">Gap-Graded Soil</option>
+                <option value="silty">Silty Sand (SM)</option>
+                <option value="is">Standard IS: 2720 Stack</option>
+                <option value="astm">Standard ASTM Stack</option>
+                <option value="clear">Clear All</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Sieve Table Area -->
+          <div class="overflow-x-auto max-h-[520px]">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead class="bg-slate-100/90 sticky top-0 z-10 text-slate-700 font-bold border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Aperture (mm)</th>
+                  <th class="py-2.5 px-3" id="th-primary-entry">Mass Retained (g)</th>
+                  <th class="py-2.5 px-3 text-right">% Retained</th>
+                  <th class="py-2.5 px-3 text-right">% Passing</th>
+                  <th class="py-2.5 px-2 text-center w-10">Del</th>
+                </tr>
+              </thead>
+              <tbody id="sieve-table-body" class="divide-y divide-slate-100 font-mono-num">
+                <!-- Dynamically populated once, and updated in-place on keystroke -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table Footer -->
+          <div class="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600">
+            <span id="sieve-count-label" class="font-medium">9 Sieves + Pan Active</span>
+            <button type="button" id="btn-sort-sieves" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center space-x-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path></svg>
+              <span>Sort Descending</span>
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Right Column: Interactive Semi-Log Graph & Key Geotechnical Metrics (7 Cols) -->
+      <section class="lg:col-span-7 space-y-4">
+        
+        <!-- Interactive Chart Card -->
+        <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-5 flex flex-col">
+          <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-100">
+            <div>
+              <h2 class="text-base font-bold text-slate-900">Particle Size Distribution Curve</h2>
+              <p class="text-xs text-slate-500">Semi-logarithmic plot of particle diameter <span class="math-symbol">D</span> versus percentage finer <span class="math-symbol">N</span> (%)</p>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                Standard: 100 mm &rarr; 0.01 mm
+              </span>
+              <button type="button" id="btn-toggle-axis" class="px-2 py-1 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+                Toggle Axis Order
+              </button>
+            </div>
+          </div>
+
+          <!-- Soil Classification Zones Bar -->
+          <div class="grid grid-cols-12 text-center text-[10px] font-bold text-slate-600 pt-2 pb-1 uppercase tracking-wider">
+            <div class="col-span-4 bg-amber-50 text-amber-900 py-1 rounded-l border border-amber-200/60">Gravel (&gt; 4.75 mm)</div>
+            <div class="col-span-5 bg-blue-50 text-blue-900 py-1 border-y border-blue-200/60">Sand (0.075 &ndash; 4.75 mm)</div>
+            <div class="col-span-3 bg-emerald-50 text-emerald-900 py-1 rounded-r border border-emerald-200/60">Fines (&lt; 0.075 mm)</div>
+          </div>
+
+          <!-- Canvas Container -->
+          <div class="relative w-full h-[360px] sm:h-[400px] mt-2">
+            <canvas id="gradationChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Computed Engineering Parameters Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
+              <span>Effective Size</span>
+              <span class="text-indigo-600 font-bold font-mono-num"><span class="math-symbol">D</span><sub>10</sub></span>
+            </div>
+            <div class="text-lg font-bold text-slate-900 font-mono-num" id="val-d10">--</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">10% of particles are finer</p>
+          </div>
+
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
+              <span>Medium Size</span>
+              <span class="text-indigo-600 font-bold font-mono-num"><span class="math-symbol">D</span><sub>30</sub></span>
+            </div>
+            <div class="text-lg font-bold text-slate-900 font-mono-num" id="val-d30">--</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">30% of particles are finer</p>
+          </div>
+
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
+              <span>Size 60%</span>
+              <span class="text-indigo-600 font-bold font-mono-num"><span class="math-symbol">D</span><sub>60</sub></span>
+            </div>
+            <div class="text-lg font-bold text-slate-900 font-mono-num" id="val-d60">--</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">60% of particles are finer</p>
+          </div>
+
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
+              <span>Uniformity (<span class="math-symbol">C</span><sub>u</sub>)</span>
+              <span class="text-indigo-600 font-bold text-[11px]"><span class="math-symbol">D</span><sub>60</sub> / <span class="math-symbol">D</span><sub>10</sub></span>
+            </div>
+            <div class="text-lg font-bold text-slate-900 font-mono-num" id="val-cu">--</div>
+            <p class="text-[10px] text-slate-400 mt-0.5" id="cu-hint">Gradation span</p>
+          </div>
+
+        </div>
+
+        <!-- Curvature & Comprehensive Soil Classification Display -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+            
+            <div class="border-b sm:border-b-0 sm:border-r border-slate-100 sm:pr-4 pb-3 sm:pb-0">
+              <div class="text-xs text-slate-500 font-semibold">Coefficient of Curvature (<span class="math-symbol">C</span><sub>c</sub>)</div>
+              <div class="text-2xl font-black text-slate-900 font-mono-num mt-1" id="val-cc">--</div>
+              <p class="text-[11px] text-slate-500 mt-1 font-mono-num">
+                (<span class="math-symbol">D</span><sub>30</sub>)&sup2; / (<span class="math-symbol">D</span><sub>60</sub> &times; <span class="math-symbol">D</span><sub>10</sub>)
+              </p>
+            </div>
+            
+            <!-- Complete Geotechnical Classification Banner -->
+            <div class="sm:col-span-2 bg-gradient-to-br from-slate-50 to-indigo-50/30 rounded-xl p-3.5 border border-slate-200">
+              <div class="flex items-center justify-between flex-wrap gap-1.5 mb-1.5">
+                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Geotechnical Soil Classification (IS: 1498 / USCS)</span>
+                <span id="uscs-badge" class="px-2.5 py-0.5 text-xs font-extrabold rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200 font-mono-num">Evaluating...</span>
+              </div>
+              <h3 class="text-sm font-bold text-slate-900" id="soil-classification-title">Analyzing soil particle fractions...</h3>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed" id="soil-classification-rationale">
+                The classification is determined using grain size distribution, coarse fraction ratio, fines content, and gradation coefficients.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+    <section class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <span class="text-xs font-bold uppercase text-amber-700 block mb-1">Gravel Fraction</span>
+        <div class="text-2xl font-black text-slate-800 font-mono-num" id="stat-gravel-pct">0.0%</div>
+        <p class="text-[11px] text-slate-500 mt-1">Particles &gt; 4.75 mm</p>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <span class="text-xs font-bold uppercase text-blue-700 block mb-1">Sand Fraction</span>
+        <div class="text-2xl font-black text-slate-800 font-mono-num" id="stat-sand-pct">0.0%</div>
+        <p class="text-[11px] text-slate-500 mt-1">Particles 0.075 mm &ndash; 4.75 mm</p>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <span class="text-xs font-bold uppercase text-emerald-700 block mb-1">Fines (Silt &amp; Clay)</span>
+        <div class="text-2xl font-black text-slate-800 font-mono-num" id="stat-fines-pct">0.0%</div>
+        <p class="text-[11px] text-slate-500 mt-1">Particles &lt; 0.075 mm (No. 200 pass)</p>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <span class="text-xs font-bold uppercase text-purple-700 block mb-1">Hazen's Permeability (<span class="math-symbol">k</span>)</span>
+        <div class="text-2xl font-black text-slate-800 font-mono-num" id="stat-hazen-k">--</div>
+        <p class="text-[11px] text-slate-500 mt-1 font-mono-num"><span class="math-symbol">k</span> &approx; 1.0 &times; (<span class="math-symbol">D</span><sub>10</sub>)&sup2; cm/s</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal 1: Add Custom Sieve Modal -->
+  <div id="modal-add-sieve" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <h3 class="text-base font-bold text-slate-900">Add Sieve Size</h3>
+        <button type="button" id="btn-close-add-modal" class="text-slate-400 hover:text-slate-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Custom Sieve Size (in Millimeters)</label>
+          <input type="text" inputmode="decimal" id="input-new-sieve-size" placeholder="e.g. 1.18, 0.60, 0.30" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm font-mono-num">
+          <p class="text-[11px] text-slate-500 mt-1">Type any custom mesh size present in your college lab.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Or Choose Standard Sieve Size</label>
+          <div class="grid grid-cols-5 gap-1.5 text-xs font-mono-num">
+            <button type="button" class="quick-mesh-btn p-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-center" data-size="10.0">10 mm</button>
+            <button type="button" class="quick-mesh-btn p-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-center" data-size="4.75">4.75 mm</button>
+            <button type="button" class="quick-mesh-btn p-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-center" data-size="2.36">2.36 mm</button>
+            <button type="button" class="quick-mesh-btn p-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-center" data-size="2.00">2.00 mm</button>
+            <button type="button" class="quick-mesh-btn p-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-center" data-size="1.18">1.18 mm</button>
+            <button type="button" class="quick-mesh-btn p-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-center" data-size="0.60">0.60 mm</button>
+            <button type="button" class="quick-mesh-btn p-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-center" data-size="0.425">0.425 mm</button>
+            <button type="button" class="quick-mesh-btn p-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-center" data-size="0.30">0.30 mm</button>
+            <button type="button" class="quick-mesh-btn p-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-center" data-size="0.15">0.15 mm</button>
+            <button type="button" class="quick-mesh-btn p-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg text-center" data-size="0.075">0.075 mm</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
+        <button type="button" id="btn-cancel-add-modal" class="px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
+        <button type="button" id="btn-confirm-add-sieve" class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs">Insert Sieve</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Lab Report Setup & Direct PDF Downloader -->
+  <div id="modal-report-setup" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 space-y-4">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">Laboratory Report Generator</h3>
+          <p class="text-xs text-slate-500">Generates official ASTM D6913 / IS: 2720 Part 4 report</p>
+        </div>
+        <button type="button" id="btn-close-report-modal" class="text-slate-400 hover:text-slate-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Student Details Form -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Student Name</label>
+          <input type="text" id="rep-student-name" placeholder="e.g. Ramesh Kumar" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Roll No / USN</label>
+          <input type="text" id="rep-student-id" placeholder="e.g. 3VC21CV012" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono-num">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Batch / Class</label>
+          <input type="text" id="rep-batch" placeholder="e.g. 5th Sem Civil, Batch A" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Experiment Date</label>
+          <input type="date" id="rep-date" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block font-bold text-slate-700 mb-1">Soil Sample ID / Location</label>
+          <input type="text" id="rep-sample-id" placeholder="e.g. Borehole 1, Depth 2.0m (River Sand)" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+      </div>
+
+      <!-- Action Buttons in Modal -->
+      <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-2 justify-end">
+        <button type="button" id="btn-print-browser" class="px-4 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all flex items-center justify-center space-x-1.5">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+          <span>System Print Preview</span>
+        </button>
+        <button type="button" id="btn-download-direct-pdf" class="px-5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm transition-all flex items-center justify-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          <span>Download .PDF File</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden Printable Document Area for System Print -->
+  <div id="printable-report-area" class="hidden"></div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-medium transform translate-y-10 opacity-0 transition-all duration-300 pointer-events-none flex items-center space-x-2">
+    <span id="toast-message">Notification</span>
+  </div>
+
+  <script>
+    /* Application State */
+    const state = {
+      totalMass: 1000.0,
+      inputMode: 'mass', // 'mass' or 'finer'
+      reverseAxis: true,
+      sieves: [
+        { size: 4.75, rawMass: '45.0', mass: 45.0, rawFiner: '95.5', percentFiner: 95.5, pctRetained: 4.5 },
+        { size: 2.36, rawMass: '75.0', mass: 75.0, rawFiner: '88.0', percentFiner: 88.0, pctRetained: 7.5 },
+        { size: 1.18, rawMass: '110.0', mass: 110.0, rawFiner: '77.0', percentFiner: 77.0, pctRetained: 11.0 },
+        { size: 0.60, rawMass: '180.0', mass: 180.0, rawFiner: '59.0', percentFiner: 59.0, pctRetained: 18.0 },
+        { size: 0.425, rawMass: '135.0', mass: 135.0, rawFiner: '45.5', percentFiner: 45.5, pctRetained: 13.5 },
+        { size: 0.30, rawMass: '155.0', mass: 155.0, rawFiner: '30.0', percentFiner: 30.0, pctRetained: 15.5 },
+        { size: 0.15, rawMass: '165.0', mass: 165.0, rawFiner: '13.5', percentFiner: 13.5, pctRetained: 16.5 },
+        { size: 0.075, rawMass: '85.0', mass: 85.0, rawFiner: '5.0', percentFiner: 5.0, pctRetained: 8.5 },
+        { size: 0.0, rawMass: '50.0', mass: 50.0, rawFiner: '0.0', percentFiner: 0.0, pctRetained: 5.0 }
+      ],
+      metrics: {
+        d10: null,
+        d30: null,
+        d60: null,
+        cu: null,
+        cc: null,
+        gravelPct: 0,
+        sandPct: 0,
+        finesPct: 0,
+        retainedSum: 0,
+        lossPct: 0,
+        uscsSymbol: '',
+        uscsName: '',
+        uscsRationale: ''
+      }
+    };
+
+    let chartInstance = null;
+
+    /* Preset Soil Configurations */
+    const presets = {
+      well: [
+        { size: 4.75, mass: 50.0 },
+        { size: 2.36, mass: 100.0 },
+        { size: 1.18, mass: 140.0 },
+        { size: 0.60, mass: 180.0 },
+        { size: 0.30, mass: 200.0 },
+        { size: 0.15, mass: 180.0 },
+        { size: 0.075, mass: 110.0 },
+        { size: 0.0, mass: 40.0 }
+      ],
+      uniform: [
+        { size: 4.75, mass: 0.0 },
+        { size: 2.36, mass: 5.0 },
+        { size: 1.18, mass: 25.0 },
+        { size: 0.60, mass: 620.0 },
+        { size: 0.30, mass: 290.0 },
+        { size: 0.15, mass: 45.0 },
+        { size: 0.075, mass: 10.0 },
+        { size: 0.0, mass: 5.0 }
+      ],
+      gravel: [
+        { size: 20.0, mass: 150.0 },
+        { size: 10.0, mass: 220.0 },
+        { size: 4.75, mass: 260.0 },
+        { size: 2.36, mass: 140.0 },
+        { size: 1.18, mass: 90.0 },
+        { size: 0.60, mass: 60.0 },
+        { size: 0.30, mass: 40.0 },
+        { size: 0.075, mass: 25.0 },
+        { size: 0.0, mass: 15.0 }
+      ],
+      gap: [
+        { size: 4.75, mass: 310.0 },
+        { size: 2.36, mass: 200.0 },
+        { size: 1.18, mass: 20.0 },
+        { size: 0.60, mass: 10.0 },
+        { size: 0.30, mass: 15.0 },
+        { size: 0.15, mass: 280.0 },
+        { size: 0.075, mass: 120.0 },
+        { size: 0.0, mass: 45.0 }
+      ],
+      silty: [
+        { size: 4.75, mass: 20.0 },
+        { size: 2.36, mass: 50.0 },
+        { size: 1.18, mass: 90.0 },
+        { size: 0.60, mass: 140.0 },
+        { size: 0.30, mass: 170.0 },
+        { size: 0.15, mass: 220.0 },
+        { size: 0.075, mass: 130.0 },
+        { size: 0.0, mass: 180.0 }
+      ],
+      is: [
+        { size: 10.0, mass: 0.0 },
+        { size: 4.75, mass: 45.0 },
+        { size: 2.36, mass: 85.0 },
+        { size: 1.18, mass: 125.0 },
+        { size: 0.60, mass: 175.0 },
+        { size: 0.425, mass: 135.0 },
+        { size: 0.30, mass: 155.0 },
+        { size: 0.15, mass: 165.0 },
+        { size: 0.075, mass: 80.0 },
+        { size: 0.0, mass: 35.0 }
+      ],
+      astm: [
+        { size: 9.5, mass: 0.0 },
+        { size: 4.75, mass: 40.0 },
+        { size: 2.00, mass: 95.0 },
+        { size: 0.85, mass: 145.0 },
+        { size: 0.425, mass: 175.0 },
+        { size: 0.25, mass: 215.0 },
+        { size: 0.15, mass: 165.0 },
+        { size: 0.075, mass: 115.0 },
+        { size: 0.0, mass: 50.0 }
+      ]
+    };
+
+    function interpolateDiameter(targetPercent, dataPoints) {
+      const validPoints = dataPoints.filter(p => p.size > 0 && typeof p.percentFiner === 'number');
+      if (validPoints.length < 2) return null;
+
+      const maxFiner = Math.max(...validPoints.map(p => p.percentFiner));
+      const minFiner = Math.min(...validPoints.map(p => p.percentFiner));
+      if (targetPercent > maxFiner || targetPercent < minFiner) return null;
+
+      for (let i = 0; i < validPoints.length - 1; i++) {
+        const p1 = validPoints[i];     // coarser sieve (larger diameter)
+        const p2 = validPoints[i + 1]; // finer sieve (smaller diameter)
+
+        const y1 = p1.percentFiner;
+        const y2 = p2.percentFiner;
+
+        if ((targetPercent <= y1 && targetPercent >= y2) || (targetPercent >= y1 && targetPercent <= y2)) {
+          if (Math.abs(y1 - y2) < 0.0001) return p1.size;
+
+          const logD1 = Math.log10(p1.size);
+          const logD2 = Math.log10(p2.size);
+
+          // Geotechnical Logarithmic Formula:
+          // log(D) = log(D2) + [(target - y2) / (y1 - y2)] * [log(D1) - log(D2)]
+          const fraction = (targetPercent - y2) / (y1 - y2);
+          const logD = logD2 + fraction * (logD1 - logD2);
+          return Math.pow(10, logD);
+        }
+      }
+      return null;
+    }
+
+    function evaluateSoilClassification() {
+      const { cu, cc, gravelPct, sandPct, finesPct, d10, d30, d60 } = state.metrics;
+      let symbol = '--';
+      let title = 'Insufficient Sieve Data';
+      let rationale = '';
+
+      // Determine coarse fraction vs fines
+      const coarsePct = gravelPct + sandPct;
+
+      if (finesPct >= 50.0) {
+        // Fine-grained soil dominates (ML / CL / MH / CH)
+        symbol = 'FINE (M/C)';
+        title = 'Fine-Grained Soil (Silts and Clays)';
+        rationale = `Fines (< 0.075 mm) constitute ${finesPct.toFixed(1)}% (≥ 50% of total sample). Geotechnical standards mandate Liquid Limit (LL) and Plastic Limit (PL) Atterberg tests for plasticity chart classification (CL, ML, CH, or MH).`;
+      } else {
+        // Coarse-grained soil dominates (< 50% passing 0.075 mm)
+        const isGravel = gravelPct > sandPct;
+        const primaryText = isGravel ? 'Gravel' : 'Sand';
+        const primaryCode = isGravel ? 'G' : 'S';
+
+        // Check grading criteria
+        const isWellGraded = isGravel
+          ? (cu !== null && cu >= 4.0 && cc !== null && cc >= 1.0 && cc <= 3.0)
+          : (cu !== null && cu >= 6.0 && cc !== null && cc >= 1.0 && cc <= 3.0);
+
+        const cuReq = isGravel ? 'Cu ≥ 4' : 'Cu ≥ 6';
+
+        if (finesPct < 5.0) {
+          // Clean Coarse Soil (< 5% fines)
+          if (isWellGraded) {
+            symbol = `${primaryCode}W`;
+            title = `Well-Graded ${primaryText} (${symbol})`;
+            rationale = `Clean coarse soil with only ${finesPct.toFixed(1)}% fines (< 5%). Satisfies both grading criteria: ${cuReq} (computed Cu = ${cu ? cu.toFixed(2) : '--'}) and 1 ≤ Cc ≤ 3 (computed Cc = ${cc ? cc.toFixed(2) : '--'}). Smooth, wide particle size distribution.`;
+          } else {
+            symbol = `${primaryCode}P`;
+            title = `Poorly-Graded ${primaryText} (${symbol})`;
+            let whyPoor = [];
+            if (cu === null || (isGravel ? cu < 4.0 : cu < 6.0)) whyPoor.push(`${cuReq} not met (Cu = ${cu ? cu.toFixed(2) : 'N/A'})`);
+            if (cc === null || cc < 1.0 || cc > 3.0) whyPoor.push(`1 ≤ Cc ≤ 3 not met (Cc = ${cc ? cc.toFixed(2) : 'N/A'})`);
+            rationale = `Clean coarse soil with ${finesPct.toFixed(1)}% fines (< 5%). Fails well-graded criteria due to: ${whyPoor.join(' and ')}. Represents uniform soil or gap-graded gradation.`;
+          }
+        } else if (finesPct >= 5.0 && finesPct <= 12.0) {
+          // Borderline Dual Symbol Cases (5% to 12% fines)
+          if (isWellGraded) {
+            symbol = `${primaryCode}W-${primaryCode}M`;
+            title = `Well-Graded ${primaryText} with Silt (${symbol})`;
+            rationale = `Borderline dual-symbol soil with ${finesPct.toFixed(1)}% fines (between 5% and 12%). Gradation is well-graded (${cuReq}, 1 ≤ Cc ≤ 3), but requires dual symbol to reflect fine fraction presence.`;
+          } else {
+            symbol = `${primaryCode}P-${primaryCode}M`;
+            title = `Poorly-Graded ${primaryText} with Silt (${symbol})`;
+            rationale = `Borderline dual-symbol soil with ${finesPct.toFixed(1)}% fines (between 5% and 12%). Soil is poorly-graded and contains significant fines requiring dual designation.`;
+          }
+        } else {
+          // Coarse soil with high fines (> 12% fines)
+          symbol = `${primaryCode}M`;
+          title = `Silty ${primaryText} (${symbol})`;
+          rationale = `Fines content is ${finesPct.toFixed(1)}% (> 12%). Coarse grain matrix is dominated by silt/clay fines. Atterberg limits determine exact M (Silt) versus C (Clay) designation under IS: 1498.`;
+        }
+      }
+
+      state.metrics.uscsSymbol = symbol;
+      state.metrics.uscsName = title;
+      state.metrics.uscsRationale = rationale;
+    }
+
+    function recalculateAll(rebuildDom = false) {
+      let cumulativeRetained = 0;
+      let retainedSum = 0;
+
+      // 1. Compute retained and finer percentages
+      state.sieves.forEach(sieve => {
+        if (state.inputMode === 'mass') {
+          const mass = parseFloat(sieve.rawMass) || 0;
+          sieve.mass = mass;
+          retainedSum += mass;
+          sieve.pctRetained = state.totalMass > 0 ? (mass / state.totalMass) * 100 : 0;
+          cumulativeRetained += sieve.pctRetained;
+          sieve.percentFiner = Math.max(0, 100 - cumulativeRetained);
+        } else {
+          // Direct % Passing Mode
+          const finer = parseFloat(sieve.rawFiner) || 0;
+          sieve.percentFiner = Math.max(0, Math.min(100, finer));
+          sieve.pctRetained = 0;
+        }
+      });
+
+      state.metrics.retainedSum = retainedSum;
+      const massLoss = Math.abs(retainedSum - state.totalMass);
+      state.metrics.lossPct = state.totalMass > 0 ? (massLoss / state.totalMass) * 100 : 0;
+
+      // 2. Fractions calculation (ASTM D2487 boundary: 4.75 mm and 0.075 mm)
+      const sieve475 = state.sieves.find(s => Math.abs(s.size - 4.75) < 0.05);
+      const sieve075 = state.sieves.find(s => Math.abs(s.size - 0.075) < 0.005);
+      const pan = state.sieves.find(s => s.size === 0);
+
+      const gravelFiner = sieve475 ? sieve475.percentFiner : 100;
+      const finesFiner = sieve075 ? sieve075.percentFiner : (pan ? pan.percentFiner : 0);
+
+      const gravelPct = Math.max(0, 100 - gravelFiner);
+      const finesPct = Math.max(0, finesFiner);
+      const sandPct = Math.max(0, 100 - gravelPct - finesPct);
+
+      state.metrics.gravelPct = gravelPct;
+      state.metrics.sandPct = sandPct;
+      state.metrics.finesPct = finesPct;
+
+      // 3. Logarithmic Interpolation for D10, D30, D60
+      const d10 = interpolateDiameter(10, state.sieves);
+      const d30 = interpolateDiameter(30, state.sieves);
+      const d60 = interpolateDiameter(60, state.sieves);
+
+      state.metrics.d10 = d10;
+      state.metrics.d30 = d30;
+      state.metrics.d60 = d60;
+
+      // 4. Uniformity (Cu) & Curvature (Cc)
+      if (d10 && d60 && d10 > 0) {
+        state.metrics.cu = d60 / d10;
+      } else {
+        state.metrics.cu = null;
+      }
+
+      if (d10 && d30 && d60 && (d60 * d10) > 0) {
+        state.metrics.cc = (d30 * d30) / (d60 * d10);
+      } else {
+        state.metrics.cc = null;
+      }
+
+      // 5. Evaluate Full Geotechnical Classification
+      evaluateSoilClassification();
+
+      // 6. Update Table DOM
+      if (rebuildDom) {
+        buildTableDOM();
+      } else {
+        updateTableInPlace();
+      }
+
+      // 7. Update UI Cards & Chart
+      renderMetricsUI();
+      updateChart();
+    }
+
+    function buildTableDOM() {
+      const tbody = document.getElementById('sieve-table-body');
+      tbody.innerHTML = '';
+
+      state.sieves.forEach((sieve, index) => {
+        const isPan = sieve.size === 0;
+        const tr = document.createElement('tr');
+        tr.className = isPan ? 'bg-amber-50/50 font-semibold' : 'hover:bg-slate-50 transition-colors';
+        tr.dataset.idx = index;
+
+        // Size Aperture Cell
+        const tdSize = document.createElement('td');
+        tdSize.className = 'py-2 px-3 text-slate-800';
+        tdSize.innerHTML = isPan 
+          ? `<span class="text-amber-800 font-bold">Pan (Base)</span>` 
+          : `<span class="font-bold">${sieve.size.toFixed(sieve.size < 1 ? 3 : 2)}</span> <span class="text-slate-400 text-[10px]">mm</span>`;
+
+        // Direct Decimal Input Cell
+        const tdInput = document.createElement('td');
+        tdInput.className = 'py-1.5 px-3';
+        const inputVal = state.inputMode === 'mass' ? sieve.rawMass : sieve.rawFiner;
+        tdInput.innerHTML = `
+          <input type="text" inputmode="decimal" value="${inputVal}" data-idx="${index}" class="sieve-input w-24 bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono-num font-semibold text-xs shadow-2xs">
+        `;
+
+        // % Retained Cell
+        const tdPctRet = document.createElement('td');
+        tdPctRet.className = 'py-2 px-3 text-right text-slate-600 font-mono-num row-pct-ret';
+        tdPctRet.textContent = sieve.pctRetained !== undefined ? `${sieve.pctRetained.toFixed(2)}%` : '--';
+
+        // % Passing Cell
+        const tdPassing = document.createElement('td');
+        tdPassing.className = 'py-2 px-3 text-right font-bold text-indigo-700 font-mono-num row-pct-pass';
+        tdPassing.textContent = sieve.percentFiner !== undefined ? `${sieve.percentFiner.toFixed(1)}%` : '--';
+
+        // Delete Action Cell
+        const tdDel = document.createElement('td');
+        tdDel.className = 'py-2 px-2 text-center';
+        if (!isPan) {
+          tdDel.innerHTML = `
+            <button type="button" class="btn-del-sieve text-slate-300 hover:text-rose-600 transition-colors p-1" data-idx="${index}" title="Remove sieve from stack">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+          `;
+        } else {
+          tdDel.innerHTML = `<span class="text-slate-300 text-xs">&bull;</span>`;
+        }
+
+        tr.appendChild(tdSize);
+        tr.appendChild(tdInput);
+        tr.appendChild(tdPctRet);
+        tr.appendChild(tdPassing);
+        tr.appendChild(tdDel);
+        tbody.appendChild(tr);
+      });
+
+      const nonPanCount = state.sieves.filter(s => s.size > 0).length;
+      document.getElementById('sieve-count-label').textContent = `${nonPanCount} Sieves + Pan Active`;
+    }
+
+    /* IN-PLACE table updating so keyboard focus is NEVER lost while typing */
+    function updateTableInPlace() {
+      const tbody = document.getElementById('sieve-table-body');
+      const rows = tbody.querySelectorAll('tr');
+
+      rows.forEach((row, i) => {
+        const sieve = state.sieves[i];
+        if (!sieve) return;
+
+        const retCell = row.querySelector('.row-pct-ret');
+        const passCell = row.querySelector('.row-pct-pass');
+
+        if (retCell) {
+          retCell.textContent = state.inputMode === 'mass' ? `${sieve.pctRetained.toFixed(2)}%` : '--';
+        }
+        if (passCell) {
+          passCell.textContent = `${sieve.percentFiner.toFixed(1)}%`;
+        }
+      });
+    }
+
+    function renderMetricsUI() {
+      const { d10, d30, d60, cu, cc, gravelPct, sandPct, finesPct, retainedSum, lossPct, uscsSymbol, uscsName, uscsRationale } = state.metrics;
+
+      document.getElementById('val-d10').textContent = d10 ? `${d10.toFixed(3)} mm` : 'N/A (< 0.075)';
+      document.getElementById('val-d30').textContent = d30 ? `${d30.toFixed(3)} mm` : 'N/A';
+      document.getElementById('val-d60').textContent = d60 ? `${d60.toFixed(3)} mm` : 'N/A';
+
+      // Uniformity Coefficient (Cu)
+      const cuElem = document.getElementById('val-cu');
+      const cuHint = document.getElementById('cu-hint');
+      if (cu !== null) {
+        cuElem.textContent = cu.toFixed(2);
+        cuHint.textContent = cu >= 6.0 ? 'Wide span (Sand Cu ≥ 6)' : (cu >= 4.0 ? 'Moderate (Gravel Cu ≥ 4)' : 'Uniform soil (Cu < 4)');
+      } else {
+        cuElem.textContent = '--';
+        cuHint.textContent = 'D10 & D60 required';
+      }
+
+      // Coefficient of Curvature (Cc)
+      const ccElem = document.getElementById('val-cc');
+      if (cc !== null) {
+        ccElem.textContent = cc.toFixed(2);
+        ccElem.className = (cc >= 1.0 && cc <= 3.0) 
+          ? 'text-2xl font-black text-emerald-600 font-mono-num mt-1' 
+          : 'text-2xl font-black text-amber-600 font-mono-num mt-1';
+      } else {
+        ccElem.textContent = '--';
+        ccElem.className = 'text-2xl font-black text-slate-900 font-mono-num mt-1';
+      }
+
+      // Soil Fractions Breakdown
+      document.getElementById('stat-gravel-pct').textContent = `${gravelPct.toFixed(1)}%`;
+      document.getElementById('stat-sand-pct').textContent = `${sandPct.toFixed(1)}%`;
+      document.getElementById('stat-fines-pct').textContent = `${finesPct.toFixed(1)}%`;
+
+      // Hazen Hydraulic Permeability k
+      const hazenElem = document.getElementById('stat-hazen-k');
+      if (d10 && d10 > 0) {
+        const kVal = 1.0 * Math.pow(d10, 2); // Hazen: k = C * (D10)^2 cm/s
+        hazenElem.textContent = kVal < 0.001 ? `${kVal.toExponential(2)} cm/s` : `${kVal.toFixed(3)} cm/s`;
+      } else {
+        hazenElem.textContent = 'N/A';
+      }
+
+      // Mass Audit & Recovery Status
+      document.getElementById('stat-retained-sum').textContent = `${retainedSum.toFixed(1)} g`;
+      document.getElementById('stat-mass-loss').textContent = `${lossPct.toFixed(2)}% loss`;
+
+      const auditBadge = document.getElementById('audit-badge');
+      const auditNote = document.getElementById('audit-note');
+
+      if (lossPct <= 1.0) {
+        auditBadge.className = 'px-2 py-0.5 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200';
+        auditBadge.textContent = 'Valid Test (Loss ≤ 1%)';
+        auditNote.textContent = 'Laboratory mass recovery strictly complies with ASTM D6913 / IS 2720.';
+      } else if (lossPct <= 2.0) {
+        auditBadge.className = 'px-2 py-0.5 text-[11px] font-bold rounded-full bg-amber-100 text-amber-800 border border-amber-200';
+        auditBadge.textContent = 'Acceptable (Loss ≤ 2%)';
+        auditNote.textContent = 'Marginal mass loss noted; acceptable under standard educational lab procedure.';
+      } else {
+        auditBadge.className = 'px-2 py-0.5 text-[11px] font-bold rounded-full bg-rose-100 text-rose-800 border border-rose-200';
+        auditBadge.textContent = 'Invalid (Loss > 2%)';
+        auditNote.textContent = 'Excessive soil loss detected. ASTM/IS standards mandate repeating the test.';
+      }
+
+      // Geotechnical Classification Elements
+      document.getElementById('uscs-badge').textContent = uscsSymbol;
+      document.getElementById('soil-classification-title').textContent = uscsName;
+      document.getElementById('soil-classification-rationale').textContent = uscsRationale;
+    }
+
+    function initChart() {
+      const ctx = document.getElementById('gradationChart').getContext('2d');
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          datasets: [
+            {
+              label: 'Soil Gradation Curve (% Finer)',
+              data: [],
+              borderColor: '#4f46e5',
+              backgroundColor: 'rgba(79, 70, 229, 0.08)',
+              borderWidth: 2.5,
+              tension: 0.25,
+              fill: true,
+              pointBackgroundColor: '#4338ca',
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 2,
+              pointRadius: 5,
+              pointHoverRadius: 7
+            },
+            {
+              label: 'D10 (10% passing ray)',
+              data: [],
+              borderColor: '#10b981',
+              borderWidth: 1.5,
+              borderDash: [5, 4],
+              pointRadius: 0,
+              fill: false
+            },
+            {
+              label: 'D30 (30% passing ray)',
+              data: [],
+              borderColor: '#f59e0b',
+              borderWidth: 1.5,
+              borderDash: [5, 4],
+              pointRadius: 0,
+              fill: false
+            },
+            {
+              label: 'D60 (60% passing ray)',
+              data: [],
+              borderColor: '#ef4444',
+              borderWidth: 1.5,
+              borderDash: [5, 4],
+              pointRadius: 0,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 250 },
+          scales: {
+            x: {
+              type: 'logarithmic',
+              min: 0.01,
+              max: 100,
+              reverse: state.reverseAxis,
+              title: {
+                display: true,
+                text: 'Particle Diameter / Sieve Aperture, D (mm) [Logarithmic Scale]',
+                font: { size: 12, weight: 'bold' }
+              },
+              grid: { color: '#e2e8f0' },
+              ticks: {
+                callback: function(value) {
+                  const standardTicks = [0.01, 0.075, 0.1, 0.2, 0.425, 1.0, 2.0, 4.75, 10, 20, 50, 100];
+                  if (standardTicks.includes(value) || value === 0.01 || value === 0.1 || value === 1 || value === 10 || value === 100) {
+                    return value;
+                  }
+                  return '';
+                }
+              }
+            },
+            y: {
+              min: 0,
+              max: 100,
+              title: {
+                display: true,
+                text: 'Percentage Passing / Finer by Weight, N (%)',
+                font: { size: 12, weight: 'bold' }
+              },
+              grid: { color: '#e2e8f0' },
+              ticks: { stepSize: 10 }
+            }
+          },
+          plugins: {
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
+              titleFont: { size: 12 },
+              bodyFont: { size: 12 },
+              callbacks: {
+                label: function(context) {
+                  return `Passing: ${context.parsed.y.toFixed(1)}% | Diameter: ${context.parsed.x.toFixed(3)} mm`;
+                }
+              }
+            },
+            legend: {
+              position: 'top',
+              labels: {
+                boxWidth: 12,
+                font: { size: 11 }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function updateChart() {
+      if (!chartInstance) return;
+
+      const curvePoints = state.sieves
+        .filter(s => s.size > 0 && typeof s.percentFiner === 'number')
+        .map(s => ({ x: s.size, y: s.percentFiner }))
+        .sort((a, b) => a.x - b.x);
+
+      chartInstance.data.datasets[0].data = curvePoints;
+
+      const { d10, d30, d60 } = state.metrics;
+      const startX = state.reverseAxis ? 100 : 0.01;
+
+      // Project D10
+      chartInstance.data.datasets[1].data = d10 ? [
+        { x: startX, y: 10 },
+        { x: d10, y: 10 },
+        { x: d10, y: 0 }
+      ] : [];
+
+      // Project D30
+      chartInstance.data.datasets[2].data = d30 ? [
+        { x: startX, y: 30 },
+        { x: d30, y: 30 },
+        { x: d30, y: 0 }
+      ] : [];
+
+      // Project D60
+      chartInstance.data.datasets[3].data = d60 ? [
+        { x: startX, y: 60 },
+        { x: d60, y: 60 },
+        { x: d60, y: 0 }
+      ] : [];
+
+      chartInstance.options.scales.x.reverse = state.reverseAxis;
+      chartInstance.update();
+    }
+
+    function generateDirectPdf() {
+      try {
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+          showToast('PDF generator library is initializing. Please wait 2 seconds.');
+          return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const studentName = document.getElementById('rep-student-name').value.trim() || 'Student Investigator';
+        const studentId = document.getElementById('rep-student-id').value.trim() || 'Unspecified USN';
+        const batch = document.getElementById('rep-batch').value.trim() || 'Civil Engineering Lab';
+        const dateStr = document.getElementById('rep-date').value || new Date().toISOString().split('T')[0];
+        const sampleId = document.getElementById('rep-sample-id').value.trim() || 'Soil Sample #1';
+
+        // Header Top Bar
+        doc.setFillColor(30, 41, 59);
+        doc.rect(0, 0, 210, 24, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.text('GEOTECHNICAL LABORATORY EXPERIMENT REPORT', 14, 11);
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'normal');
+        doc.text('GRAIN SIZE DISTRIBUTION & SIEVE ANALYSIS OF SOILS (IS: 2720 PART 4 / ASTM D6913)', 14, 18);
+
+        // Student Info Box
+        doc.setFillColor(248, 250, 252);
+        doc.setDrawColor(226, 232, 240);
+        doc.roundedRect(14, 28, 182, 26, 2.5, 2.5, 'FD');
+
+        doc.setTextColor(51, 65, 85);
+        doc.setFontSize(8.5);
+        
+        doc.setFont('helvetica', 'bold');
+        doc.text('Student Name:', 18, 35);
+        doc.setFont('helvetica', 'normal');
+        doc.text(studentName, 44, 35);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('Roll No / USN:', 18, 42);
+        doc.setFont('helvetica', 'normal');
+        doc.text(studentId, 44, 42);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('Class / Batch:', 18, 49);
+        doc.setFont('helvetica', 'normal');
+        doc.text(batch, 44, 49);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('Date:', 110, 35);
+        doc.setFont('helvetica', 'normal');
+        doc.text(dateStr, 130, 35);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('Sample ID:', 110, 42);
+        doc.setFont('helvetica', 'normal');
+        doc.text(sampleId, 130, 42);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('Initial Dry Mass:', 110, 49);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${state.totalMass.toFixed(1)} g`, 140, 49);
+
+        // Embed Gradation Curve Chart
+        const chartCanvas = document.getElementById('gradationChart');
+        if (chartCanvas) {
+          const chartImgData = chartCanvas.toDataURL('image/png', 1.0);
+          doc.addImage(chartImgData, 'PNG', 14, 57, 182, 78);
+        }
+
+        // Summary Parameters Table
+        const m = state.metrics;
+        doc.autoTable({
+          startY: 138,
+          head: [['D10 (mm)', 'D30 (mm)', 'D60 (mm)', 'Cu (D60/D10)', 'Cc', 'Soil Classification', 'Recovery Loss']],
+          body: [[
+            m.d10 ? m.d10.toFixed(3) : 'N/A',
+            m.d30 ? m.d30.toFixed(3) : 'N/A',
+            m.d60 ? m.d60.toFixed(3) : 'N/A',
+            m.cu ? m.cu.toFixed(2) : 'N/A',
+            m.cc ? m.cc.toFixed(2) : 'N/A',
+            m.uscsSymbol !== '--' ? m.uscsSymbol : 'Indeterminate',
+            `${m.lossPct.toFixed(2)}%`
+          ]],
+          theme: 'grid',
+          headStyles: { fillColor: [79, 70, 229], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7.5 },
+          bodyStyles: { fontSize: 7.5, fontStyle: 'bold', halign: 'center' },
+          margin: { left: 14, right: 14 }
+        });
+
+        // Sieve Data Stack Table
+        const tableRows = state.sieves.map(s => {
+          const sizeStr = s.size === 0 ? 'Pan (Base)' : `${s.size.toFixed(s.size < 1 ? 3 : 2)} mm`;
+          const massStr = `${Number(s.mass || 0).toFixed(1)} g`;
+          const retStr = `${Number(s.pctRetained || 0).toFixed(2)}%`;
+          const passStr = `${Number(s.percentFiner || 0).toFixed(1)}%`;
+          return [sizeStr, massStr, retStr, passStr];
+        });
+
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 3,
+          head: [['Sieve Size / Aperture', 'Mass Retained (g)', '% Retained', '% Passing (Finer)']],
+          body: tableRows,
+          theme: 'striped',
+          headStyles: { fillColor: [51, 65, 85], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7.5 },
+          bodyStyles: { fontSize: 7.5 },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
+          margin: { left: 14, right: 14 }
+        });
+
+        // Signature lines
+        const finalY = doc.lastAutoTable.finalY + 12;
+        if (finalY < 282) {
+          doc.setDrawColor(148, 163, 184);
+          doc.line(20, finalY, 70, finalY);
+          doc.line(135, finalY, 185, finalY);
+
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(100, 116, 139);
+          doc.text("Student's Signature", 28, finalY + 4);
+          doc.text("Evaluator / Faculty Signature", 136, finalY + 4);
+        }
+
+        const safeName = studentName.replace(/[^a-zA-Z0-9]/g, '_');
+        const filename = `GeoSieve_Lab_Report_${safeName}.pdf`;
+        doc.save(filename);
+
+        showToast(`Downloaded: ${filename}`);
+        closeReportModal();
+
+      } catch (err) {
+        console.error('PDF Generation Failure:', err);
+        showToast('Error building PDF. Falling back to browser print view.');
+        window.print();
+      }
+    }
+
+    /* System Print HTML Fallback */
+    function preparePrintableArea() {
+      const studentName = document.getElementById('rep-student-name').value.trim() || 'Student Investigator';
+      const studentId = document.getElementById('rep-student-id').value.trim() || 'Unspecified USN';
+      const batch = document.getElementById('rep-batch').value.trim() || 'Civil Engineering Lab';
+      const dateStr = document.getElementById('rep-date').value || new Date().toISOString().split('T')[0];
+      const sampleId = document.getElementById('rep-sample-id').value.trim() || 'Soil Sample #1';
+
+      const chartCanvas = document.getElementById('gradationChart');
+      const chartImg = chartCanvas ? chartCanvas.toDataURL('image/png', 1.0) : '';
+
+      const m = state.metrics;
+      let rowsHtml = '';
+      state.sieves.forEach(s => {
+        rowsHtml += `
+          <tr style="border-bottom: 1px solid #e2e8f0;">
+            <td style="padding: 5px 8px;">${s.size === 0 ? 'Pan (Base)' : s.size.toFixed(s.size < 1 ? 3 : 2) + ' mm'}</td>
+            <td style="padding: 5px 8px; text-align: right;">${Number(s.mass || 0).toFixed(1)} g</td>
+            <td style="padding: 5px 8px; text-align: right;">${Number(s.pctRetained || 0).toFixed(2)}%</td>
+            <td style="padding: 5px 8px; text-align: right; font-weight: bold;">${Number(s.percentFiner || 0).toFixed(1)}%</td>
+          </tr>
+        `;
+      });
+
+      const printArea = document.getElementById('printable-report-area');
+      printArea.innerHTML = `
+        <div style="font-family: sans-serif; color: #1e293b; max-width: 800px; margin: 0 auto;">
+          <div style="border-bottom: 2px solid #0f172a; padding-bottom: 6px; margin-bottom: 12px;">
+            <h2 style="margin: 0; font-size: 16px; font-weight: bold; text-transform: uppercase;">Laboratory Report: Particle Size Distribution Analysis</h2>
+            <div style="font-size: 10px; color: #64748b;">Standard Test Method: IS: 2720 (Part 4) &amp; ASTM D6913</div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; margin-bottom: 12px; background: #f8fafc; padding: 8px; border-radius: 6px;">
+            <div><strong>Student Name:</strong> ${studentName}</div>
+            <div><strong>Date:</strong> ${dateStr}</div>
+            <div><strong>Roll No / USN:</strong> ${studentId}</div>
+            <div><strong>Sample ID:</strong> ${sampleId}</div>
+            <div><strong>Batch / Class:</strong> ${batch}</div>
+            <div><strong>Total Initial Mass:</strong> ${state.totalMass.toFixed(1)} g</div>
+          </div>
+
+          <div style="text-align: center; margin-bottom: 12px;">
+            <img src="${chartImg}" style="max-width: 100%; height: auto; max-height: 320px; border: 1px solid #cbd5e1; border-radius: 6px;" />
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; font-size: 10px; margin-bottom: 12px; text-align: center;">
+            <div style="background: #f1f5f9; padding: 5px; border-radius: 4px;"><strong>D10:</strong> ${m.d10 ? m.d10.toFixed(3) + ' mm' : 'N/A'}</div>
+            <div style="background: #f1f5f9; padding: 5px; border-radius: 4px;"><strong>D30:</strong> ${m.d30 ? m.d30.toFixed(3) + ' mm' : 'N/A'}</div>
+            <div style="background: #f1f5f9; padding: 5px; border-radius: 4px;"><strong>D60:</strong> ${m.d60 ? m.d60.toFixed(3) + ' mm' : 'N/A'}</div>
+            <div style="background: #e0e7ff; padding: 5px; border-radius: 4px; color: #3730a3;"><strong>Cu:</strong> ${m.cu ? m.cu.toFixed(2) : 'N/A'} | <strong>Cc:</strong> ${m.cc ? m.cc.toFixed(2) : 'N/A'}</div>
+          </div>
+
+          <table style="width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 20px;">
+            <thead>
+              <tr style="background: #0f172a; color: white;">
+                <th style="padding: 5px 8px; text-align: left;">Sieve Aperture</th>
+                <th style="padding: 5px 8px; text-align: right;">Mass Retained (g)</th>
+                <th style="padding: 5px 8px; text-align: right;">% Retained</th>
+                <th style="padding: 5px 8px; text-align: right;">% Passing (Finer)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+
+          <div style="display: flex; justify-content: space-between; margin-top: 35px; font-size: 11px; padding: 0 20px;">
+            <div style="border-top: 1px solid #64748b; width: 160px; text-align: center; padding-top: 4px;">Student Signature</div>
+            <div style="border-top: 1px solid #64748b; width: 160px; text-align: center; padding-top: 4px;">Instructor Signature</div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* Modal Controllers & Toast */
+    function openAddModal() {
+      document.getElementById('modal-add-sieve').classList.remove('hidden');
+      document.getElementById('input-new-sieve-size').focus();
+    }
+    function closeAddModal() {
+      document.getElementById('modal-add-sieve').classList.add('hidden');
+      document.getElementById('input-new-sieve-size').value = '';
+    }
+    function openReportModal() {
+      document.getElementById('modal-report-setup').classList.remove('hidden');
+    }
+    function closeReportModal() {
+      document.getElementById('modal-report-setup').classList.add('hidden');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      toastMsg.textContent = msg;
+      toast.classList.remove('translate-y-10', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-10', 'opacity-0');
+      }, 3000);
+    }
+
+    function setupEventListeners() {
+      // 1. Initial Soil Mass Input (Supports freeform decimal typing)
+      const inputTotalMass = document.getElementById('input-total-mass');
+      if (inputTotalMass) {
+        inputTotalMass.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (!isNaN(val) && val > 0) {
+            state.totalMass = val;
+            recalculateAll(false);
+          }
+        });
+      }
+
+      // Mass Presets
+      document.querySelectorAll('.mass-preset-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const m = parseFloat(e.target.dataset.mass);
+          if (m && inputTotalMass) {
+            inputTotalMass.value = m;
+            state.totalMass = m;
+            recalculateAll(false);
+            showToast(`Initial sample mass set to ${m}g`);
+          }
+        });
+      });
+
+      // 2. Data Entry Mode Switchers
+      const modeMassBtn = document.getElementById('mode-mass-btn');
+      const modeFinerBtn = document.getElementById('mode-finer-btn');
+      const thPrimary = document.getElementById('th-primary-entry');
+
+      if (modeMassBtn && modeFinerBtn) {
+        modeMassBtn.addEventListener('click', () => {
+          state.inputMode = 'mass';
+          modeMassBtn.className = 'py-1.5 text-xs font-bold rounded-lg bg-white text-indigo-700 shadow-xs transition-all';
+          modeFinerBtn.className = 'py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition-all';
+          if (thPrimary) thPrimary.textContent = 'Mass Retained (g)';
+          recalculateAll(true);
+        });
+
+        modeFinerBtn.addEventListener('click', () => {
+          state.inputMode = 'finer';
+          modeFinerBtn.className = 'py-1.5 text-xs font-bold rounded-lg bg-white text-indigo-700 shadow-xs transition-all';
+          modeMassBtn.className = 'py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition-all';
+          if (thPrimary) thPrimary.textContent = 'Direct % Passing';
+          recalculateAll(true);
+        });
+      }
+
+      // 3. Auto-Balance Pan Dust
+      const balancePanBtn = document.getElementById('btn-balance-pan');
+      if (balancePanBtn) {
+        balancePanBtn.addEventListener('click', () => {
+          if (state.inputMode !== 'mass') {
+            showToast('Pan balancing is applicable in Mass Retained mode.');
+            return;
+          }
+          const otherSieves = state.sieves.filter(s => s.size > 0);
+          const currentSum = otherSieves.reduce((acc, s) => acc + (parseFloat(s.rawMass) || 0), 0);
+          const needed = Math.max(0, state.totalMass - currentSum);
+
+          const pan = state.sieves.find(s => s.size === 0);
+          if (pan) {
+            pan.rawMass = needed.toFixed(1);
+            pan.mass = needed;
+            recalculateAll(true);
+            showToast(`Pan balanced to ${needed.toFixed(1)}g (100% recovery)`);
+          }
+        });
+      }
+
+      // 4. Sieve Table Event Delegation: Continuous Decimal Typing & Keyboard Flow
+      const sieveTableBody = document.getElementById('sieve-table-body');
+      if (sieveTableBody) {
+        // Continuous input event that preserves DOM cursor and decimal dot
+        sieveTableBody.addEventListener('input', (e) => {
+          if (!e.target.classList.contains('sieve-input')) return;
+          const idx = parseInt(e.target.dataset.idx, 10);
+          if (isNaN(idx)) return;
+
+          const rawText = e.target.value;
+
+          if (state.inputMode === 'mass') {
+            state.sieves[idx].rawMass = rawText;
+          } else {
+            state.sieves[idx].rawFiner = rawText;
+          }
+
+          // In-place recalculation without rebuilding DOM!
+          recalculateAll(false);
+        });
+
+        // Keyboard Navigation (Enter or Down-Arrow moves to the next sieve's input)
+        sieveTableBody.addEventListener('keydown', (e) => {
+          if (!e.target.classList.contains('sieve-input')) return;
+          const idx = parseInt(e.target.dataset.idx, 10);
+          if (isNaN(idx)) return;
+
+          if (e.key === 'Enter' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            const nextInput = sieveTableBody.querySelector(`.sieve-input[data-idx="${idx + 1}"]`);
+            if (nextInput) {
+              nextInput.focus();
+              nextInput.select();
+            }
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prevInput = sieveTableBody.querySelector(`.sieve-input[data-idx="${idx - 1}"]`);
+            if (prevInput) {
+              prevInput.focus();
+              prevInput.select();
+            }
+          }
+        });
+
+        // Delete button listener
+        sieveTableBody.addEventListener('click', (e) => {
+          const delBtn = e.target.closest('.btn-del-sieve');
+          if (delBtn) {
+            const idx = parseInt(delBtn.dataset.idx, 10);
+            if (!isNaN(idx) && state.sieves[idx].size !== 0) {
+              const removed = state.sieves.splice(idx, 1);
+              recalculateAll(true);
+              showToast(`Removed ${removed[0].size} mm sieve`);
+            }
+          }
+        });
+      }
+
+      // 5. Presets Dropdown
+      const presetSelect = document.getElementById('preset-select');
+      if (presetSelect) {
+        presetSelect.addEventListener('change', (e) => {
+          const key = e.target.value;
+          if (key === 'clear') {
+            state.sieves = [{ size: 0.0, rawMass: '0.0', mass: 0.0, rawFiner: '0.0', percentFiner: 0.0, pctRetained: 0.0 }];
+          } else if (presets[key]) {
+            state.sieves = presets[key].map(item => ({
+              size: item.size,
+              rawMass: item.mass.toFixed(1),
+              mass: item.mass,
+              rawFiner: '0.0',
+              percentFiner: 0,
+              pctRetained: 0
+            }));
+          }
+          presetSelect.selectedIndex = 0;
+          recalculateAll(true);
+          showToast('Loaded standard sieve preset');
+        });
+      }
+
+      // 6. Sort Sieves Button
+      const sortBtn = document.getElementById('btn-sort-sieves');
+      if (sortBtn) {
+        sortBtn.addEventListener('click', () => {
+          const pan = state.sieves.find(s => s.size === 0);
+          const others = state.sieves.filter(s => s.size > 0).sort((a, b) => b.size - a.size);
+          state.sieves = pan ? [...others, pan] : others;
+          recalculateAll(true);
+          showToast('Sieves sorted coarsest to finest');
+        });
+      }
+
+      // 7. Toggle Graph Axis
+      const toggleAxisBtn = document.getElementById('btn-toggle-axis');
+      if (toggleAxisBtn) {
+        toggleAxisBtn.addEventListener('click', () => {
+          state.reverseAxis = !state.reverseAxis;
+          updateChart();
+          showToast(state.reverseAxis ? 'Axis: Descending (100mm → 0.01mm)' : 'Axis: Ascending (0.01mm → 100mm)');
+        });
+      }
+
+      // 8. Custom Sieve Addition Modal
+      const openAddBtn = document.getElementById('btn-open-add-sieve');
+      const closeAddBtn = document.getElementById('btn-close-add-modal');
+      const cancelAddBtn = document.getElementById('btn-cancel-add-modal');
+      const confirmAddBtn = document.getElementById('btn-confirm-add-sieve');
+      const inputNewSieveSize = document.getElementById('input-new-sieve-size');
+
+      if (openAddBtn) openAddBtn.addEventListener('click', openAddModal);
+      if (closeAddBtn) closeAddBtn.addEventListener('click', closeAddModal);
+      if (cancelAddBtn) cancelAddBtn.addEventListener('click', closeAddModal);
+
+      document.querySelectorAll('.quick-mesh-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          if (inputNewSieveSize) inputNewSieveSize.value = e.target.dataset.size;
+        });
+      });
+
+      if (confirmAddBtn && inputNewSieveSize) {
+        confirmAddBtn.addEventListener('click', () => {
+          const size = parseFloat(inputNewSieveSize.value);
+          if (isNaN(size) || size <= 0) {
+            showToast('Please type a valid positive aperture size.');
+            return;
+          }
+
+          const exists = state.sieves.some(s => Math.abs(s.size - size) < 0.0001);
+          if (exists) {
+            showToast(`Sieve size ${size} mm is already in your stack.`);
+            return;
+          }
+
+          const pan = state.sieves.find(s => s.size === 0);
+          const nonPan = state.sieves.filter(s => s.size > 0);
+          nonPan.push({
+            size: size,
+            rawMass: '0.0',
+            mass: 0.0,
+            rawFiner: '0.0',
+            percentFiner: 0.0,
+            pctRetained: 0.0
+          });
+          nonPan.sort((a, b) => b.size - a.size);
+          state.sieves = pan ? [...nonPan, pan] : nonPan;
+
+          closeAddModal();
+          recalculateAll(true);
+          showToast(`Added ${size} mm sieve to stack`);
+        });
+      }
+
+      // 9. Official Lab Report Modal
+      const openReportBtn = document.getElementById('btn-open-report-modal');
+      const closeReportBtn = document.getElementById('btn-close-report-modal');
+      const printBrowserBtn = document.getElementById('btn-print-browser');
+      const downloadPdfBtn = document.getElementById('btn-download-direct-pdf');
+
+      if (openReportBtn) openReportBtn.addEventListener('click', openReportModal);
+      if (closeReportBtn) closeReportBtn.addEventListener('click', closeReportModal);
+      
+      if (downloadPdfBtn) {
+        downloadPdfBtn.addEventListener('click', generateDirectPdf);
+      }
+
+      if (printBrowserBtn) {
+        printBrowserBtn.addEventListener('click', () => {
+          preparePrintableArea();
+          closeReportModal();
+          setTimeout(() => {
+            window.print();
+          }, 250);
+        });
+      }
+
+      // 10. CSV Export
+      const exportCsvBtn = document.getElementById('btn-export-csv');
+      if (exportCsvBtn) {
+        exportCsvBtn.addEventListener('click', () => {
+          let csv = 'Sieve Aperture (mm),Mass Retained (g),Percent Retained (%),Percent Passing (%)\n';
+          state.sieves.forEach(s => {
+            csv += `${s.size},${s.mass || 0},${(s.pctRetained || 0).toFixed(2)},${(s.percentFiner || 0).toFixed(1)}\n`;
+          });
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Sieve_Analysis_${Date.now()}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          showToast('Data exported as CSV file');
+        });
+      }
+
+      // Default Date
+      const repDate = document.getElementById('rep-date');
+      if (repDate) {
+        repDate.value = new Date().toISOString().split('T')[0];
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initChart();
+      buildTableDOM();
+      setupEventListeners();
+      recalculateAll(false);
+    });
+  </script>
+</body>
+</html>

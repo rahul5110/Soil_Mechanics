@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standard &amp; Modified Proctor Compaction Test Studio</title>
+    <!-- Tailwind CSS for high-performance layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans for UI, JetBrains Mono for Engineering Numerics -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Range Sliders */
+        input[type="range"] {
+            accent-color: #0284c7;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #0284c7;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(2, 132, 199, 0.4);
+            border: 2px solid #ffffff;
+        }
+        /* Mathematical variable badges */
+        .math-var {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #0369a1;
+            padding: 0.12rem 0.38rem;
+            background: #f0f9ff;
+            border-radius: 0.375rem;
+            border: 1px solid #bae6fd;
+            font-size: 0.88em;
+            display: inline-block;
+        }
+        .math-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.bottom-2\.5{bottom:0.625rem}.right-3{right:0.75rem}.top-0{top:0px}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.mb-1{margin-bottom:0.25rem}.mt-0\.5{margin-top:0.125rem}.mt-auto{margin-top:auto}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-1\.5{height:0.375rem}.h-10{height:2.5rem}.h-2{height:0.5rem}.h-2\.5{height:0.625rem}.h-4{height:1rem}.h-6{height:1.5rem}.h-\[320px\]{height:320px}.h-full{height:100%}.min-h-screen{min-height:100vh}.w-10{width:2.5rem}.w-2{width:0.5rem}.w-2\.5{width:0.625rem}.w-4{width:1rem}.w-6{width:1.5rem}.w-full{width:100%}.w-16{width:4rem}.w-20{width:5rem}.max-w-\[1700px\]{max-width:1700px}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.border-collapse{border-collapse:collapse}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.cursor-pointer{cursor:pointer}.appearance-none{-webkit-appearance:none;appearance:none}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-3\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.875rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.875rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-slate-100 > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(241 245 249 / var(--tw-divide-opacity, 1))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.\!border-sky-200{--tw-border-opacity:1 !important;border-color:rgb(186 230 253 / var(--tw-border-opacity, 1)) !important}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138 / var(--tw-border-opacity, 1))}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.\!bg-sky-50{--tw-bg-opacity:1 !important;background-color:rgb(240 249 255 / var(--tw-bg-opacity, 1)) !important}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235 / var(--tw-bg-opacity, 1))}.bg-amber-50\/80{background-color:rgb(255 251 235 / 0.8)}.bg-amber-500{--tw-bg-opacity:1;background-color:rgb(245 158 11 / var(--tw-bg-opacity, 1))}.bg-amber-600{--tw-bg-opacity:1;background-color:rgb(217 119 6 / var(--tw-bg-opacity, 1))}.bg-emerald-50\/80{background-color:rgb(236 253 245 / 0.8)}.bg-emerald-500{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-sky-500{--tw-bg-opacity:1;background-color:rgb(14 165 233 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-100\/80{background-color:rgb(241 245 249 / 0.8)}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-50\/90{background-color:rgb(248 250 252 / 0.9)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-sky-600{--tw-bg-opacity:1;background-color:rgb(2 132 199 / var(--tw-bg-opacity, 1))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.bg-gradient-to-tr{background-image:linear-gradient(to top right, var(--tw-gradient-stops))}.from-amber-600{--tw-gradient-from:#d97706 var(--tw-gradient-from-position);--tw-gradient-to:rgb(217 119 6 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-600{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-orange-500{--tw-gradient-to:rgb(249 115 22 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #f97316 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-amber-700{--tw-gradient-to:#b45309 var(--tw-gradient-to-position)}.to-teal-600{--tw-gradient-to:#0d9488 var(--tw-gradient-to-position)}.p-1{padding:0.25rem}.p-1\.5{padding:0.375rem}.p-2{padding:0.5rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.px-1\.5{padding-left:0.375rem;padding-right:0.375rem}.pb-1\.5{padding-bottom:0.375rem}.pb-2{padding-bottom:0.5rem}.pb-2\.5{padding-bottom:0.625rem}.pt-1{padding-top:0.25rem}.pt-1\.5{padding-top:0.375rem}.pt-2{padding-top:0.5rem}.text-left{text-align:left}.text-center{text-align:center}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.font-sans{font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[9px\]{font-size:9px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.\!text-sky-700{--tw-text-opacity:1 !important;color:rgb(3 105 161 / var(--tw-text-opacity, 1)) !important}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-amber-700{--tw-text-opacity:1;color:rgb(180 83 9 / var(--tw-text-opacity, 1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14 / var(--tw-text-opacity, 1))}.text-amber-900{--tw-text-opacity:1;color:rgb(120 53 15 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-emerald-900{--tw-text-opacity:1;color:rgb(6 78 59 / var(--tw-text-opacity, 1))}.text-purple-700{--tw-text-opacity:1;color:rgb(126 34 206 / var(--tw-text-opacity, 1))}.text-rose-700{--tw-text-opacity:1;color:rgb(190 18 60 / var(--tw-text-opacity, 1))}.text-rose-800{--tw-text-opacity:1;color:rgb(159 18 57 / var(--tw-text-opacity, 1))}.text-sky-600{--tw-text-opacity:1;color:rgb(2 132 199 / var(--tw-text-opacity, 1))}.text-sky-700{--tw-text-opacity:1;color:rgb(3 105 161 / var(--tw-text-opacity, 1))}.text-sky-800{--tw-text-opacity:1;color:rgb(7 89 133 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.accent-amber-600{accent-color:#d97706}.accent-rose-600{accent-color:#e11d48}.accent-slate-600{accent-color:#475569}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-amber-500\/20{--tw-shadow-color:rgb(245 158 11 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.shadow-emerald-600\/20{--tw-shadow-color:rgb(5 150 105 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.outline-none{outline:2px solid transparent;outline-offset:2px}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.selection\:bg-sky-100 *::selection{--tw-bg-opacity:1;background-color:rgb(224 242 254 / var(--tw-bg-opacity, 1))}.selection\:text-sky-900 *::selection{--tw-text-opacity:1;color:rgb(12 74 110 / var(--tw-text-opacity, 1))}.selection\:bg-sky-100::selection{--tw-bg-opacity:1;background-color:rgb(224 242 254 / var(--tw-bg-opacity, 1))}.selection\:text-sky-900::selection{--tw-text-opacity:1;color:rgb(12 74 110 / var(--tw-text-opacity, 1))}.hover\:bg-amber-500:hover{--tw-bg-opacity:1;background-color:rgb(245 158 11 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-50:hover{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.hover\:from-emerald-500:hover{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-teal-500:hover{--tw-gradient-to:#14b8a6 var(--tw-gradient-to-position)}.hover\:text-sky-700:hover{--tw-text-opacity:1;color:rgb(3 105 161 / var(--tw-text-opacity, 1))}.hover\:text-slate-900:hover{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.focus\:border-amber-500:focus{--tw-border-opacity:1;border-color:rgb(245 158 11 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width: 640px){.sm\:block{display:block}.sm\:h-\[350px\]{height:350px}.sm\:h-\[360px\]{height:360px}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:p-4{padding:1rem}.sm\:p-5{padding:1.25rem}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}}@media (min-width: 768px){.md\:inline-block{display:inline-block}.md\:inline{display:inline}.md\:hidden{display:none}}@media (min-width: 1024px){.lg\:col-span-4{grid-column:span 4 / span 4}.lg\:col-span-8{grid-column:span 8 / span 8}.lg\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}.lg\:p-6{padding:1.5rem}}</style></head>
+<body class="min-h-screen flex flex-col antialiased bg-slate-50 selection:bg-sky-100 selection:text-sky-900">
+
+    <header class="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-orange-500 to-amber-700 flex items-center justify-center shadow-md shadow-amber-500/20 shrink-0">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="font-extrabold text-sm sm:text-base tracking-tight text-slate-900">
+                        Proctor Compaction <span class="text-amber-600">Test Studio</span>
+                    </h1>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-mono font-semibold hidden md:inline-block">
+                        ASTM D698 • D1557 • IS 2720 (Part VII/VIII)
+                    </span>
+                </div>
+                <p class="text-[11px] text-slate-500 font-medium hidden sm:block">
+                    Optimum Moisture Content (OMC) • Maximum Dry Density (MDD) • Zero Air Voids (ZAV) • Mechanical Energy Simulator
+                </p>
+            </div>
+        </div>
+
+        <!-- Mode Toggle & Direct Offline HTML Exporter -->
+        <div class="flex items-center gap-2.5">
+            <!-- Mode Switcher Tabs -->
+            <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
+                <button id="btn-mode-standard" onclick="switchProctorMode('standard')" class="px-3 py-1.5 rounded-lg transition-all bg-amber-600 text-white font-bold flex items-center gap-1.5 shadow-sm">
+                    Standard Proctor (Light)
+                </button>
+                <button id="btn-mode-modified" onclick="switchProctorMode('modified')" class="px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
+                    Modified Proctor (Heavy)
+                </button>
+            </div>
+
+            <!-- Direct 1-Click HTML File Downloader -->
+            <button onclick="downloadLaboratoryApp()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-600/20 flex items-center gap-1.5 transition transform active:scale-95 shrink-0" title="Download standalone offline HTML file">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                <span class="hidden md:inline">Download Studio (.html)</span>
+                <span class="md:hidden">Save</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-[1700px] w-full mx-auto p-3 sm:p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- =========================================================
+             LEFT PANEL: Controls, Soil Presets, & Custom Bench Entry
+             ========================================================= -->
+        <div class="lg:col-span-4 space-y-4">
+
+            <!-- Card 1: Soil Sample Preset Selection -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        1. Soil Classification &amp; Specific Gravity
+                    </h2>
+                    <span id="soil-classification-tag" class="text-[10px] font-mono text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-semibold">SM / Silty Sand</span>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] text-slate-600 font-semibold mb-1">Standard Geotechnical Soil Type:</label>
+                    <select id="preset-select" onchange="loadSoilPreset(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold focus:outline-none focus:border-amber-500 cursor-pointer">
+                        <option value="silty_sand" selected="">🏜️ Silty Sand / Sandy Loam (SM - Typical Embankment Fill)</option>
+                        <option value="gravelly_sand">🏖️ Well-Graded Sand / Subbase Gravel (GW-SW)</option>
+                        <option value="lean_clay">🧱 Low Plasticity Lean Clay (CL - Subgrade Standard)</option>
+                        <option value="black_cotton">🏺 High Plasticity Heavy Clay (CH - Black Cotton Soil)</option>
+                        <option value="custom">✏️ [Custom User Soil Specimen]</option>
+                    </select>
+                </div>
+
+                <!-- Soil Mineral & Phase Inputs -->
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-slate-600 font-semibold">Specific Gravity <span class="math-var">G_s</span>:</span>
+                            <span id="disp-gs" class="font-mono font-bold text-amber-700">2.68</span>
+                        </div>
+                        <input type="range" id="slider-gs" min="2.50" max="2.85" step="0.01" value="2.68" oninput="updateCompactionParameters()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-slate-600 font-semibold">Mould Volume <span class="math-var">V_m</span>:</span>
+                            <span id="disp-vm" class="font-mono font-bold text-slate-700">1000 cm³</span>
+                        </div>
+                        <select id="select-mould-vol" onchange="updateCompactionParameters()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono font-semibold">
+                            <option value="1000" selected="">1000 cm³ (Standard IS Mould, 100mm dia)</option>
+                            <option value="944">944 cm³ / 1/30 ft³ (ASTM 4-inch Mould)</option>
+                            <option value="2124">2124 cm³ / 1/13.33 ft³ (ASTM 6-inch Mould)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Soil Compaction Benchmark Indicator -->
+                <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 font-mono text-center">
+                    <div>
+                        <span class="text-[9px] text-slate-500 block uppercase">Expected OMC</span>
+                        <span id="disp-benchmark-omc" class="text-xs font-bold text-amber-700">13.5 %</span>
+                    </div>
+                    <div>
+                        <span class="text-[9px] text-slate-500 block uppercase">Expected MDD</span>
+                        <span id="disp-benchmark-mdd" class="text-xs font-bold text-slate-800">1.88 g/cm³</span>
+                    </div>
+                    <div>
+                        <span class="text-[9px] text-slate-500 block uppercase">Comp. Energy</span>
+                        <span id="disp-comp-energy" class="text-[10px] font-bold text-sky-700">593 kJ/m³</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Compactor Apparatus Specifications & Mechanical Action -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+                        2. Rammer Mechanical Energy &amp; Layers
+                    </h2>
+                    <span id="apparatus-label-badge" class="text-[10px] font-mono text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-semibold">Light Compaction (IS 2720-VII)</span>
+                </div>
+
+                <!-- Energy Physics Summary Grid -->
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2 text-xs">
+                    <div class="flex justify-between items-center text-slate-700">
+                        <span>Rammer Mass (<span class="math-var">M_r</span>):</span>
+                        <span id="disp-rammer-mass" class="font-mono font-bold text-slate-900">2.60 kg (5.5 lb)</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-700">
+                        <span>Drop Height (<span class="math-var">H_d</span>):</span>
+                        <span id="disp-drop-height" class="font-mono font-bold text-slate-900">310 mm (12.2 in)</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-700">
+                        <span>Compaction Layers (<span class="math-var">N_L</span>):</span>
+                        <span id="disp-layers-count" class="font-mono font-bold text-amber-700">3 Layers × 25 Blows</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-700 border-t border-slate-200 pt-1.5">
+                        <span class="font-bold text-slate-900">Total Nominal Energy Input:</span>
+                        <span id="disp-total-energy" class="font-mono font-bold text-sky-700">592.8 kJ/m³</span>
+                    </div>
+                </div>
+
+                <!-- Interactive Test Point Water Content Slider -->
+                <div class="space-y-2 pt-1 border-t border-slate-100">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-700 text-xs font-semibold flex items-center gap-1.5">
+                            Active Moisture Increment <span class="math-var !text-sky-700 !bg-sky-50 !border-sky-200">w</span>:
+                        </span>
+                        <span id="disp-active-w" class="font-mono font-bold text-sky-700 text-sm">8.0 %</span>
+                    </div>
+                    <input type="range" id="slider-active-w" min="4" max="28" step="0.5" value="13.5" oninput="setActiveMoistureStep(this.value)" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-[9px] text-slate-400 font-mono">
+                        <span>Dry of Optimum (4%)</span>
+                        <span class="text-amber-600 font-bold">Optimum Region</span>
+                        <span>Wet of Optimum (28%)</span>
+                    </div>
+                </div>
+
+                <!-- Compaction Action Animation Buttons -->
+                <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <button onclick="triggerRammerBlow()" id="btn-rammer-blow" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm">
+                        <span>🔨</span> <span>Drop Rammer Blow</span>
+                    </button>
+                    <button onclick="autoCompactMould()" id="btn-auto-compact" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition border border-slate-200">▶ Cycle 25 Blows</button>
+                    <button onclick="resetMouldAnimation()" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 font-semibold text-xs transition border border-slate-200" title="Reset Mould">
+                        ↺ Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 3: Laboratory Compaction Bench Data Sheet -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        3. Laboratory Bench Compaction Data Points
+                    </h3>
+                    <button onclick="resetDataPointsToPreset()" class="text-[10px] text-sky-600 hover:text-sky-700 font-mono underline font-medium">
+                        Reload Preset Points
+                    </button>
+                </div>
+
+                <p class="text-[11px] text-slate-600 leading-relaxed">
+                    Type your test runs below or click any point to populate. The studio dynamically solves for Bulk Density (<span class="math-var">ρ</span>), Dry Density (<span class="math-var">ρ_d</span>), Void Ratio (<span class="math-var">e</span>), and Degree of Saturation (<span class="math-var">S_r</span>).
+                </p>
+
+                <!-- Editable 5-Point Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] font-mono text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                                <th class="p-1.5">Pt</th>
+                                <th class="p-1.5">Water <span class="text-sky-700">w (%)</span></th>
+                                <th class="p-1.5">Wet Mass (g)</th>
+                                <th class="p-1.5">Dry <span class="text-amber-700">ρ_d (g/cm³)</span></th>
+                                <th class="p-1.5 text-center">Active</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-points-body" class="divide-y divide-slate-100"><tr class="bg-amber-50/80 font-bold">
+                    <td class="p-1.5 text-slate-400 font-sans">1</td>
+                    <td class="p-1.5">
+                        <input type="number" step="0.1" value="8.0" onchange="updatePointW(0, this.value)" class="w-16 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-sky-800 font-bold outline-none focus:border-amber-500">
+                    </td>
+                    <td class="p-1.5">
+                        <input type="number" step="5" value="1890" onchange="updatePointMass(0, this.value)" class="w-20 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-800 font-bold outline-none focus:border-amber-500">
+                    </td>
+                    <td class="p-1.5 text-emerald-700 font-bold">1.750</td>
+                    <td class="p-1.5 text-center">
+                        <button onclick="selectActiveTestPoint(0)" class="px-2 py-0.5 rounded text-[10px] bg-amber-600 text-white">
+                            Active
+                        </button>
+                    </td>
+                </tr><tr class="hover:bg-slate-50">
+                    <td class="p-1.5 text-slate-400 font-sans">2</td>
+                    <td class="p-1.5">
+                        <input type="number" step="0.1" value="10.5" onchange="updatePointW(1, this.value)" class="w-16 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-sky-800 font-bold outline-none focus:border-amber-500">
+                    </td>
+                    <td class="p-1.5">
+                        <input type="number" step="5" value="2040" onchange="updatePointMass(1, this.value)" class="w-20 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-800 font-bold outline-none focus:border-amber-500">
+                    </td>
+                    <td class="p-1.5 text-emerald-700 font-bold">1.846</td>
+                    <td class="p-1.5 text-center">
+                        <button onclick="selectActiveTestPoint(1)" class="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600 hover:bg-slate-200">
+                            Test
+                        </button>
+                    </td>
+                </tr><tr class="hover:bg-slate-50">
+                    <td class="p-1.5 text-slate-400 font-sans">3</td>
+                    <td class="p-1.5">
+                        <input type="number" step="0.1" value="13.5" onchange="updatePointW(2, this.value)" class="w-16 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-sky-800 font-bold outline-none focus:border-amber-500">
+                    </td>
+                    <td class="p-1.5">
+                        <input type="number" step="5" value="2135" onchange="updatePointMass(2, this.value)" class="w-20 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-800 font-bold outline-none focus:border-amber-500">
+                    </td>
+                    <td class="p-1.5 text-emerald-700 font-bold">1.881</td>
+                    <td class="p-1.5 text-center">
+                        <button onclick="selectActiveTestPoint(2)" class="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600 hover:bg-slate-200">
+                            Test
+                        </button>
+                    </td>
+                </tr><tr class="hover:bg-slate-50">
+                    <td class="p-1.5 text-slate-400 font-sans">4</td>
+                    <td class="p-1.5">
+                        <input type="number" step="0.1" value="16.0" onchange="updatePointW(3, this.value)" class="w-16 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-sky-800 font-bold outline-none focus:border-amber-500">
+                    </td>
+                    <td class="p-1.5">
+                        <input type="number" step="5" value="2110" onchange="updatePointMass(3, this.value)" class="w-20 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-800 font-bold outline-none focus:border-amber-500">
+                    </td>
+                    <td class="p-1.5 text-emerald-700 font-bold">1.819</td>
+                    <td class="p-1.5 text-center">
+                        <button onclick="selectActiveTestPoint(3)" class="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600 hover:bg-slate-200">
+                            Test
+                        </button>
+                    </td>
+                </tr><tr class="hover:bg-slate-50">
+                    <td class="p-1.5 text-slate-400 font-sans">5</td>
+                    <td class="p-1.5">
+                        <input type="number" step="0.1" value="19.0" onchange="updatePointW(4, this.value)" class="w-16 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-sky-800 font-bold outline-none focus:border-amber-500">
+                    </td>
+                    <td class="p-1.5">
+                        <input type="number" step="5" value="2035" onchange="updatePointMass(4, this.value)" class="w-20 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-800 font-bold outline-none focus:border-amber-500">
+                    </td>
+                    <td class="p-1.5 text-emerald-700 font-bold">1.710</td>
+                    <td class="p-1.5 text-center">
+                        <button onclick="selectActiveTestPoint(4)" class="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600 hover:bg-slate-200">
+                            Test
+                        </button>
+                    </td>
+                </tr></tbody>
+                    </table>
+                </div>
+
+                <!-- Add/Remove Point Buttons -->
+                <div class="flex justify-between items-center pt-1 text-xs">
+                    <button onclick="addNewTestPoint()" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] border border-slate-200">
+                        + Add Moisture Run
+                    </button>
+                    <span class="text-[10px] text-slate-400 font-mono">Formula: <span class="text-slate-600 font-bold">ρ_d = ρ / (1 + w)</span></span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- =========================================================
+             RIGHT PANEL: Interactive Mould Animation, Compaction Curve & ZAV
+             ========================================================= -->
+        <div class="lg:col-span-8 space-y-4">
+
+            <!-- STAGE 1: Dual Visual Canvas (Left: Mould & Rammer Physical Cross Section | Right: Soil Microstructure) -->
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+                <div class="px-4 py-2.5 bg-slate-100/80 border-b border-slate-200 flex items-center justify-between text-xs font-semibold flex-wrap gap-2">
+                    <span class="text-slate-800 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                        <span id="canvas-apparatus-title">Standard Proctor Cylindrical Mould (1000 cm³) &amp; Free-Fall Rammer Impact Simulator</span>
+                    </span>
+                    <div class="flex items-center gap-3 font-mono text-[11px]">
+                        <span class="text-slate-600">Blows Delivered: <strong id="disp-blows-count" class="text-amber-700">7 / 25</strong></span>
+                        <span class="text-slate-600">Active Layer: <strong id="disp-active-layer" class="text-sky-700">Layer 3 of 3</strong></span>
+                    </div>
+                </div>
+
+                <!-- Live State Status Strip Above Canvas -->
+                <div class="bg-slate-50/90 border-b border-slate-200 px-4 py-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] font-mono">
+                    <div class="bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
+                        <span class="text-[9px] text-slate-500 block uppercase font-sans font-bold">Water Content (w)</span>
+                        <span id="hud-moisture" class="font-bold text-sky-700">8.00 %</span>
+                    </div>
+                    <div class="bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
+                        <span class="text-[9px] text-slate-500 block uppercase font-sans font-bold">Wet Density (ρ)</span>
+                        <span id="hud-bulk-density" class="font-bold text-amber-700">1.893 g/cm³</span>
+                    </div>
+                    <div class="bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
+                        <span class="text-[9px] text-slate-500 block uppercase font-sans font-bold">Dry Density (ρ_d)</span>
+                        <span id="hud-dry-density" class="font-bold text-emerald-700">1.753 g/cm³</span>
+                    </div>
+                    <div class="bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
+                        <span class="text-[9px] text-slate-500 block uppercase font-sans font-bold">Saturation (S_r)</span>
+                        <span id="hud-saturation" class="font-bold text-purple-700">40.5 % (Dry of Opt)</span>
+                    </div>
+                </div>
+
+                <!-- Physical Simulation Stage: Mould, Free Fall Rammer & Soil Macro/Micro Fabric -->
+                <div class="relative w-full h-[320px] sm:h-[350px] bg-slate-50 overflow-hidden">
+                    <canvas id="proctorApparatusCanvas" class="w-full h-full block" width="1225" height="437"></canvas>
+
+                    <!-- Soil Fabric Structural Phase Callout Badge (Floating bottom-right) -->
+                    <div id="fabric-status-card" class="absolute bottom-2.5 right-3 bg-white/95 px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm text-[10px] font-mono text-slate-700 flex items-center gap-2.5 backdrop-blur pointer-events-none">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                        <span>Micro-Fabric: <strong id="disp-fabric-state" class="text-amber-700 font-bold">Flocculated Random (Dry of Optimum)</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STAGE 2: Scientific Compaction Curve & Zero Air Voids (ZAV) Graph Studio -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                            Dry Density vs. Moisture Content Compaction Curve &amp; Theoretical Saturation Lines
+                        </h3>
+                    </div>
+                    <!-- Degree of Saturation Curves Checkboxes -->
+                    <div class="flex items-center gap-2.5 text-[10px] font-mono">
+                        <label class="flex items-center gap-1 text-rose-700 font-semibold cursor-pointer">
+                            <input type="checkbox" id="check-zav-100" checked="" onchange="drawCompactionCurveChart()" class="rounded accent-rose-600">
+                            100% ZAV Line (S=1.0)
+                        </label>
+                        <label class="flex items-center gap-1 text-amber-700 font-semibold cursor-pointer">
+                            <input type="checkbox" id="check-zav-90" checked="" onchange="drawCompactionCurveChart()" class="rounded accent-amber-600">
+                            90% Saturation Line
+                        </label>
+                        <label class="flex items-center gap-1 text-slate-500 cursor-pointer">
+                            <input type="checkbox" id="check-zav-80" onchange="drawCompactionCurveChart()" class="rounded accent-slate-600">
+                            80% Line
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Compaction Graph Canvas -->
+                <div class="relative w-full h-[320px] sm:h-[360px] bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <canvas id="compactionCurveCanvas" class="w-full h-full block" width="1175" height="450"></canvas>
+                </div>
+
+                <!-- Solved OMC & MDD Geotechnical Readout HUD -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-amber-50/80 p-3 rounded-xl border border-amber-200">
+                        <span class="text-[10px] font-semibold text-amber-900 uppercase tracking-wider block">Optimum Moisture (<span class="math-code">OMC</span>)</span>
+                        <span id="telemetry-omc" class="text-lg sm:text-xl font-black font-mono text-amber-700">12.88 %</span>
+                        <span class="text-[9px] text-amber-700 block mt-0.5">Moisture at maximum dry density</span>
+                    </div>
+
+                    <div class="bg-emerald-50/80 p-3 rounded-xl border border-emerald-200">
+                        <span class="text-[10px] font-semibold text-emerald-900 uppercase tracking-wider block">Max Dry Density (<span class="math-code">MDD</span>)</span>
+                        <span id="telemetry-mdd-g" class="text-lg sm:text-xl font-black font-mono text-emerald-700">1.884 g/cm³</span>
+                        <span id="telemetry-mdd-kn" class="text-[9px] text-emerald-700 block mt-0.5 font-mono">18.47 kN/m³ (Unit Weight)</span>
+                    </div>
+
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Void Ratio at OMC (<span class="math-code">e_opt</span>)</span>
+                        <span id="telemetry-opt-e" class="text-lg sm:text-xl font-black font-mono text-slate-800">0.423</span>
+                        <span class="text-[9px] text-slate-500 block mt-0.5 font-mono">e = (G_s · ρ_w / ρ_d) − 1</span>
+                    </div>
+
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Saturation at OMC (<span class="math-code">S_r</span>)</span>
+                        <span id="telemetry-opt-sr" class="text-lg sm:text-xl font-black font-mono text-purple-700">81.6 %</span>
+                        <span class="text-[9px] text-slate-500 block mt-0.5 font-mono">S_r = (w · G_s) / e</span>
+                    </div>
+                </div>
+
+                <!-- Theory & Zero Air Voids Line Deep Dive Formula Box -->
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-1.5 font-mono">
+                        <span class="text-slate-800 font-bold">Governing Relationships: Soil Compaction &amp; Zero Air Voids (ZAV)</span>
+                        <span class="text-[10px] text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">Soil Mechanics Formulation</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-center font-mono font-bold text-slate-800 py-1">
+                        <div class="bg-white p-2 rounded-lg border border-slate-200 text-sky-800 shadow-2xs">
+                            Dry Density: ρ_d = ρ / (1 + w)
+                        </div>
+                        <div class="bg-white p-2 rounded-lg border border-slate-200 text-rose-800 shadow-2xs">
+                            Zero Air Voids: ρ_{zav} = (G_s · ρ_w) / (1 + w · G_s)
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-600 leading-relaxed">
+                        <strong>Why the compaction curve drops wet of optimum:</strong> Beyond the Optimum Moisture Content (<span class="math-var">OMC</span>), added water fills the interstitial void spaces between soil grains. Because water is incompressible under dynamic rammer blows and traps residual air bubbles, it forces soil particles apart, preventing further reduction in void ratio and causing dry density to decline parallel to the <strong class="text-rose-700">Zero Air Voids (ZAV) line</strong>. The curve can <em>never</em> cross or reach the 100% ZAV line in dynamic field or laboratory compaction because it is physically impossible to expel 100% of entrapped air bubbles by mechanical rolling or tamping alone!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Conceptual Cards: Standard vs Modified Proctor & Field Earthwork Significance -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-1.5 shadow-sm">
+                    <h4 class="font-bold text-amber-700 flex items-center gap-1.5">
+                        <span>🚜</span> Standard Proctor (ASTM D698 / IS 2720-VII)
+                    </h4>
+                    <p class="text-slate-600 leading-relaxed text-[11px]">
+                        Designed to simulate historical light compaction equipment. Employs a <strong>2.60 kg (5.5 lb)</strong> rammer falling through <strong>310 mm (12 in)</strong> onto <strong>3 soil layers</strong>, imparting a total nominal compactive energy of approximately <strong class="text-amber-800 font-mono">594 kJ/m³</strong>. Typical for earthen dams, agricultural embankments, and light subgrade fills.
+                    </p>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-1.5 shadow-sm">
+                    <h4 class="font-bold text-sky-700 flex items-center gap-1.5">
+                        <span>✈️</span> Modified Proctor (ASTM D1557 / IS 2720-VIII)
+                    </h4>
+                    <p class="text-slate-600 leading-relaxed text-[11px]">
+                        Developed during World War II for heavy aircraft runways and modern highway traffic. Uses a heavier <strong>4.89 kg (10.0 lb)</strong> rammer falling through <strong>450 mm (18 in)</strong> across <strong>5 soil layers</strong>, imparting approximately <strong class="text-sky-800 font-mono">2696 kJ/m³</strong> (over 4.5× more energy!). The increased compactive effort shifts the curve <strong>upward and to the left</strong> (higher MDD, lower OMC).
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Floating Footer -->
+    <footer class="mt-auto border-t border-slate-200 bg-white py-3 px-4 text-center text-xs text-slate-500 font-mono flex flex-col sm:flex-row items-center justify-between gap-2 max-w-[1700px] w-full mx-auto">
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span>Soil Mechanics Engine: <span class="text-slate-700 font-semibold">MDD / OMC Solver with ZAV Saturation Envelope</span></span>
+        </div>
+        <div>
+            Developed for Geotechnical &amp; Soil-Water Engineering Education &amp; Research
+        </div>
+    </footer>
+
+    <script>
+        // =============================================================
+        // 1. PHYSICAL CONSTANTS & SOIL DATABASE
+        // =============================================================
+        const SOIL_PRESETS = {
+            silty_sand: {
+                name: "Silty Sand / Sandy Loam",
+                tag: "SM / Silty Sand",
+                Gs: 2.68,
+                mouldVol: 1000,
+                // Standard Proctor Benchmark points
+                standardPoints: [
+                    { w: 8.0, wetMass: 1890 },
+                    { w: 10.5, wetMass: 2040 },
+                    { w: 13.5, wetMass: 2135 },
+                    { w: 16.0, wetMass: 2110 },
+                    { w: 19.0, wetMass: 2035 }
+                ],
+                // Modified Proctor Benchmark points (Higher MDD, Lower OMC)
+                modifiedPoints: [
+                    { w: 6.0, wetMass: 1960 },
+                    { w: 8.0, wetMass: 2110 },
+                    { w: 10.2, wetMass: 2210 },
+                    { w: 12.5, wetMass: 2170 },
+                    { w: 15.0, wetMass: 2100 }
+                ],
+                color: "#d97706"
+            },
+            gravelly_sand: {
+                name: "Well-Graded Sand / Gravel Subbase",
+                tag: "GW-SW / Granular",
+                Gs: 2.65,
+                mouldVol: 1000,
+                standardPoints: [
+                    { w: 5.5, wetMass: 1950 },
+                    { w: 7.5, wetMass: 2100 },
+                    { w: 9.8, wetMass: 2215 },
+                    { w: 12.0, wetMass: 2190 },
+                    { w: 14.5, wetMass: 2120 }
+                ],
+                modifiedPoints: [
+                    { w: 4.5, wetMass: 2040 },
+                    { w: 6.5, wetMass: 2190 },
+                    { w: 8.2, wetMass: 2285 },
+                    { w: 10.5, wetMass: 2240 },
+                    { w: 12.5, wetMass: 2170 }
+                ],
+                color: "#ca8a04"
+            },
+            lean_clay: {
+                name: "Low Plasticity Lean Clay",
+                tag: "CL / Lean Clay",
+                Gs: 2.70,
+                mouldVol: 1000,
+                standardPoints: [
+                    { w: 11.0, wetMass: 1840 },
+                    { w: 14.0, wetMass: 1980 },
+                    { w: 17.5, wetMass: 2070 },
+                    { w: 20.5, wetMass: 2045 },
+                    { w: 23.5, wetMass: 1970 }
+                ],
+                modifiedPoints: [
+                    { w: 8.5, wetMass: 1930 },
+                    { w: 11.5, wetMass: 2060 },
+                    { w: 14.0, wetMass: 2150 },
+                    { w: 16.5, wetMass: 2120 },
+                    { w: 19.5, wetMass: 2030 }
+                ],
+                color: "#b45309"
+            },
+            black_cotton: {
+                name: "High Plasticity Heavy Clay (Black Cotton)",
+                tag: "CH / Expansive Clay",
+                Gs: 2.74,
+                mouldVol: 1000,
+                standardPoints: [
+                    { w: 15.0, wetMass: 1720 },
+                    { w: 19.0, wetMass: 1860 },
+                    { w: 23.0, wetMass: 1940 },
+                    { w: 27.0, wetMass: 1910 },
+                    { w: 31.0, wetMass: 1840 }
+                ],
+                modifiedPoints: [
+                    { w: 12.0, wetMass: 1810 },
+                    { w: 15.5, wetMass: 1945 },
+                    { w: 18.5, wetMass: 2025 },
+                    { w: 22.0, wetMass: 1990 },
+                    { w: 25.5, wetMass: 1910 }
+                ],
+                color: "#78350f"
+            },
+            custom: {
+                name: "Custom Lab Specimen",
+                tag: "Custom Specimen",
+                Gs: 2.68,
+                mouldVol: 1000,
+                standardPoints: [
+                    { w: 9.0, wetMass: 1920 },
+                    { w: 11.5, wetMass: 2050 },
+                    { w: 14.0, wetMass: 2120 },
+                    { w: 16.5, wetMass: 2090 },
+                    { w: 19.5, wetMass: 2010 }
+                ],
+                modifiedPoints: [
+                    { w: 7.0, wetMass: 2010 },
+                    { w: 9.0, wetMass: 2140 },
+                    { w: 11.0, wetMass: 2200 },
+                    { w: 13.0, wetMass: 2160 },
+                    { w: 15.5, wetMass: 2080 }
+                ],
+                color: "#d97706"
+            }
+        };
+
+        let currentMode = "standard"; // 'standard' or 'modified'
+        let activePresetKey = "silty_sand";
+        let specificGravityGs = 2.68;
+        let mouldVolumeCm3 = 1000; // cm3
+        let activeMoistureW = 13.5; // %
+
+        // Compactor Mechanical Specs
+        let rammerMassKg = 2.60;
+        let dropHeightMm = 310;
+        let layersCount = 3;
+        let blowsPerLayer = 25;
+        let nominalCompactionEnergyKj = 594.4; // kJ/m3
+
+        // Current Experimental Points Table
+        let experimentalPoints = [];
+
+        // Solved Optimum Parameters
+        let solvedOMC = 13.5;
+        let solvedMDD = 1.882; // g/cm3
+
+        // Animation State for Mould & Rammer Canvas
+        let blowsDelivered = 0;
+        let activeLayerIndex = 1;
+        let rammerYNorm = 0.0; // 0.0 = Top of drop, 1.0 = impact with soil
+        let isRammerDropping = false;
+        let isAutoCompacting = false;
+        let lastRammerTimestamp = performance.now();
+
+        // Canvas references
+        const mouldCanvas = document.getElementById('proctorApparatusCanvas');
+        const mouldCtx = mouldCanvas.getContext('2d');
+        const curveCanvas = document.getElementById('compactionCurveCanvas');
+        const curveCtx = curveCanvas.getContext('2d');
+
+        // =============================================================
+        // 2. MATHEMATICAL & COMPACTION EQUATIONS ENGINE
+        // =============================================================
+        function updateCompactionParameters() {
+            specificGravityGs = parseFloat(document.getElementById('slider-gs').value);
+            document.getElementById('disp-gs').innerText = specificGravityGs.toFixed(2);
+            mouldVolumeCm3 = parseFloat(document.getElementById('select-mould-vol').value);
+            document.getElementById('disp-vm').innerText = `${mouldVolumeCm3} cm³`;
+
+            // Mechanical Energy E = (M * g * H * N_L * N_B) / V
+            const g = 9.80665; // m/s2
+            const totalBlows = layersCount * blowsPerLayer;
+            const energyJoules = rammerMassKg * g * (dropHeightMm / 1000.0) * totalBlows;
+            nominalCompactionEnergyKj = energyJoules / (mouldVolumeCm3 * 1e-6) / 1000.0; // kJ/m3
+
+            document.getElementById('disp-comp-energy').innerText = `${Math.round(nominalCompactionEnergyKj)} kJ/m³`;
+            document.getElementById('disp-total-energy').innerText = `${nominalCompactionEnergyKj.toFixed(1)} kJ/m³`;
+
+            solveCompactionCurve();
+            renderTablePoints();
+            drawCompactionCurveChart();
+        }
+
+        function solveCompactionCurve() {
+            if (experimentalPoints.length < 3) return;
+
+            // Compute dry density for each point: rho_d = (WetMass / V_m) / (1 + w / 100)
+            experimentalPoints.forEach(pt => {
+                const bulkDensity = pt.wetMass / mouldVolumeCm3; // g/cm3
+                pt.bulkDensity = bulkDensity;
+                pt.dryDensity = bulkDensity / (1.0 + (pt.w / 100.0));
+                // Void ratio e = (Gs * rho_w / rho_d) - 1
+                pt.voidRatio = (specificGravityGs * 1.0 / pt.dryDensity) - 1.0;
+                // Saturation Sr = (w * Gs) / e
+                pt.saturation = ((pt.w / 100.0) * specificGravityGs) / pt.voidRatio * 100.0;
+            });
+
+            // Fit a quadratic/cubic polynomial to find the true apex (MDD and OMC)
+            // Using a parabolic vertex approximation around top 3 points
+            const sorted = [...experimentalPoints].sort((a, b) => a.w - b.w);
+            let maxDry = -1;
+            let peakIdx = 1;
+
+            for (let i = 0; i < sorted.length; i++) {
+                if (sorted[i].dryDensity > maxDry) {
+                    maxDry = sorted[i].dryDensity;
+                    peakIdx = i;
+                }
+            }
+
+            // Quadratic vertex fit through (x1,y1), (x2,y2), (x3,y3)
+            const p1 = sorted[Math.max(0, peakIdx - 1)];
+            const p2 = sorted[peakIdx];
+            const p3 = sorted[Math.min(sorted.length - 1, peakIdx + 1)];
+
+            if (p1 !== p2 && p2 !== p3) {
+                const denom = (p1.w - p2.w) * (p1.w - p3.w) * (p2.w - p3.w);
+                const A = (p3.w * (p2.dryDensity - p1.dryDensity) + p2.w * (p1.dryDensity - p3.dryDensity) + p1.w * (p3.dryDensity - p2.dryDensity)) / denom;
+                const B = (p3.w*p3.w * (p1.dryDensity - p2.dryDensity) + p2.w*p2.w * (p3.dryDensity - p1.dryDensity) + p1.w*p1.w * (p2.dryDensity - p3.dryDensity)) / denom;
+                const C = (p2.w * p3.w * (p2.w - p3.w) * p1.dryDensity + p3.w * p1.w * (p3.w - p1.w) * p2.dryDensity + p1.w * p2.w * (p1.w - p2.w) * p3.dryDensity) / denom;
+
+                if (A < 0) { // Concave downward
+                    solvedOMC = -B / (2 * A);
+                    solvedMDD = C - (B * B) / (4 * A);
+                } else {
+                    solvedOMC = p2.w;
+                    solvedMDD = p2.dryDensity;
+                }
+            } else {
+                solvedOMC = p2.w;
+                solvedMDD = p2.dryDensity;
+            }
+
+            // Clamp reasonable physical limits
+            solvedMDD = Math.max(1.2, Math.min(2.4, solvedMDD));
+            solvedOMC = Math.max(4.0, Math.min(35.0, solvedOMC));
+
+            // Derived unit weight in kN/m3 (1 g/cm3 = 9.80665 kN/m3)
+            const mddKn = solvedMDD * 9.80665;
+            const optVoidRatio = (specificGravityGs * 1.0 / solvedMDD) - 1.0;
+            const optSaturation = ((solvedOMC / 100.0) * specificGravityGs) / optVoidRatio * 100.0;
+
+            document.getElementById('telemetry-omc').innerText = `${solvedOMC.toFixed(2)} %`;
+            document.getElementById('telemetry-mdd-g').innerText = `${solvedMDD.toFixed(3)} g/cm³`;
+            document.getElementById('telemetry-mdd-kn').innerText = `${mddKn.toFixed(2)} kN/m³ (Unit Weight)`;
+            document.getElementById('telemetry-opt-e').innerText = optVoidRatio.toFixed(3);
+            document.getElementById('telemetry-opt-sr').innerText = `${optSaturation.toFixed(1)} %`;
+
+            updateHudMetrics(activeMoistureW);
+        }
+
+        function updateHudMetrics(wVal) {
+            // Estimate dry density at this active moisture level using the fitted curve
+            const rho_d = getFittedDryDensity(wVal);
+            const rho_wet = rho_d * (1.0 + wVal / 100.0);
+            const e = (specificGravityGs * 1.0 / rho_d) - 1.0;
+            const sr = ((wVal / 100.0) * specificGravityGs) / Math.max(0.01, e) * 100.0;
+
+            document.getElementById('hud-moisture').innerText = `${wVal.toFixed(2)} %`;
+            document.getElementById('hud-bulk-density').innerText = `${rho_wet.toFixed(3)} g/cm³`;
+            document.getElementById('hud-dry-density').innerText = `${rho_d.toFixed(3)} g/cm³`;
+            
+            let satText = `${Math.min(99.9, sr).toFixed(1)} %`;
+            if (wVal < solvedOMC - 2.5) {
+                satText += " (Dry of Opt)";
+                document.getElementById('disp-fabric-state').innerText = "Flocculated Random (Dry of Optimum)";
+                document.getElementById('disp-fabric-state').className = "text-amber-700 font-bold";
+            } else if (wVal > solvedOMC + 2.5) {
+                satText += " (Wet of Opt)";
+                document.getElementById('disp-fabric-state').innerText = "Dispersed Oriented (Wet of Optimum)";
+                document.getElementById('disp-fabric-state').className = "text-sky-700 font-bold";
+            } else {
+                satText += " (Optimal Packing)";
+                document.getElementById('disp-fabric-state').innerText = "Dense Closed Packing (Near OMC)";
+                document.getElementById('disp-fabric-state').className = "text-emerald-700 font-bold";
+            }
+            document.getElementById('hud-saturation').innerText = satText;
+        }
+
+        function getFittedDryDensity(w) {
+            // Distance from OMC in moisture space
+            const deltaW = w - solvedOMC;
+            // Skewed parabola: drops steeper dry of optimum for granular, flatter wet of optimum parallel to ZAV
+            const curvature = deltaW < 0 ? 0.0055 : 0.0035;
+            return Math.max(1.1, solvedMDD - curvature * Math.pow(deltaW, 2));
+        }
+
+        // =============================================================
+        // 3. TABLE POINTS & PRESET MANAGEMENT
+        // =============================================================
+        function loadSoilPreset(key) {
+            activePresetKey = key;
+            const preset = SOIL_PRESETS[key];
+            document.getElementById('soil-classification-tag').innerText = preset.tag;
+            document.getElementById('slider-gs').value = preset.Gs;
+            document.getElementById('disp-gs').innerText = preset.Gs.toFixed(2);
+
+            resetDataPointsToPreset();
+        }
+
+        function resetDataPointsToPreset() {
+            const preset = SOIL_PRESETS[activePresetKey];
+            const pts = currentMode === "standard" ? preset.standardPoints : preset.modifiedPoints;
+            experimentalPoints = JSON.parse(JSON.stringify(pts));
+
+            document.getElementById('disp-benchmark-omc').innerText = `${pts[2].w.toFixed(1)} %`;
+            document.getElementById('disp-benchmark-mdd').innerText = `${(pts[2].wetMass / mouldVolumeCm3 / (1 + pts[2].w / 100)).toFixed(2)} g/cm³`;
+
+            setActiveMoistureStep(pts[2].w);
+            updateCompactionParameters();
+        }
+
+        function renderTablePoints() {
+            const tbody = document.getElementById('table-points-body');
+            tbody.innerHTML = '';
+
+            experimentalPoints.forEach((pt, index) => {
+                const tr = document.createElement('tr');
+                tr.className = Math.abs(pt.w - activeMoistureW) < 0.2 ? "bg-amber-50/80 font-bold" : "hover:bg-slate-50";
+
+                tr.innerHTML = `
+                    <td class="p-1.5 text-slate-400 font-sans">${index + 1}</td>
+                    <td class="p-1.5">
+                        <input type="number" step="0.1" value="${pt.w.toFixed(1)}" onchange="updatePointW(${index}, this.value)" class="w-16 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-sky-800 font-bold outline-none focus:border-amber-500">
+                    </td>
+                    <td class="p-1.5">
+                        <input type="number" step="5" value="${pt.wetMass}" onchange="updatePointMass(${index}, this.value)" class="w-20 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-800 font-bold outline-none focus:border-amber-500">
+                    </td>
+                    <td class="p-1.5 text-emerald-700 font-bold">${pt.dryDensity ? pt.dryDensity.toFixed(3) : '--'}</td>
+                    <td class="p-1.5 text-center">
+                        <button onclick="selectActiveTestPoint(${index})" class="px-2 py-0.5 rounded text-[10px] ${Math.abs(pt.w - activeMoistureW) < 0.2 ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                            ${Math.abs(pt.w - activeMoistureW) < 0.2 ? 'Active' : 'Test'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updatePointW(index, val) {
+            experimentalPoints[index].w = parseFloat(val) || 0;
+            updateCompactionParameters();
+        }
+
+        function updatePointMass(index, val) {
+            experimentalPoints[index].wetMass = parseFloat(val) || 0;
+            updateCompactionParameters();
+        }
+
+        function selectActiveTestPoint(index) {
+            setActiveMoistureStep(experimentalPoints[index].w);
+        }
+
+        function addNewTestPoint() {
+            const last = experimentalPoints[experimentalPoints.length - 1];
+            const nextW = last ? last.w + 2.5 : 12.0;
+            const nextMass = last ? Math.round(last.wetMass * 0.97) : 2000;
+            experimentalPoints.push({ w: nextW, wetMass: nextMass });
+            updateCompactionParameters();
+        }
+
+        function setActiveMoistureStep(wVal) {
+            activeMoistureW = parseFloat(wVal);
+            document.getElementById('slider-active-w').value = activeMoistureW;
+            document.getElementById('disp-active-w').innerText = `${activeMoistureW.toFixed(1)} %`;
+
+            updateHudMetrics(activeMoistureW);
+            renderTablePoints();
+            drawCompactionCurveChart();
+        }
+
+        // =============================================================
+        // 4. MODE SWITCHER: STANDARD VS MODIFIED PROCTOR
+        // =============================================================
+        function switchProctorMode(mode) {
+            currentMode = mode;
+            const btnStd = document.getElementById('btn-mode-standard');
+            const btnMod = document.getElementById('btn-mode-modified');
+            const badge = document.getElementById('apparatus-label-badge');
+            const title = document.getElementById('canvas-apparatus-title');
+
+            if (mode === "standard") {
+                btnStd.className = "px-3 py-1.5 rounded-lg transition-all bg-amber-600 text-white font-bold flex items-center gap-1.5 shadow-sm";
+                btnMod.className = "px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5";
+                badge.innerText = "Light Compaction (IS 2720-VII)";
+                title.innerText = "Standard Proctor Cylindrical Mould (1000 cm³) & Free-Fall Rammer Impact Simulator";
+
+                rammerMassKg = 2.60;
+                dropHeightMm = 310;
+                layersCount = 3;
+                blowsPerLayer = 25;
+
+                document.getElementById('disp-rammer-mass').innerText = "2.60 kg (5.5 lb)";
+                document.getElementById('disp-drop-height').innerText = "310 mm (12.2 in)";
+                document.getElementById('disp-layers-count').innerText = "3 Layers × 25 Blows";
+            } else {
+                btnStd.className = "px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5";
+                btnMod.className = "px-3 py-1.5 rounded-lg transition-all bg-sky-600 text-white font-bold flex items-center gap-1.5 shadow-sm";
+                badge.innerText = "Heavy Compaction (IS 2720-VIII)";
+                title.innerText = "Modified Proctor Heavy Compaction Mould & 4.89 kg Rammer Simulator";
+
+                rammerMassKg = 4.89;
+                dropHeightMm = 450;
+                layersCount = 5;
+                blowsPerLayer = 25;
+
+                document.getElementById('disp-rammer-mass').innerText = "4.89 kg (10.0 lb)";
+                document.getElementById('disp-drop-height').innerText = "450 mm (17.7 in)";
+                document.getElementById('disp-layers-count').innerText = "5 Layers × 25 Blows";
+            }
+
+            resetDataPointsToPreset();
+            resetMouldAnimation();
+        }
+
+        // =============================================================
+        // 5. ANIMATED MOULD & RAMMER IMPACT CANVAS
+        // =============================================================
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+
+            // Mould canvas
+            const mRect = mouldCanvas.parentElement.getBoundingClientRect();
+            mouldCanvas.width = mRect.width * dpr;
+            mouldCanvas.height = mRect.height * dpr;
+            mouldCtx.resetTransform();
+            mouldCtx.scale(dpr, dpr);
+
+            // Curve canvas
+            const cRect = curveCanvas.parentElement.getBoundingClientRect();
+            curveCanvas.width = cRect.width * dpr;
+            curveCanvas.height = cRect.height * dpr;
+            curveCtx.resetTransform();
+            curveCtx.scale(dpr, dpr);
+
+            drawMouldApparatus();
+            drawCompactionCurveChart();
+        }
+
+        function drawMouldApparatus() {
+            const w = mouldCanvas.parentElement.getBoundingClientRect().width;
+            const h = mouldCanvas.parentElement.getBoundingClientRect().height;
+            mouldCtx.clearRect(0, 0, w, h);
+
+            // Lab Bench Background
+            const bgGrad = mouldCtx.createLinearGradient(0, 0, 0, h);
+            bgGrad.addColorStop(0, '#f8fafc');
+            bgGrad.addColorStop(1, '#f1f5f9');
+            mouldCtx.fillStyle = bgGrad;
+            mouldCtx.fillRect(0, 0, w, h);
+
+            // Technical Grid
+            mouldCtx.strokeStyle = '#e2e8f0';
+            mouldCtx.lineWidth = 0.5;
+            for (let x = 0; x < w; x += 30) {
+                mouldCtx.beginPath(); mouldCtx.moveTo(x, 0); mouldCtx.lineTo(x, h); mouldCtx.stroke();
+            }
+            for (let y = 0; y < h; y += 30) {
+                mouldCtx.beginPath(); mouldCtx.moveTo(0, y); mouldCtx.lineTo(w, y); mouldCtx.stroke();
+            }
+
+            // Central Coordinates for Mould
+            const mouldW = Math.min(170, w * 0.28);
+            const mouldH = 150;
+            const mouldX = w * 0.35 - (mouldW / 2);
+            const mouldY = h * 0.88 - mouldH;
+
+            // Base plate
+            mouldCtx.fillStyle = '#64748b';
+            mouldCtx.fillRect(mouldX - 25, mouldY + mouldH, mouldW + 50, 16);
+            mouldCtx.strokeStyle = '#334155';
+            mouldCtx.lineWidth = 1.5;
+            mouldCtx.strokeRect(mouldX - 25, mouldY + mouldH, mouldW + 50, 16);
+
+            // Side Metal Mould Wall Shell
+            mouldCtx.fillStyle = 'rgba(226, 232, 240, 0.85)';
+            mouldCtx.fillRect(mouldX, mouldY, mouldW, mouldH);
+
+            // Mould Extension Collar (Top 50mm collar)
+            const collarH = 35;
+            mouldCtx.fillStyle = 'rgba(203, 213, 225, 0.7)';
+            mouldCtx.fillRect(mouldX - 4, mouldY - collarH, mouldW + 8, collarH);
+            mouldCtx.strokeStyle = '#475569';
+            mouldCtx.strokeRect(mouldX - 4, mouldY - collarH, mouldW + 8, collarH);
+
+            mouldCtx.fillStyle = '#475569';
+            mouldCtx.font = 'bold 8.5px JetBrains Mono';
+            mouldCtx.fillText("Extension Collar", mouldX + mouldW + 10, mouldY - collarH / 2);
+
+            // Soil Layers Fill
+            const soil = SOIL_PRESETS[activePresetKey];
+            const maxFillHeight = mouldH; // Complete volume
+            const layerHeight = maxFillHeight / layersCount;
+            const completedLayers = activeLayerIndex - 1;
+            const activeProgress = (blowsDelivered / blowsPerLayer);
+
+            // Render existing compacted layers
+            for (let l = 0; l < completedLayers; l++) {
+                const layerBottomY = mouldY + mouldH - (l * layerHeight);
+                mouldCtx.fillStyle = soil.color;
+                mouldCtx.fillRect(mouldX + 2, layerBottomY - layerHeight, mouldW - 4, layerHeight);
+                // Compaction boundary line
+                mouldCtx.strokeStyle = '#78350f';
+                mouldCtx.lineWidth = 1;
+                mouldCtx.setLineDash([2, 3]);
+                mouldCtx.beginPath();
+                mouldCtx.moveTo(mouldX + 4, layerBottomY - layerHeight);
+                mouldCtx.lineTo(mouldX + mouldW - 4, layerBottomY - layerHeight);
+                mouldCtx.stroke();
+                mouldCtx.setLineDash([]);
+            }
+
+            // Current Active Layer Soil Level
+            const currentLayerBottom = mouldY + mouldH - (completedLayers * layerHeight);
+            const activeFillH = layerHeight * Math.min(1.0, 0.3 + (activeProgress * 0.7));
+            mouldCtx.fillStyle = soil.color;
+            mouldCtx.fillRect(mouldX + 2, currentLayerBottom - activeFillH, mouldW - 4, activeFillH);
+
+            // Soil grain texture
+            mouldCtx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            for (let gy = mouldY + mouldH - 6; gy > currentLayerBottom - activeFillH + 6; gy -= 12) {
+                for (let gx = mouldX + 10; gx < mouldX + mouldW - 10; gx += 14) {
+                    mouldCtx.beginPath();
+                    mouldCtx.arc(gx + ((gy % 5) * 2), gy, 1.8, 0, Math.PI * 2);
+                    mouldCtx.fill();
+                }
+            }
+
+            // Outer Steel Mould Walls
+            mouldCtx.strokeStyle = '#334155';
+            mouldCtx.lineWidth = 2.5;
+            mouldCtx.strokeRect(mouldX, mouldY, mouldW, mouldH);
+
+            // Wingnuts & Clamps on Mould
+            mouldCtx.fillStyle = '#475569';
+            mouldCtx.fillRect(mouldX - 12, mouldY + mouldH / 2 - 8, 10, 16);
+            mouldCtx.fillRect(mouldX + mouldW + 2, mouldY + mouldH / 2 - 8, 10, 16);
+
+            // Dynamic Rammer & Free-Fall Sleeve
+            const currentSoilTopY = currentLayerBottom - activeFillH;
+            const dropTopY = currentSoilTopY - (dropHeightMm * 0.38);
+            const rammerY = dropTopY + (rammerYNorm * (currentSoilTopY - dropTopY));
+
+            // Guide Sleeve (Transparent cylinder)
+            const rammerW = mouldW * 0.45;
+            const rammerX = mouldX + (mouldW / 2) - (rammerW / 2);
+            mouldCtx.strokeStyle = 'rgba(100, 116, 139, 0.5)';
+            mouldCtx.lineWidth = 1.2;
+            mouldCtx.strokeRect(rammerX - 2, dropTopY - 20, rammerW + 4, (currentSoilTopY - dropTopY) + 40);
+
+            // Rammer Drop Distance Dimension Bracket
+            mouldCtx.strokeStyle = '#0284c7';
+            mouldCtx.lineWidth = 1.2;
+            mouldCtx.beginPath();
+            mouldCtx.moveTo(mouldX - 35, dropTopY);
+            mouldCtx.lineTo(mouldX - 35, currentSoilTopY);
+            mouldCtx.moveTo(mouldX - 40, dropTopY);
+            mouldCtx.lineTo(mouldX - 30, dropTopY);
+            mouldCtx.moveTo(mouldX - 40, currentSoilTopY);
+            mouldCtx.lineTo(mouldX - 30, currentSoilTopY);
+            mouldCtx.stroke();
+
+            mouldCtx.fillStyle = '#0369a1';
+            mouldCtx.font = 'bold 9px JetBrains Mono';
+            mouldCtx.fillText(`Drop = ${dropHeightMm} mm`, mouldX - 125, (dropTopY + currentSoilTopY) / 2 + 3);
+
+            // Solid Rammer Foot & Shaft
+            mouldCtx.fillStyle = '#334155';
+            mouldCtx.fillRect(rammerX, rammerY - 25, rammerW, 25); // Rammer base foot
+            mouldCtx.fillRect(rammerX + (rammerW / 2) - 4, rammerY - 110, 8, 85); // Rammer rod shaft
+            mouldCtx.fillStyle = '#1e293b';
+            mouldCtx.fillRect(rammerX + (rammerW / 2) - 18, rammerY - 120, 36, 12); // Handle knob
+
+            // Rammer Impact Ripple Effect
+            if (rammerYNorm > 0.95) {
+                mouldCtx.strokeStyle = '#f59e0b';
+                mouldCtx.lineWidth = 2.5;
+                mouldCtx.beginPath();
+                mouldCtx.ellipse(mouldX + mouldW / 2, currentSoilTopY, mouldW * 0.4, 6, 0, 0, Math.PI * 2);
+                mouldCtx.stroke();
+            }
+
+            // ---------------------------------------------------------
+            // MICROSTRUCTURE VISUALIZATION (Right Side: Soil Particle Fabric)
+            // ---------------------------------------------------------
+            const microX = w * 0.76;
+            const microY = h * 0.48;
+            const microRadius = Math.min(80, w * 0.16);
+
+            // Circular Microscope Viewport
+            mouldCtx.fillStyle = '#ffffff';
+            mouldCtx.beginPath();
+            mouldCtx.arc(microX, microY, microRadius, 0, Math.PI * 2);
+            mouldCtx.fill();
+            mouldCtx.strokeStyle = '#cbd5e1';
+            mouldCtx.lineWidth = 3;
+            mouldCtx.stroke();
+
+            // Render Soil Particles according to fabric regime
+            mouldCtx.save();
+            mouldCtx.beginPath();
+            mouldCtx.arc(microX, microY, microRadius - 2, 0, Math.PI * 2);
+            mouldCtx.clip();
+
+            // Water Meniscus Background in Pores
+            const waterRatio = Math.min(1.0, activeMoistureW / 25.0);
+            mouldCtx.fillStyle = `rgba(56, 189, 248, ${0.15 + waterRatio * 0.45})`;
+            mouldCtx.fillRect(microX - microRadius, microY - microRadius, microRadius * 2, microRadius * 2);
+
+            // Soil Grain Alignment: Random/Flocculated vs Oriented/Dispersed
+            const isFlocculated = activeMoistureW < (solvedOMC - 1.5);
+            const isDispersed = activeMoistureW > (solvedOMC + 1.5);
+
+            mouldCtx.fillStyle = soil.color;
+            mouldCtx.strokeStyle = '#451a03';
+            mouldCtx.lineWidth = 1.0;
+
+            const numGrains = 28;
+            for (let i = 0; i < numGrains; i++) {
+                const angle = (i / numGrains) * Math.PI * 2;
+                const r = ((i * 17) % (microRadius - 18)) + 10;
+                const gx = microX + Math.cos(angle) * r;
+                const gy = microY + Math.sin(angle) * r;
+
+                mouldCtx.save();
+                mouldCtx.translate(gx, gy);
+                // If dispersed (wet side), particles orient horizontally parallel to shear; if flocculated, edge-to-face random
+                const grainRot = isDispersed ? ((i % 3) * 0.1) : (i * 1.3);
+                mouldCtx.rotate(grainRot);
+
+                mouldCtx.beginPath();
+                mouldCtx.ellipse(0, 0, 10, isFlocculated ? 7 : 4, 0, 0, Math.PI * 2);
+                mouldCtx.fill();
+                mouldCtx.stroke();
+                mouldCtx.restore();
+            }
+            mouldCtx.restore();
+
+            // Microscope Viewport Label
+            mouldCtx.fillStyle = '#334155';
+            mouldCtx.font = 'bold 9.5px JetBrains Mono';
+            mouldCtx.fillText("SOIL MICRO-FABRIC (PORE SPACE)", microX - 78, microY + microRadius + 16);
+            mouldCtx.fillStyle = '#64748b';
+            mouldCtx.font = '8.5px JetBrains Mono';
+            mouldCtx.fillText(`Degree of Saturation Sr = ${document.getElementById('hud-saturation').innerText.split(' ')[0]}`, microX - 78, microY + microRadius + 28);
+        }
+
+        // =============================================================
+        // 6. SCIENTIFIC COMPACTION CURVE & ZAV GRAPH RENDERER
+        // =============================================================
+        function drawCompactionCurveChart() {
+            const w = curveCanvas.parentElement.getBoundingClientRect().width;
+            const h = curveCanvas.parentElement.getBoundingClientRect().height;
+            curveCtx.clearRect(0, 0, w, h);
+
+            const padL = 60;
+            const padR = 40;
+            const padT = 30;
+            const padB = 45;
+
+            const plotW = w - padL - padR;
+            const plotH = h - padT - padB;
+
+            // Moisture Axis (X): 4% to 30%
+            const minW = 4.0;
+            const maxW = 30.0;
+            // Dry Density Axis (Y): 1.30 to 2.25 g/cm3
+            const minRho = 1.30;
+            const maxRho = 2.25;
+
+            const getX = wVal => padL + ((wVal - minW) / (maxW - minW)) * plotW;
+            const getY = rhoVal => padT + plotH - ((rhoVal - minRho) / (maxRho - minRho)) * plotH;
+
+            // A. Grid & Axes
+            curveCtx.strokeStyle = '#f1f5f9';
+            curveCtx.lineWidth = 1.0;
+            curveCtx.fillStyle = '#64748b';
+            curveCtx.font = '9px JetBrains Mono';
+
+            // X-Ticks: Moisture %
+            for (let mw = 4; mw <= 30; mw += 2) {
+                const x = getX(mw);
+                curveCtx.beginPath(); curveCtx.moveTo(x, padT); curveCtx.lineTo(x, padT + plotH); curveCtx.stroke();
+                curveCtx.fillText(`${mw}%`, x - 8, padT + plotH + 16);
+            }
+            curveCtx.fillText("Moisture Content w (%)", padL + plotW / 2 - 55, padT + plotH + 34);
+
+            // Y-Ticks: Dry Density g/cm3
+            for (let r = 1.40; r <= 2.20; r += 0.10) {
+                const y = getY(r);
+                curveCtx.beginPath(); curveCtx.moveTo(padL, y); curveCtx.lineTo(padL + plotW, y); curveCtx.stroke();
+                curveCtx.fillText(r.toFixed(2), 22, y + 3);
+            }
+
+            curveCtx.save();
+            curveCtx.translate(14, padT + plotH / 2);
+            curveCtx.rotate(-Math.PI / 2);
+            curveCtx.fillText("Dry Density ρ_d (g/cm³)", -60, 0);
+            curveCtx.restore();
+
+            // Right secondary axis for Unit Weight (kN/m3)
+            curveCtx.fillStyle = '#94a3b8';
+            curveCtx.font = '8px JetBrains Mono';
+            for (let r = 1.40; r <= 2.20; r += 0.20) {
+                const y = getY(r);
+                const kn = (r * 9.80665).toFixed(1);
+                curveCtx.fillText(`${kn} kN`, w - padR + 6, y + 3);
+            }
+
+            // B. Theoretical Degree of Saturation Lines (ZAV: Zero Air Voids)
+            // Formula: rho_d = (Gs * rho_w) / (1 + (w * Gs / S))
+            const drawSaturationLine = (S_fraction, colorHex, dashPattern, labelText) => {
+                curveCtx.strokeStyle = colorHex;
+                curveCtx.lineWidth = 1.6;
+                curveCtx.setLineDash(dashPattern);
+                curveCtx.beginPath();
+
+                let started = false;
+                for (let mw = minW; mw <= maxW; mw += 0.5) {
+                    const rho_zav = (specificGravityGs * 1.0) / (1.0 + ((mw / 100.0) * specificGravityGs) / S_fraction);
+                    if (rho_zav >= minRho && rho_zav <= maxRho) {
+                        const x = getX(mw);
+                        const y = getY(rho_zav);
+                        if (!started) { curveCtx.moveTo(x, y); started = true; }
+                        else { curveCtx.lineTo(x, y); }
+                    }
+                }
+                curveCtx.stroke();
+                curveCtx.setLineDash([]);
+
+                // Label at end of line
+                const endW = maxW - 2.0;
+                const endRho = (specificGravityGs * 1.0) / (1.0 + ((endW / 100.0) * specificGravityGs) / S_fraction);
+                if (endRho >= minRho && endRho <= maxRho) {
+                    curveCtx.fillStyle = colorHex;
+                    curveCtx.fillText(labelText, getX(endW) - 60, getY(endRho) - 6);
+                }
+            };
+
+            if (document.getElementById('check-zav-100').checked) {
+                drawSaturationLine(1.0, '#e11d48', [], "ZAV (S=100%)");
+            }
+            if (document.getElementById('check-zav-90').checked) {
+                drawSaturationLine(0.90, '#d97706', [4, 4], "S = 90%");
+            }
+            if (document.getElementById('check-zav-80').checked) {
+                drawSaturationLine(0.80, '#64748b', [2, 3], "S = 80%");
+            }
+
+            // C. Smooth Continuous Compaction Curve (Fitted Profile)
+            curveCtx.strokeStyle = currentMode === "standard" ? '#d97706' : '#0284c7';
+            curveCtx.lineWidth = 3.0;
+            curveCtx.beginPath();
+
+            for (let mw = minW; mw <= maxW; mw += 0.25) {
+                const rho = getFittedDryDensity(mw);
+                const x = getX(mw);
+                const y = getY(rho);
+                if (mw === minW) curveCtx.moveTo(x, y);
+                else curveCtx.lineTo(x, y);
+            }
+            curveCtx.stroke();
+
+            // Compaction curve shaded area
+            curveCtx.fillStyle = currentMode === "standard" ? 'rgba(217, 119, 6, 0.08)' : 'rgba(2, 132, 199, 0.08)';
+            curveCtx.lineTo(getX(maxW), padT + plotH);
+            curveCtx.lineTo(getX(minW), padT + plotH);
+            curveCtx.closePath();
+            curveCtx.fill();
+
+            // D. Plot Experimental Laboratory Points
+            experimentalPoints.forEach((pt, i) => {
+                if (pt.w >= minW && pt.w <= maxW && pt.dryDensity >= minRho && pt.dryDensity <= maxRho) {
+                    const x = getX(pt.w);
+                    const y = getY(pt.dryDensity);
+
+                    // Circle marker
+                    curveCtx.fillStyle = '#0f172a';
+                    curveCtx.beginPath();
+                    curveCtx.arc(x, y, 4.5, 0, Math.PI * 2);
+                    curveCtx.fill();
+                    curveCtx.strokeStyle = '#ffffff';
+                    curveCtx.lineWidth = 1.8;
+                    curveCtx.stroke();
+
+                    // Label point
+                    curveCtx.fillStyle = '#334155';
+                    curveCtx.font = 'bold 8.5px JetBrains Mono';
+                    curveCtx.fillText(`P${i+1}`, x + 6, y - 5);
+                }
+            });
+
+            // E. Peak Marker (OMC & MDD Drop lines)
+            const xOpt = getX(solvedOMC);
+            const yOpt = getY(solvedMDD);
+
+            // Dashed Drop lines to axes
+            curveCtx.strokeStyle = '#059669';
+            curveCtx.lineWidth = 1.4;
+            curveCtx.setLineDash([3, 3]);
+            curveCtx.beginPath();
+            curveCtx.moveTo(xOpt, yOpt);
+            curveCtx.lineTo(xOpt, padT + plotH);
+            curveCtx.moveTo(xOpt, yOpt);
+            curveCtx.lineTo(padL, yOpt);
+            curveCtx.stroke();
+            curveCtx.setLineDash([]);
+
+            // Peak Star Marker
+            curveCtx.fillStyle = '#059669';
+            curveCtx.beginPath();
+            curveCtx.arc(xOpt, yOpt, 6.5, 0, Math.PI * 2);
+            curveCtx.fill();
+            curveCtx.strokeStyle = '#ffffff';
+            curveCtx.lineWidth = 2.0;
+            curveCtx.stroke();
+
+            // OMC and MDD Callout Badge
+            curveCtx.fillStyle = '#065f46';
+            curveCtx.font = 'bold 10px JetBrains Mono';
+            curveCtx.fillText(`MDD = ${solvedMDD.toFixed(3)} g/cm³`, xOpt + 10, yOpt - 8);
+            curveCtx.fillStyle = '#047857';
+            curveCtx.font = 'bold 9px JetBrains Mono';
+            curveCtx.fillText(`OMC = ${solvedOMC.toFixed(1)}%`, xOpt + 10, yOpt + 6);
+
+            // Active Slider Target Needle
+            const xActive = getX(activeMoistureW);
+            curveCtx.strokeStyle = 'rgba(2, 132, 199, 0.45)';
+            curveCtx.lineWidth = 1.5;
+            curveCtx.beginPath();
+            curveCtx.moveTo(xActive, padT);
+            curveCtx.lineTo(xActive, padT + plotH);
+            curveCtx.stroke();
+        }
+
+        // =============================================================
+        // 7. ANIMATION TICK & RAMMER IMPACT LOOP
+        // =============================================================
+        function triggerRammerBlow() {
+            if (isRammerDropping) return;
+            isRammerDropping = true;
+            rammerYNorm = 0.0;
+        }
+
+        function autoCompactMould() {
+            if (isAutoCompacting) {
+                isAutoCompacting = false;
+                document.getElementById('btn-auto-compact').innerText = "▶ Cycle 25 Blows";
+                return;
+            }
+            isAutoCompacting = true;
+            document.getElementById('btn-auto-compact').innerText = "⏸ Pause Cycle";
+            runAutoCycleStep();
+        }
+
+        function runAutoCycleStep() {
+            if (!isAutoCompacting) return;
+            triggerRammerBlow();
+            setTimeout(() => {
+                if (isAutoCompacting) runAutoCycleStep();
+            }, 320);
+        }
+
+        function resetMouldAnimation() {
+            blowsDelivered = 0;
+            activeLayerIndex = 1;
+            isAutoCompacting = false;
+            document.getElementById('btn-auto-compact').innerText = "▶ Cycle 25 Blows";
+            document.getElementById('disp-blows-count').innerText = `0 / ${blowsPerLayer}`;
+            document.getElementById('disp-active-layer').innerText = `Layer 1 of ${layersCount}`;
+            drawMouldApparatus();
+        }
+
+        function animationLoop(timestamp) {
+            const dt = (timestamp - lastRammerTimestamp) / 1000.0;
+            lastRammerTimestamp = timestamp;
+
+            if (isRammerDropping) {
+                // Free fall acceleration: gravity acceleration
+                rammerYNorm += dt * 4.8;
+                if (rammerYNorm >= 1.0) {
+                    rammerYNorm = 1.0;
+                    isRammerDropping = false;
+                    // Blow completed
+                    blowsDelivered++;
+                    if (blowsDelivered >= blowsPerLayer) {
+                        blowsDelivered = 0;
+                        activeLayerIndex++;
+                        if (activeLayerIndex > layersCount) {
+                            activeLayerIndex = layersCount;
+                            isAutoCompacting = false;
+                            document.getElementById('btn-auto-compact').innerText = "▶ Cycle 25 Blows";
+                        }
+                    }
+                    document.getElementById('disp-blows-count').innerText = `${blowsDelivered} / ${blowsPerLayer}`;
+                    document.getElementById('disp-active-layer').innerText = `Layer ${activeLayerIndex} of ${layersCount}`;
+
+                    // Retract rammer back up after impact
+                    setTimeout(() => {
+                        rammerYNorm = 0.0;
+                        drawMouldApparatus();
+                    }, 60);
+                }
+                drawMouldApparatus();
+            }
+
+            requestAnimationFrame(animationLoop);
+        }
+
+        // =============================================================
+        // 8. OFFLINE STANDALONE HTML EXPORTER
+        // =============================================================
+        function downloadLaboratoryApp() {
+            try {
+                const fullHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                const blob = new Blob([fullHtml], { type: "text/html;charset=utf-8" });
+                const blobUrl = URL.createObjectURL(blob);
+                const tempLink = document.createElement("a");
+                tempLink.href = blobUrl;
+                tempLink.download = "proctor_compaction_lab.html";
+                document.body.appendChild(tempLink);
+                tempLink.click();
+                setTimeout(() => {
+                    document.body.removeChild(tempLink);
+                    URL.revokeObjectURL(blobUrl);
+                }, 100);
+            } catch (err) {
+                console.error("Export error:", err);
+            }
+        }
+
+        // =============================================================
+        // 9. INITIALIZATION ON WINDOW LOAD
+        // =============================================================
+        window.onload = function() {
+            window.addEventListener('resize', resizeCanvases);
+            loadSoilPreset("silty_sand");
+            resizeCanvases();
+            requestAnimationFrame(animationLoop);
+        };
+    </script>
+
+</body></html>

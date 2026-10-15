@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comprehensive Virtual Sieve Shaker & Soil Gradation Laboratory</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <!-- jsPDF & autoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .math-symbol {
+      font-style: italic;
+      font-family: "Times New Roman", Times, serif;
+    }
+
+    /* Shaker mechanical vibration animation */
+    @keyframes shakerVibrate {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      20% { transform: translate(-3.5px, 1px) rotate(-0.5deg); }
+      40% { transform: translate(3.5px, -1px) rotate(0.5deg); }
+      60% { transform: translate(-2.5px, -1.5px) rotate(-0.3deg); }
+      80% { transform: translate(2.5px, 1.5px) rotate(0.3deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    .shaker-active {
+      animation: shakerVibrate 0.11s infinite linear;
+    }
+
+    /* Sieve brass/metallic rim texture */
+    .brass-rim {
+      background: linear-gradient(90deg, #ca8a04 0%, #fef08a 25%, #eab308 50%, #fef9c3 75%, #a16207 100%);
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.6), 0 2px 4px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-indigo-600 to-blue-600 flex items-center justify-center text-white shadow-sm ring-2 ring-indigo-100">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">GeoSieve Studio & Mechanical Shaker Lab</h1>
+            <span class="text-[11px] bg-indigo-50 text-indigo-700 font-semibold px-2 py-0.5 rounded-full border border-indigo-200">IS 2720 / IS 1498 &bull; ASTM D6913</span>
+          </div>
+          <p class="text-xs text-slate-500 hidden sm:block">10 Standard Geotechnical & Agro-Soil Orders &bull; Dynamic Particle Sifting &bull; Real-time D10/D30/D60 Ray Tracing</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button id="btn-reset-all" class="px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-300 transition-colors flex items-center space-x-1">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span>Reset Apparatus</span>
+        </button>
+        <button id="btn-open-pdf-modal" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-all flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Official Lab PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+
+    <!-- Top Soil Selection with 10 Standard Soil Regimes -->
+    <section class="bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-slate-200">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+        
+        <!-- Soil Dropdown (5 cols) -->
+        <div class="md:col-span-5">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">1. Select Soil Specimen (10 Standard Regimes)</label>
+          <select id="sample-preset-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <optgroup label="Coarse & Structural Soils (Gravel & Clean Sands)">
+              <option value="well_sand" selected>1. Well-Graded River Sand (SW) - Ideal Concrete Fine Aggregate</option>
+              <option value="uniform_beach">2. Coastal Dune / Beach Sand (SP) - Uniform Fine Sand</option>
+              <option value="well_gravel">3. Well-Graded Crushed River Gravel (GW) - Coarse Aggregate</option>
+              <option value="poor_gravel">4. Gap-Graded Ballast Gravel (GP) - Uniform Coarse Aggregate</option>
+            </optgroup>
+            <optgroup label="Agricultural & Region-Specific Soils">
+              <option value="red_sandy_loam">5. Red Sandy Loam (Alfisol) - Groundnut & Sorghum Tracts</option>
+              <option value="black_cotton">6. Black Cotton Soil Weathered Subgrade (Vertisol - SM/SC)</option>
+              <option value="alluvial_silt">7. Gangetic Alluvial Silt Loam (ML/SM) - Floodplain Basin</option>
+              <option value="laterite_gravel">8. Laterite Murrum Soil (Lateritic Clayey Gravel - GM/GC)</option>
+            </optgroup>
+            <optgroup label="Drainage & Engineering Filter Media">
+              <option value="french_filter">9. Graded French Drain Trench Filter Sand (SW-SM)</option>
+              <option value="loess_silt">10. Windblown Loess Silt Deposit (ML) - High Fines</option>
+            </optgroup>
+          </select>
+          <p id="soil-origin-desc" class="text-[11px] text-slate-500 mt-1">Wide particle distribution across coarse to fine sand with negligible fines.</p>
+        </div>
+
+        <!-- Specimen Mass Input (3 cols) -->
+        <div class="md:col-span-3">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">2. Sample Dry Mass (<span class="math-symbol">W</span><sub>total</sub>)</label>
+          <div class="flex items-center space-x-2">
+            <input type="number" id="input-sample-mass" value="1000" min="200" max="2500" step="50" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold font-mono-num text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <span class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl border border-slate-200">g</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1">Tared oven-dried test mass.</p>
+        </div>
+
+        <!-- Shaker Motor Control (4 cols) -->
+        <div class="md:col-span-4 bg-indigo-50/60 p-3 rounded-xl border border-indigo-200 flex flex-col justify-between space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-indigo-950 uppercase tracking-wide">Motorized Mechanical Shaker</span>
+            <span id="shaker-status-tag" class="text-[10px] font-mono-num font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">MOTOR OFF</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="btn-toggle-shaker" class="w-full py-2 px-3 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-xl shadow-xs transition-all flex items-center justify-center space-x-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+              <span id="shaker-btn-label">Start Sieve Shaker (10 min)</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Main Dual Arena: Animated Shaker Rig (Left) & Real-time Graph/Classification (Right) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT 5 COLS: Animated Mechanical Shaker Apparatus Stack -->
+      <section class="lg:col-span-5 bg-white rounded-2xl p-4 shadow-xs border border-slate-200 flex flex-col items-center justify-between min-h-[600px]">
+        
+        <div class="w-full flex items-center justify-between pb-2 border-b border-slate-100">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700">Mechanical Sieve Tower Rig</h2>
+          <span id="shaking-progress-text" class="text-[11px] font-mono-num font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">Sifting: 0%</span>
+        </div>
+
+        <!-- THE PHYSICAL SHAKER TOWER RIG -->
+        <div class="w-full flex-1 flex flex-col items-center justify-center py-4 relative">
+          
+          <!-- Clamping Top Lid with Knurled Tightening Screws -->
+          <div class="w-56 h-6 bg-slate-800 rounded-t-lg border-b-2 border-slate-700 flex items-center justify-between px-3 relative shadow-md z-20">
+            <div class="w-4 h-3 bg-amber-400 rounded-xs" title="Clamp screw"></div>
+            <span class="text-[9px] font-bold text-slate-300 font-mono-num tracking-wider">TOP DUST LID</span>
+            <div class="w-4 h-3 bg-amber-400 rounded-xs" title="Clamp screw"></div>
+          </div>
+
+          <!-- THE VIBRATING TOWER BODY -->
+          <div id="sieve-shaker-tower" class="w-52 flex flex-col divide-y divide-slate-400 border-x-4 border-slate-700 shadow-xl transition-all">
+            
+            <!-- Sieve 1: 4.75 mm -->
+            <div class="h-10 brass-rim relative flex items-center justify-between px-3 overflow-hidden" data-sieve-idx="0">
+              <span class="text-[10px] font-bold text-slate-900 font-mono-num z-10">4.75 mm</span>
+              <div class="sieve-soil-layer absolute bottom-0 inset-x-0 bg-[#78350f] opacity-85 transition-all duration-300" style="height: 0%;"></div>
+              <span class="sieve-mass-label text-[10px] font-mono-num font-bold text-slate-900 z-10">0.0g</span>
+            </div>
+
+            <!-- Sieve 2: 2.36 mm -->
+            <div class="h-10 brass-rim relative flex items-center justify-between px-3 overflow-hidden" data-sieve-idx="1">
+              <span class="text-[10px] font-bold text-slate-900 font-mono-num z-10">2.36 mm</span>
+              <div class="sieve-soil-layer absolute bottom-0 inset-x-0 bg-[#854d0e] opacity-85 transition-all duration-300" style="height: 0%;"></div>
+              <span class="sieve-mass-label text-[10px] font-mono-num font-bold text-slate-900 z-10">0.0g</span>
+            </div>
+
+            <!-- Sieve 3: 1.18 mm -->
+            <div class="h-10 brass-rim relative flex items-center justify-between px-3 overflow-hidden" data-sieve-idx="2">
+              <span class="text-[10px] font-bold text-slate-900 font-mono-num z-10">1.18 mm</span>
+              <div class="sieve-soil-layer absolute bottom-0 inset-x-0 bg-[#92400e] opacity-85 transition-all duration-300" style="height: 0%;"></div>
+              <span class="sieve-mass-label text-[10px] font-mono-num font-bold text-slate-900 z-10">0.0g</span>
+            </div>
+
+            <!-- Sieve 4: 0.60 mm -->
+            <div class="h-10 brass-rim relative flex items-center justify-between px-3 overflow-hidden" data-sieve-idx="3">
+              <span class="text-[10px] font-bold text-slate-900 font-mono-num z-10">0.60 mm</span>
+              <div class="sieve-soil-layer absolute bottom-0 inset-x-0 bg-[#a16207] opacity-85 transition-all duration-300" style="height: 0%;"></div>
+              <span class="sieve-mass-label text-[10px] font-mono-num font-bold text-slate-900 z-10">0.0g</span>
+            </div>
+
+            <!-- Sieve 5: 0.425 mm -->
+            <div class="h-10 brass-rim relative flex items-center justify-between px-3 overflow-hidden" data-sieve-idx="4">
+              <span class="text-[10px] font-bold text-slate-900 font-mono-num z-10">0.425 mm</span>
+              <div class="sieve-soil-layer absolute bottom-0 inset-x-0 bg-[#b45309] opacity-85 transition-all duration-300" style="height: 0%;"></div>
+              <span class="sieve-mass-label text-[10px] font-mono-num font-bold text-slate-900 z-10">0.0g</span>
+            </div>
+
+            <!-- Sieve 6: 0.30 mm -->
+            <div class="h-10 brass-rim relative flex items-center justify-between px-3 overflow-hidden" data-sieve-idx="5">
+              <span class="text-[10px] font-bold text-slate-900 font-mono-num z-10">0.30 mm</span>
+              <div class="sieve-soil-layer absolute bottom-0 inset-x-0 bg-[#ca8a04] opacity-85 transition-all duration-300" style="height: 0%;"></div>
+              <span class="sieve-mass-label text-[10px] font-mono-num font-bold text-slate-900 z-10">0.0g</span>
+            </div>
+
+            <!-- Sieve 7: 0.15 mm -->
+            <div class="h-10 brass-rim relative flex items-center justify-between px-3 overflow-hidden" data-sieve-idx="6">
+              <span class="text-[10px] font-bold text-slate-900 font-mono-num z-10">0.15 mm</span>
+              <div class="sieve-soil-layer absolute bottom-0 inset-x-0 bg-[#d97706] opacity-85 transition-all duration-300" style="height: 0%;"></div>
+              <span class="sieve-mass-label text-[10px] font-mono-num font-bold text-slate-900 z-10">0.0g</span>
+            </div>
+
+            <!-- Sieve 8: 0.075 mm (No. 200 Mesh) -->
+            <div class="h-10 brass-rim relative flex items-center justify-between px-3 overflow-hidden" data-sieve-idx="7">
+              <span class="text-[10px] font-bold text-slate-900 font-mono-num z-10">0.075 mm</span>
+              <div class="sieve-soil-layer absolute bottom-0 inset-x-0 bg-[#b45309] opacity-85 transition-all duration-300" style="height: 0%;"></div>
+              <span class="sieve-mass-label text-[10px] font-mono-num font-bold text-slate-900 z-10">0.0g</span>
+            </div>
+
+            <!-- Sieve 9: Pan Base -->
+            <div class="h-11 bg-slate-300 relative flex items-center justify-between px-3 overflow-hidden rounded-b-sm border-t-2 border-slate-400" data-sieve-idx="8">
+              <span class="text-[10px] font-bold text-slate-800 font-mono-num z-10">Pan Base</span>
+              <div class="sieve-soil-layer absolute bottom-0 inset-x-0 bg-[#713f12] opacity-85 transition-all duration-300" style="height: 0%;"></div>
+              <span class="sieve-mass-label text-[10px] font-mono-num font-bold text-slate-800 z-10">0.0g</span>
+            </div>
+
+          </div>
+
+          <!-- Motor Base -->
+          <div class="w-64 h-14 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-b-xl shadow-2xl flex flex-col items-center justify-center p-2 relative z-10 border-t-2 border-amber-500">
+            <div class="flex items-center space-x-3 text-[10px] font-mono-num text-slate-300">
+              <span>Freq: <b class="text-amber-400">250 RPM</b></span>
+              <span>Motor: <b id="disp-motor-mode" class="text-slate-400">OFF</b></span>
+            </div>
+            <div class="absolute -bottom-2 inset-x-4 flex justify-between">
+              <div class="w-6 h-2 bg-slate-950 rounded-b-md"></div>
+              <div class="w-6 h-2 bg-slate-950 rounded-b-md"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="w-full text-center text-[11px] text-slate-500 font-medium">
+          Mechanical shaker fractionates soil grains across standard apertures down to the base pan.
+        </div>
+
+      </section>
+
+      <!-- RIGHT 7 COLS: Real-Time Sieve Gradation Curve & Classification Analysis -->
+      <section class="lg:col-span-7 space-y-4">
+        
+        <!-- Live Gradation Curve Chart -->
+        <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-5 flex flex-col">
+          <div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100 mb-2">
+            <div>
+              <h2 class="text-base font-bold text-slate-900">Dynamic Particle Size Distribution Curve</h2>
+              <p class="text-xs text-slate-500">Semi-logarithmic plot with real-time D10, D30, and D60 ray intersections</p>
+            </div>
+            <div class="flex items-center gap-2 text-[10px] font-bold">
+              <span class="flex items-center gap-1 text-emerald-700"><span class="w-2.5 h-0.5 bg-emerald-500 inline-block"></span> D10</span>
+              <span class="flex items-center gap-1 text-amber-700"><span class="w-2.5 h-0.5 bg-amber-500 inline-block"></span> D30</span>
+              <span class="flex items-center gap-1 text-rose-700"><span class="w-2.5 h-0.5 bg-rose-500 inline-block"></span> D60</span>
+            </div>
+          </div>
+
+          <div class="relative w-full h-[330px]">
+            <canvas id="liveGradationChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Computed Parameters: D10, D30, D60, Cu, Cc, Hazen k -->
+        <div class="grid grid-cols-2 sm:grid-cols-6 gap-2.5">
+          <div class="bg-emerald-50/60 p-2.5 rounded-xl border border-emerald-200 text-center">
+            <span class="text-[10px] text-emerald-800 font-bold block">Effective Size (<span class="math-symbol">D</span><sub>10</sub>)</span>
+            <span id="stat-d10" class="text-sm font-extrabold text-emerald-950 font-mono-num my-0.5">--</span>
+            <span class="text-[9px] text-emerald-700 block">mm (10% finer)</span>
+          </div>
+          <div class="bg-amber-50/60 p-2.5 rounded-xl border border-amber-200 text-center">
+            <span class="text-[10px] text-amber-800 font-bold block">Size (<span class="math-symbol">D</span><sub>30</sub>)</span>
+            <span id="stat-d30" class="text-sm font-extrabold text-amber-950 font-mono-num my-0.5">--</span>
+            <span class="text-[9px] text-amber-700 block">mm (30% finer)</span>
+          </div>
+          <div class="bg-rose-50/60 p-2.5 rounded-xl border border-rose-200 text-center">
+            <span class="text-[10px] text-rose-800 font-bold block">Size (<span class="math-symbol">D</span><sub>60</sub>)</span>
+            <span id="stat-d60" class="text-sm font-extrabold text-rose-950 font-mono-num my-0.5">--</span>
+            <span class="text-[9px] text-rose-700 block">mm (60% finer)</span>
+          </div>
+          <div class="bg-indigo-50/60 p-2.5 rounded-xl border border-indigo-200 text-center">
+            <span class="text-[10px] text-indigo-800 font-bold block">Uniformity (<span class="math-symbol">C</span><sub>u</sub>)</span>
+            <span id="stat-cu" class="text-sm font-black text-indigo-950 font-mono-num my-0.5">--</span>
+            <span class="text-[9px] text-indigo-700 block"><span class="math-symbol">D</span><sub>60</sub> / <span class="math-symbol">D</span><sub>10</sub></span>
+          </div>
+          <div class="bg-indigo-50/60 p-2.5 rounded-xl border border-indigo-200 text-center">
+            <span class="text-[10px] text-indigo-800 font-bold block">Curvature (<span class="math-symbol">C</span><sub>c</sub>)</span>
+            <span id="stat-cc" class="text-sm font-black text-indigo-950 font-mono-num my-0.5">--</span>
+            <span class="text-[9px] text-indigo-700 block">(<span class="math-symbol">D</span><sub>30</sub>)&sup2; / (<span class="math-symbol">D</span><sub>60</sub>&times;<span class="math-symbol">D</span><sub>10</sub>)</span>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-center">
+            <span class="text-[10px] text-slate-600 font-bold block">Hazen Permeability (<span class="math-symbol">k</span>)</span>
+            <span id="stat-k" class="text-sm font-bold text-slate-900 font-mono-num my-0.5">--</span>
+            <span class="text-[9px] text-slate-500 block">cm/s</span>
+          </div>
+        </div>
+
+        <!-- Soil Classification Callout -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">IS:1498 / USCS Classification & Application:</span>
+            <h3 id="stat-soil-name" class="text-sm font-bold text-slate-900 mt-0.5">Sifting in progress...</h3>
+            <p id="stat-soil-app" class="text-xs text-slate-600 mt-1">Select a soil regime and start the shaker.</p>
+          </div>
+          <span id="stat-soil-badge" class="px-3.5 py-1.5 bg-indigo-600 text-white font-black text-sm rounded-xl shadow-xs font-mono-num self-start sm:self-auto">--</span>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- PDF Student Metadata Modal -->
+  <div id="modal-report-setup" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">Generate Laboratory Practical Report</h3>
+          <p class="text-xs text-slate-500">Gradation Analysis by Mechanical Sieve Shaker (IS: 2720 Part 4)</p>
+        </div>
+        <button type="button" id="btn-close-pdf-modal" class="text-slate-400 hover:text-slate-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Student Full Name</label>
+          <input type="text" id="rep-student-name" placeholder="e.g. Ramesh Pujari" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Roll No / ID Number</label>
+          <input type="text" id="rep-student-id" placeholder="e.g. 3BR21CV018" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono-num">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Laboratory Batch / Class</label>
+          <input type="text" id="rep-batch" placeholder="e.g. Geotechnical Lab - Batch B" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Date of Experiment</label>
+          <input type="date" id="rep-date" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
+        <button type="button" id="btn-cancel-pdf" class="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
+        <button type="button" id="btn-download-pdf-exec" class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition-all flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Download PDF Document</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* EXPERIMENTAL SHAKER ENGINE WITH RAY PROJECTIONS FOR D10, D30, D60 */
+    const state = {
+      totalMass: 1000.0,
+      isShaking: false,
+      progress: 0,
+      timer: null,
+      
+      sieves: [
+        { size: 4.75, name: '4.75 mm', finalTargetPct: 0.04, currentMass: 0 },
+        { size: 2.36, name: '2.36 mm', finalTargetPct: 0.08, currentMass: 0 },
+        { size: 1.18, name: '1.18 mm', finalTargetPct: 0.12, currentMass: 0 },
+        { size: 0.60, name: '0.60 mm', finalTargetPct: 0.20, currentMass: 0 },
+        { size: 0.425, name: '0.425 mm', finalTargetPct: 0.16, currentMass: 0 },
+        { size: 0.30, name: '0.30 mm', finalTargetPct: 0.15, currentMass: 0 },
+        { size: 0.15, name: '0.15 mm', finalTargetPct: 0.13, currentMass: 0 },
+        { size: 0.075, name: '0.075 mm', finalTargetPct: 0.08, currentMass: 0 },
+        { size: 0.0, name: 'Pan Base', finalTargetPct: 0.04, currentMass: 0 }
+      ],
+
+      metrics: { d10: null, d30: null, d60: null, cu: null, cc: null, k: null, code: '--', name: 'Ready' }
+    };
+
+    const soilLibrary = {
+      well_sand: {
+        ratios: [0.04, 0.08, 0.12, 0.20, 0.16, 0.15, 0.13, 0.08, 0.04],
+        code: 'SW',
+        name: 'Well-Graded River Sand',
+        desc: 'Wide, smooth particle distribution across all sizes. Clean aggregate with < 5% fines. Excellent concrete workability and load-bearing capacity.',
+        origin: 'Extracted from clean riverbed channels. High hydraulic conductivity and minimal compressibility.'
+      },
+      uniform_beach: {
+        ratios: [0.00, 0.01, 0.02, 0.55, 0.30, 0.08, 0.03, 0.01, 0.00],
+        code: 'SP',
+        name: 'Uniform Dune / Beach Sand',
+        desc: 'Poorly-graded, highly uniform single-sized sand. Steep vertical drop on gradation curve. High susceptibility to liquefaction when saturated.',
+        origin: 'Coastal or eolian wind-blown deposits. Very narrow particle size range (~0.30 - 0.60 mm).'
+      },
+      well_gravel: {
+        ratios: [0.38, 0.24, 0.14, 0.09, 0.06, 0.04, 0.02, 0.02, 0.01],
+        code: 'GW',
+        name: 'Well-Graded Sandy Gravel',
+        desc: 'Dominant gravel fraction (> 50% coarse retained on 4.75mm) with balanced sand matrix. Cu ≥ 4 and 1 ≤ Cc ≤ 3. Premium road base and dam filter shell.',
+        origin: 'Alluvial outwash and mountain stream terraces.'
+      },
+      poor_gravel: {
+        ratios: [0.55, 0.32, 0.06, 0.03, 0.01, 0.01, 0.01, 0.005, 0.005],
+        code: 'GP',
+        name: 'Gap-Graded Ballast Gravel',
+        desc: 'Clean gravel deficient in intermediate sands. Excellent drainage and railway ballast, but prone to high void ratio without artificial sand blending.',
+        origin: 'Crushed quarry stone or screened coarse alluvial deposits.'
+      },
+      red_sandy_loam: {
+        ratios: [0.03, 0.06, 0.10, 0.15, 0.18, 0.20, 0.14, 0.08, 0.06],
+        code: 'SW-SM',
+        name: 'Red Sandy Loam (Alfisol)',
+        desc: 'Typical semi-arid dryland soil. Borderline fines (5% - 12%) providing natural soil moisture retention while maintaining aeration for groundnut, pulses, and sorghum.',
+        origin: 'Deccan crystalline granite and gneiss weathered uplands.'
+      },
+      black_cotton: {
+        ratios: [0.01, 0.02, 0.04, 0.08, 0.11, 0.14, 0.18, 0.18, 0.24],
+        code: 'SC / SM',
+        name: 'Black Cotton Subgrade (Vertisol - Weathered)',
+        desc: 'Heavy fines fraction passing 75-µm (> 20%). Characterized by high shrinkage, swelling montmorillonite clay minerals, and poor pavement subgrade stability.',
+        origin: 'Deccan basaltic trap weathering. High CEC and expansive clay mineralogy.'
+      },
+      alluvial_silt: {
+        ratios: [0.00, 0.01, 0.03, 0.07, 0.12, 0.17, 0.22, 0.20, 0.18],
+        code: 'SM / ML',
+        name: 'Gangetic Alluvial Silt Loam',
+        desc: 'Fine sandy and silty alluvium with high moisture holding capacity. High capillarity and smooth curve dominated by 0.075 - 0.30 mm fractions.',
+        origin: 'River valley floodplains and deltaic agricultural basins.'
+      },
+      laterite_gravel: {
+        ratios: [0.26, 0.18, 0.13, 0.11, 0.09, 0.08, 0.06, 0.05, 0.04],
+        code: 'GM / GC',
+        name: 'Laterite Murrum Soil (Clayey Gravel)',
+        desc: 'Iron and aluminum-rich indurated gravelly nodules (murrum). Widely utilized across southern India for rural road sub-bases and embankment construction.',
+        origin: 'Tropical intense leaching and weathering of basalt/granite in warm humid climates.'
+      },
+      french_filter: {
+        ratios: [0.08, 0.14, 0.18, 0.22, 0.16, 0.11, 0.06, 0.03, 0.02],
+        code: 'SW',
+        name: 'Graded Trench Filter Media',
+        desc: 'Engineered filter sand satisfying Terzaghi drainage criteria: D15(filter) / D85(soil) < 5 and D15(filter) / D15(soil) > 4. Prevents piping while ensuring high permeability.',
+        origin: 'Artificially graded washed sand for sub-surface agricultural drainage pipes.'
+      },
+      loess_silt: {
+        ratios: [0.00, 0.00, 0.01, 0.03, 0.06, 0.12, 0.22, 0.28, 0.28],
+        code: 'ML',
+        name: 'Windblown Loess Silt Deposit',
+        desc: 'Fine-grained eolian silt deposit with over 50% passing the 75-µm sieve. Exhibits collapsing structure when subjected to wetting under load.',
+        origin: 'Glacial and desert eolian transport deposited in thick peri-glacial sheets.'
+      }
+    };
+
+    let chartInstance = null;
+
+    function initChart() {
+      const ctx = document.getElementById('liveGradationChart').getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          datasets: [
+            {
+              label: 'Particle Gradation Curve (% Passing)',
+              data: [],
+              borderColor: '#4f46e5',
+              backgroundColor: 'rgba(79, 70, 229, 0.08)',
+              borderWidth: 2.5,
+              tension: 0.25,
+              fill: true,
+              pointBackgroundColor: '#4338ca',
+              pointRadius: 4.5
+            },
+            {
+              label: 'D10 Projection Ray (10% passing)',
+              data: [],
+              borderColor: '#10b981',
+              borderWidth: 1.5,
+              borderDash: [5, 4],
+              pointRadius: 0,
+              fill: false
+            },
+            {
+              label: 'D30 Projection Ray (30% passing)',
+              data: [],
+              borderColor: '#f59e0b',
+              borderWidth: 1.5,
+              borderDash: [5, 4],
+              pointRadius: 0,
+              fill: false
+            },
+            {
+              label: 'D60 Projection Ray (60% passing)',
+              data: [],
+              borderColor: '#ef4444',
+              borderWidth: 1.5,
+              borderDash: [5, 4],
+              pointRadius: 0,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              type: 'logarithmic',
+              min: 0.01,
+              max: 100,
+              reverse: true, // Standard geotechnical: 100mm -> 0.01mm
+              title: { display: true, text: 'Particle Diameter (mm) [Log Scale]', font: { weight: 'bold', size: 11 } },
+              ticks: {
+                callback: function(val) {
+                  const marks = [0.01, 0.075, 0.15, 0.3, 0.425, 0.6, 1.18, 2.36, 4.75, 10, 20, 50, 100];
+                  if (marks.some(m => Math.abs(m - val) < 0.001)) return val.toString();
+                  return null;
+                }
+              },
+              grid: { color: '#f1f5f9' }
+            },
+            y: {
+              min: 0,
+              max: 100,
+              title: { display: true, text: 'Percent Passing (%)', font: { weight: 'bold', size: 11 } },
+              ticks: { stepSize: 10 },
+              grid: { color: '#f1f5f9' }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false // Clean customized header tags used instead
+            }
+          }
+        }
+      });
+    }
+
+    function toggleShaker() {
+      if (state.isShaking) {
+        stopShaker();
+      } else {
+        startShaker();
+      }
+    }
+
+    function startShaker() {
+      state.isShaking = true;
+      document.getElementById('sieve-shaker-tower').classList.add('shaker-active');
+      document.getElementById('disp-motor-mode').textContent = 'ACTIVE (250 RPM)';
+      document.getElementById('disp-motor-mode').className = 'text-amber-400 animate-pulse';
+      document.getElementById('shaker-status-tag').textContent = 'SIFTING IN PROGRESS';
+      document.getElementById('shaker-status-tag').className = 'text-[10px] font-mono-num font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800';
+      document.getElementById('shaker-btn-label').textContent = 'Pause Shaker';
+
+      state.timer = setInterval(() => {
+        if (state.progress >= 100) {
+          stopShaker();
+          document.getElementById('shaker-status-tag').textContent = 'SIFTING COMPLETED';
+          document.getElementById('shaker-status-tag').className = 'text-[10px] font-mono-num font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
+          document.getElementById('shaker-btn-label').textContent = 'Sifting Completed';
+        } else {
+          state.progress += 2;
+          updateSiftingStep();
+        }
+      }, 100);
+    }
+
+    function stopShaker() {
+      state.isShaking = false;
+      clearInterval(state.timer);
+      state.timer = null;
+      document.getElementById('sieve-shaker-tower').classList.remove('shaker-active');
+      document.getElementById('disp-motor-mode').textContent = 'OFF';
+      document.getElementById('disp-motor-mode').className = 'text-slate-400';
+      document.getElementById('shaker-btn-label').textContent = 'Resume Sieve Shaker';
+    }
+
+    function updateSiftingStep() {
+      const frac = state.progress / 100.0;
+      document.getElementById('shaking-progress-text').textContent = `Sifting: ${state.progress}%`;
+
+      let cumRet = 0;
+      const points = [];
+
+      state.sieves.forEach((s, idx) => {
+        s.currentMass = s.finalTargetPct * state.totalMass * frac;
+        const massElem = document.querySelectorAll('.sieve-mass-label')[idx];
+        const layerElem = document.querySelectorAll('.sieve-soil-layer')[idx];
+
+        if (massElem) massElem.textContent = `${s.currentMass.toFixed(1)}g`;
+        if (layerElem) layerElem.style.height = `${Math.min(90, (s.currentMass / (state.totalMass * 0.35)) * 100)}%`;
+
+        const pctRet = (s.currentMass / state.totalMass) * 100;
+        cumRet += pctRet;
+        const pctPass = Math.max(0, 100 - cumRet);
+
+        if (s.size > 0) {
+          points.push({ x: s.size, y: pctPass });
+        }
+      });
+
+      points.sort((a, b) => b.x - a.x);
+      chartInstance.data.datasets[0].data = points;
+
+      calculateParameters(points);
+    }
+
+    function calculateParameters(points) {
+      function getD(targetY) {
+        if (points.length < 2) return null;
+        for (let i = 0; i < points.length - 1; i++) {
+          const p1 = points[i], p2 = points[i+1];
+          if ((p1.y >= targetY && p2.y <= targetY) || (p1.y <= targetY && p2.y >= targetY)) {
+            if (p1.y === p2.y) return p1.x;
+            const log1 = Math.log10(p1.x), log2 = Math.log10(p2.x);
+            return Math.pow(10, log1 + ((targetY - p1.y) / (p2.y - p1.y)) * (log2 - log1));
+          }
+        }
+        return null;
+      }
+
+      const d10 = getD(10);
+      const d30 = getD(30);
+      const d60 = getD(60);
+
+      document.getElementById('stat-d10').textContent = d10 ? d10.toFixed(3) : '--';
+      document.getElementById('stat-d30').textContent = d30 ? d30.toFixed(3) : '--';
+      document.getElementById('stat-d60').textContent = d60 ? d60.toFixed(3) : '--';
+
+      // DRAW D10, D30, D60 RAYS DIRECTLY ONTO THE CHART CANVAS
+      // (from 100mm across to D point, and down to X axis y=0)
+      const startX = 100.0;
+
+      chartInstance.data.datasets[1].data = d10 ? [
+        { x: startX, y: 10 },
+        { x: d10, y: 10 },
+        { x: d10, y: 0 }
+      ] : [];
+
+      chartInstance.data.datasets[2].data = d30 ? [
+        { x: startX, y: 30 },
+        { x: d30, y: 30 },
+        { x: d30, y: 0 }
+      ] : [];
+
+      chartInstance.data.datasets[3].data = d60 ? [
+        { x: startX, y: 60 },
+        { x: d60, y: 60 },
+        { x: d60, y: 0 }
+      ] : [];
+
+      chartInstance.update('none');
+
+      // Uniformity Coefficient Cu = D60 / D10
+      let cu = null;
+      if (d10 && d60 && d10 > 0) {
+        cu = d60 / d10;
+        document.getElementById('stat-cu').textContent = cu.toFixed(2);
+      } else {
+        document.getElementById('stat-cu').textContent = '--';
+      }
+
+      // Coefficient of Curvature Cc = (D30)^2 / (D60 * D10)
+      let cc = null;
+      if (d10 && d30 && d60 && (d60 * d10) > 0) {
+        cc = Math.pow(d30, 2) / (d60 * d10);
+        document.getElementById('stat-cc').textContent = cc.toFixed(2);
+      } else {
+        document.getElementById('stat-cc').textContent = '--';
+      }
+
+      // Hazen Permeability k = 1.0 * (D10)^2 cm/s
+      if (d10 && d10 > 0) {
+        const kVal = 1.0 * Math.pow(d10, 2);
+        document.getElementById('stat-k').textContent = kVal < 0.001 ? kVal.toExponential(2) : kVal.toFixed(3);
+      } else {
+        document.getElementById('stat-k').textContent = '--';
+      }
+
+      state.metrics = { d10, d30, d60, cu, cc };
+
+      const soilKey = document.getElementById('sample-preset-select').value;
+      const soil = soilLibrary[soilKey];
+      if (state.progress >= 90) {
+        document.getElementById('stat-soil-badge').textContent = soil.code;
+        document.getElementById('stat-soil-name').textContent = soil.name;
+        document.getElementById('stat-soil-app').textContent = soil.desc;
+      }
+    }
+
+    function setPreset(key) {
+      const soil = soilLibrary[key];
+      if (!soil) return;
+
+      soil.ratios.forEach((r, i) => {
+        state.sieves[i].finalTargetPct = r;
+      });
+
+      document.getElementById('soil-origin-desc').textContent = soil.origin;
+      resetAll();
+    }
+
+    function resetAll() {
+      stopShaker();
+      state.progress = 0;
+      state.sieves.forEach(s => s.currentMass = 0);
+      document.getElementById('shaking-progress-text').textContent = 'Sifting: 0%';
+      document.getElementById('shaker-status-tag').textContent = 'MOTOR OFF';
+      document.getElementById('shaker-status-tag').className = 'text-[10px] font-mono-num font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700';
+      document.getElementById('shaker-btn-label').textContent = 'Start Sieve Shaker (10 min)';
+
+      document.querySelectorAll('.sieve-mass-label').forEach(el => el.textContent = '0.0g');
+      document.querySelectorAll('.sieve-soil-layer').forEach(el => el.style.height = '0%');
+
+      chartInstance.data.datasets[0].data = [];
+      chartInstance.data.datasets[1].data = [];
+      chartInstance.data.datasets[2].data = [];
+      chartInstance.data.datasets[3].data = [];
+      chartInstance.update();
+
+      document.getElementById('stat-d10').textContent = '--';
+      document.getElementById('stat-d30').textContent = '--';
+      document.getElementById('stat-d60').textContent = '--';
+      document.getElementById('stat-cu').textContent = '--';
+      document.getElementById('stat-cc').textContent = '--';
+      document.getElementById('stat-k').textContent = '--';
+      document.getElementById('stat-soil-badge').textContent = '--';
+      document.getElementById('stat-soil-name').textContent = 'Ready for experiment';
+      document.getElementById('stat-soil-app').textContent = 'Start the mechanical shaker to fractionate soil particles.';
+    }
+
+    function generatePdf() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+      const name = document.getElementById('rep-student-name').value.trim() || 'Student Investigator';
+      const id = document.getElementById('rep-student-id').value.trim() || 'N/A';
+      const batch = document.getElementById('rep-batch').value.trim() || 'Geotechnical Engineering Lab';
+      const date = document.getElementById('rep-date').value || new Date().toISOString().split('T')[0];
+
+      const soilKey = document.getElementById('sample-preset-select').value;
+      const soil = soilLibrary[soilKey];
+
+      // Header Banner
+      doc.setFillColor(30, 41, 59);
+      doc.rect(0, 0, 210, 24, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text('MECHANICAL SIEVE SHAKER GRADATION LAB REPORT', 14, 15);
+
+      // Student and Soil Info
+      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Student Name: ${name}`, 14, 34);
+      doc.text(`Roll / ID No: ${id}`, 14, 40);
+      doc.text(`Batch / Class: ${batch}`, 14, 46);
+      doc.text(`Test Date: ${date}`, 120, 34);
+      doc.text(`Sample Specimen: ${soil.name} [${soil.code}]`, 120, 40);
+      doc.text(`Initial Dry Mass (W_total): ${state.totalMass} g`, 120, 46);
+
+      // Embed Gradation Chart with D10/D30/D60 Ray Traces
+      const chartCanvas = document.getElementById('liveGradationChart');
+      if (chartCanvas) {
+        const chartImg = chartCanvas.toDataURL('image/png', 1.0);
+        doc.addImage(chartImg, 'PNG', 14, 52, 182, 80);
+      }
+
+      // Summary Parameters Box
+      const d10T = state.metrics.d10 ? state.metrics.d10.toFixed(3) : 'N/A';
+      const d30T = state.metrics.d30 ? state.metrics.d30.toFixed(3) : 'N/A';
+      const d60T = state.metrics.d60 ? state.metrics.d60.toFixed(3) : 'N/A';
+      const cuT = state.metrics.cu ? state.metrics.cu.toFixed(2) : 'N/A';
+      const ccT = state.metrics.cc ? state.metrics.cc.toFixed(2) : 'N/A';
+
+      doc.autoTable({
+        startY: 136,
+        head: [['D10 (mm)', 'D30 (mm)', 'D60 (mm)', 'Uniformity Cu (D60/D10)', 'Curvature Cc', 'Classification']],
+        body: [[
+          d10T,
+          d30T,
+          d60T,
+          cuT,
+          ccT,
+          `[${soil.code}] ${soil.name}`
+        ]],
+        theme: 'grid',
+        headStyles: { fillColor: [79, 70, 229], fontStyle: 'bold', fontSize: 7.5 },
+        bodyStyles: { fontSize: 7.5, fontStyle: 'bold', halign: 'center' }
+      });
+
+      // Table Data
+      const tableData = [];
+      let cum = 0;
+      state.sieves.forEach(s => {
+        const ret = (s.currentMass / state.totalMass) * 100;
+        cum += ret;
+        const pass = Math.max(0, 100 - cum);
+        tableData.push([s.name, s.currentMass.toFixed(1), ret.toFixed(2) + '%', cum.toFixed(2) + '%', pass.toFixed(2) + '%']);
+      });
+
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 3,
+        head: [['Sieve Aperture', 'Mass Retained (g)', '% Retained', 'Cumulative Retained %', '% Passing (Finer)']],
+        body: tableData,
+        theme: 'striped',
+        headStyles: { fillColor: [51, 65, 85], fontStyle: 'bold', fontSize: 7.5 },
+        styles: { fontSize: 7.5, cellPadding: 2 }
+      });
+
+      // Signatures
+      const finalY = doc.lastAutoTable.finalY + 14;
+      if (finalY < 280) {
+        doc.line(14, finalY, 70, finalY);
+        doc.text("Student Signature", 24, finalY + 4);
+        doc.line(140, finalY, 196, finalY);
+        doc.text("Laboratory Evaluator", 142, finalY + 4);
+      }
+
+      doc.save(`Sieve_Shaker_${id.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      document.getElementById('modal-report-setup').classList.add('hidden');
+    }
+
+    function setupListeners() {
+      document.getElementById('btn-toggle-shaker').addEventListener('click', toggleShaker);
+      document.getElementById('btn-reset-all').addEventListener('click', resetAll);
+      document.getElementById('sample-preset-select').addEventListener('change', (e) => setPreset(e.target.value));
+
+      document.getElementById('input-sample-mass').addEventListener('input', (e) => {
+        const v = parseFloat(e.target.value);
+        if (!isNaN(v) && v > 0) {
+          state.totalMass = v;
+          resetAll();
+        }
+      });
+
+      // PDF
+      const modal = document.getElementById('modal-report-setup');
+      document.getElementById('btn-open-pdf-modal').addEventListener('click', () => modal.classList.remove('hidden'));
+      document.getElementById('btn-close-pdf-modal').addEventListener('click', () => modal.classList.add('hidden'));
+      document.getElementById('btn-cancel-pdf').addEventListener('click', () => modal.classList.add('hidden'));
+      document.getElementById('btn-download-pdf-exec').addEventListener('click', generatePdf);
+      document.getElementById('rep-date').value = new Date().toISOString().split('T')[0];
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initChart();
+      setupListeners();
+      setPreset('well_sand');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hydrometer Analysis for Fine-Grained Soils | IS: 2720 (Part 4) / ASTM D7928</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <!-- jsPDF & autoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .math-symbol {
+      font-style: italic;
+      font-family: "Times New Roman", Times, serif;
+    }
+
+    /* 1000 mL Sedimentary Cylinder Glass */
+    .cylinder-glass {
+      background: linear-gradient(90deg, 
+        rgba(255,255,255,0.4) 0%, 
+        rgba(240,249,255,0.12) 20%, 
+        rgba(255,255,255,0.05) 50%, 
+        rgba(224,242,254,0.18) 80%, 
+        rgba(255,255,255,0.45) 100%);
+      box-shadow: inset 0 0 16px rgba(186, 230, 253, 0.4), 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+    }
+
+    /* Glass Hydrometer 152H Bulb & Stem */
+    .hydrometer-bulb {
+      background: linear-gradient(90deg, #f8fafc 0%, #cbd5e1 30%, #ffffff 55%, #94a3b8 100%);
+      box-shadow: inset 0 1px 3px rgba(255,255,255,0.8), 0 4px 10px rgba(0,0,0,0.25);
+    }
+
+    /* Smooth settling motion */
+    .hydrometer-float {
+      will-change: transform;
+      transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    /* Sedimentation clearing gradient */
+    .turbidity-overlay {
+      transition: opacity 0.8s ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-blue-700 to-indigo-800 flex items-center justify-center text-white shadow-sm ring-2 ring-sky-100">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Soil Hydrometer Sedimentation Studio</h1>
+            <span class="text-[11px] bg-sky-50 text-sky-700 font-semibold px-2 py-0.5 rounded-full border border-sky-200">IS: 2720 (Part 4) &bull; ASTM D7928</span>
+          </div>
+          <p class="text-xs text-slate-500 hidden sm:block">Stokes' Law Sedimentation &bull; 152H Hydrometer Calibration &bull; Particle Sizes &lt; 75 &micro;m (Silt &amp; Clay Fractions)</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button id="btn-reset-exp" class="px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-300 transition-colors flex items-center space-x-1">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span>Reset Cylinder</span>
+        </button>
+        <button id="btn-export-pdf" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white bg-sky-700 hover:bg-sky-800 rounded-lg shadow-sm transition-all flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Download PDF Report</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+
+    <!-- Top Environmental & Test Configuration Card -->
+    <section class="bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-slate-200">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+        
+        <!-- Soil Specimen Selection -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">1. Fine Soil Specimen (&lt; 75 &micro;m)</label>
+          <select id="soil-type-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <option value="black_cotton" selected>Black Cotton Soil (Vertisol Clay - 65% Clay, 30% Silt)</option>
+            <option value="alluvial_silt">Gangetic Alluvial Silt Loam (45% Silt, 22% Clay)</option>
+            <option value="red_kaolinite">Red Kaolinitic Silt-Clay (Alfisol - 35% Silt, 32% Clay)</option>
+            <option value="pure_bentonite">Bentonite Smectite Colloidal Clay (88% Clay Fraction)</option>
+          </select>
+          <p class="text-[11px] text-slate-500 mt-1">Pre-treated with Sodium Hexametaphosphate [(NaPO3)6].</p>
+        </div>
+
+        <!-- Initial Dry Soil Mass taken in 1000 mL suspension -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">2. Oven-Dry Soil Mass (<span class="math-symbol">M</span><sub>d</sub>)</label>
+          <div class="flex items-center space-x-2">
+            <input type="number" id="input-dry-mass" value="50.0" min="30" max="75" step="5" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold font-mono-num text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <span class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl border border-slate-200">g in 1000 mL</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1">Dispensed in standard 1000 mL cylinder.</p>
+        </div>
+
+        <!-- Bath Temperature (Affects dynamic viscosity η and density) -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-bold uppercase tracking-wider text-slate-700">3. Bath Temp (<span class="math-symbol">T</span> &deg;C)</label>
+            <span id="label-temp-val" class="text-xs font-mono-num font-bold text-sky-800 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">27.0 &deg;C</span>
+          </div>
+          <input type="range" id="temp-slider" min="15" max="38" value="27" step="1" class="w-full accent-sky-600 cursor-pointer">
+          <p class="text-[11px] text-slate-500 mt-1 font-mono-num">
+            Temperature correction (<span class="math-symbol">C</span><sub>t</sub>) calibrated to 27&deg;C.
+          </p>
+        </div>
+
+        <!-- Specific Gravity (Gs) -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">4. Specific Gravity (<span class="math-symbol">G</span><sub>s</sub>)</label>
+          <div class="flex items-center space-x-2">
+            <input type="number" id="input-gs-val" value="2.68" min="2.50" max="2.85" step="0.01" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold font-mono-num text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <span class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl border border-slate-200">Dimensionless</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1">Pycnometer density bottle value.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Main Dual Arena: Animated Sedimentation Cylinder & Live Stokes' Curve -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT 5 COLS: Animated Sedimentation Cylinder & 152H Hydrometer Float -->
+      <section class="lg:col-span-5 bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-slate-200 flex flex-col items-center justify-between min-h-[620px]">
+        
+        <!-- Live Elapsed Time Ribbon -->
+        <div class="w-full flex items-center justify-between pb-2 border-b border-slate-100">
+          <div class="flex items-center space-x-2">
+            <div id="shaking-dot" class="w-2.5 h-2.5 rounded-full bg-sky-600 animate-pulse"></div>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Sedimentation Cylinder (1000 mL)</span>
+          </div>
+          <span id="elapsed-time-tag" class="text-xs font-mono-num font-bold text-sky-800 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200">Elapsed Time: 0 min (T0)</span>
+        </div>
+
+        <!-- THE 1000 mL SEDIMENTATION CYLINDER RIG -->
+        <div class="w-full flex-1 flex items-center justify-center py-4 relative">
+          
+          <!-- Outer Cylindrical Glass Tube (1000 mL) -->
+          <div class="w-44 sm:w-48 h-[440px] rounded-t-lg rounded-b-2xl cylinder-glass border-2 border-slate-300 relative overflow-hidden flex flex-col justify-end p-1.5 shadow-xl">
+            
+            <!-- Standard Volume Graduation Markings (100 to 1000 mL) -->
+            <div class="absolute inset-y-3 right-2 flex flex-col justify-between text-[9px] font-mono-num font-semibold text-slate-500 select-none pointer-events-none z-20">
+              <span>— 1000 mL</span>
+              <span>— 900</span>
+              <span>— 800</span>
+              <span>— 700</span>
+              <span>— 600</span>
+              <span>— 500</span>
+              <span>— 400</span>
+              <span>— 300</span>
+              <span>— 200</span>
+              <span>— 100 mL</span>
+            </div>
+
+            <!-- Meniscus Rim Line -->
+            <div class="absolute top-3 inset-x-2 h-2.5 bg-sky-200/50 rounded-full border border-sky-300/60 z-10"></div>
+
+            <!-- SUSPENSION TURBIDITY LAYER (Clears progressively from top to bottom as particles settle) -->
+            <div id="turbidity-layer" class="w-full h-full rounded-b-xl relative overflow-hidden flex flex-col justify-end turbidity-overlay" style="background: linear-gradient(180deg, rgba(146, 64, 14, 0.45) 0%, rgba(120, 53, 15, 0.88) 100%);">
+              
+              <!-- Settled Sediment Bed (Accumulates at the cylinder base) -->
+              <div id="settled-soil-bed" class="w-full bg-[#451a03] border-t border-amber-900 transition-all duration-500 z-5" style="height: 4px;"></div>
+            </div>
+
+            <!-- THE 152H SOIL HYDROMETER (Floats inside suspension, sinks deeper as density drops) -->
+            <div id="hydrometer-unit" class="absolute top-2 left-10 sm:left-12 flex flex-col items-center hydrometer-float z-30" style="transform: translateY(20px);">
+              
+              <!-- Hydrometer Stem (Graduated in g/L: -5 to +60) -->
+              <div class="w-2.5 h-36 bg-white/95 border border-slate-400 rounded-t-md relative flex flex-col justify-between items-center py-1 shadow-sm">
+                <span class="text-[6px] font-mono-num text-slate-700 font-bold">0</span>
+                <span class="text-[6px] font-mono-num text-slate-700 font-bold">20</span>
+                <span class="text-[6px] font-mono-num text-slate-700 font-bold">40</span>
+                <span class="text-[6px] font-mono-num text-slate-700 font-bold">60</span>
+                <!-- Red Meniscus Reading Cursor Indicator -->
+                <div class="absolute top-14 inset-x-0 h-0.5 bg-rose-600"></div>
+              </div>
+
+              <!-- Bulb Neck Transition -->
+              <div class="w-5 h-4 bg-slate-300 border-x border-slate-400"></div>
+
+              <!-- Streamlined Hydrometer Bulb (Contains lead shots / ballast) -->
+              <div class="w-8 h-28 hydrometer-bulb rounded-b-full border border-slate-400 relative flex flex-col justify-end items-center pb-2">
+                <!-- Ballast Lead Shots -->
+                <div class="w-5 h-5 bg-slate-800 rounded-full opacity-90 shadow-inner"></div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Base Plate Stand -->
+          <div class="w-56 h-3 bg-slate-800 rounded-full absolute -bottom-1 shadow-lg"></div>
+
+        </div>
+
+        <!-- Sedimentation Elapsed Time Selector Buttons (ASTM D7928 Standard Intervals) -->
+        <div class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col gap-2">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-700">
+            <span>Select Settlement Interval (<span class="math-symbol">t</span>):</span>
+            <span class="text-[10px] text-sky-800 font-mono-num font-bold">Stokes' Velocity: <span class="math-symbol">v</span> = <span class="math-symbol">H</span><sub>e</sub> / <span class="math-symbol">t</span></span>
+          </div>
+
+          <!-- Interval Buttons -->
+          <div class="grid grid-cols-4 sm:grid-cols-7 gap-1.5 text-xs font-mono-num font-bold">
+            <button class="time-step-btn py-1.5 px-1 bg-white border border-slate-300 rounded-lg hover:bg-sky-50 text-slate-700" data-time="0.5">0.5m</button>
+            <button class="time-step-btn py-1.5 px-1 bg-white border border-slate-300 rounded-lg hover:bg-sky-50 text-slate-700" data-time="1">1 min</button>
+            <button class="time-step-btn py-1.5 px-1 bg-sky-700 text-white rounded-lg shadow-2xs" data-time="2">2 min</button>
+            <button class="time-step-btn py-1.5 px-1 bg-white border border-slate-300 rounded-lg hover:bg-sky-50 text-slate-700" data-time="4">4 min</button>
+            <button class="time-step-btn py-1.5 px-1 bg-white border border-slate-300 rounded-lg hover:bg-sky-50 text-slate-700" data-time="15">15 min</button>
+            <button class="time-step-btn py-1.5 px-1 bg-white border border-slate-300 rounded-lg hover:bg-sky-50 text-slate-700" data-time="45">45 min</button>
+            <button class="time-step-btn py-1.5 px-1 bg-white border border-slate-300 rounded-lg hover:bg-sky-50 text-slate-700" data-time="120">2 hr</button>
+          </div>
+
+          <!-- Automatic Progress Playback -->
+          <div class="pt-1 flex items-center justify-between">
+            <button id="btn-auto-playback" class="text-xs font-bold text-sky-800 hover:text-sky-950 flex items-center space-x-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+              <span id="label-playback-btn">Play Time Progression (Auto Settle)</span>
+            </button>
+            <button id="btn-take-reading" class="px-2.5 py-1 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-lg shadow-2xs">
+              Record Reading Point
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT 7 COLS: Stokes' Law Particle Gradation Curve & Calculations -->
+      <section class="lg:col-span-7 space-y-4">
+        
+        <!-- Live Particle Size Distribution (< 75 µm) Chart -->
+        <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-5 flex flex-col">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100 mb-2">
+            <div>
+              <h2 class="text-base font-bold text-slate-900">Fine Fraction Grain Size Curve (&lt; 0.075 mm)</h2>
+              <p class="text-xs text-slate-500">Particle Diameter <span class="math-symbol">D</span> (&micro;m / mm) vs. Percentage Finer <span class="math-symbol">N</span> (%)</p>
+            </div>
+            <div class="flex items-center gap-1.5 text-[10px] font-bold">
+              <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">Silt: 0.075 &ndash; 0.002 mm</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 border border-emerald-200">Clay: &lt; 0.002 mm</span>
+            </div>
+          </div>
+
+          <div class="relative w-full h-[320px]">
+            <canvas id="hydrometerChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Real-Time Stokes' Law Calculation Readouts -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono-num text-xs">
+          
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+            <span class="text-[10px] text-slate-500 font-bold block">Hydrometer (<span class="math-symbol">R</span><sub>h</sub>)</span>
+            <span id="stat-rh-val" class="text-base font-black text-slate-800 my-0.5">38.0</span>
+            <span class="text-[9px] text-slate-400 block">g/L (Observed)</span>
+          </div>
+
+          <div class="bg-sky-50/70 p-3 rounded-xl border border-sky-200 text-center">
+            <span class="text-[10px] text-sky-800 font-bold block">Effective Depth (<span class="math-symbol">H</span><sub>e</sub>)</span>
+            <span id="stat-he-val" class="text-base font-black text-sky-950 my-0.5">10.2 cm</span>
+            <span class="text-[9px] text-sky-700 block">From calibration chart</span>
+          </div>
+
+          <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-200 text-center">
+            <span class="text-[10px] text-indigo-800 font-bold block">Grain Diameter (<span class="math-symbol">D</span>)</span>
+            <span id="stat-dia-val" class="text-base font-black text-indigo-950 my-0.5">0.032 mm</span>
+            <span class="text-[9px] text-indigo-700 block"><span class="math-symbol">D</span> = <span class="math-symbol">K</span> &times; &radic;(<span class="math-symbol">H</span><sub>e</sub> / <span class="math-symbol">t</span>)</span>
+          </div>
+
+          <div class="bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 text-center">
+            <span class="text-[10px] text-emerald-800 font-bold block">Percent Finer (<span class="math-symbol">N</span>)</span>
+            <span id="stat-finer-val" class="text-base font-black text-emerald-950 my-0.5">72.4 %</span>
+            <span class="text-[9px] text-emerald-700 block">Corrected percentage</span>
+          </div>
+
+        </div>
+
+        <!-- Hydrometer Corrections Summary Banner -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-2 text-xs">
+          <div class="flex items-center justify-between font-bold text-slate-700 uppercase tracking-wide pb-1 border-b border-slate-100">
+            <span>Standard Corrections Applied (IS: 2720 Part 4)</span>
+            <span class="text-sky-700 font-mono-num font-bold">Total Correction <span class="math-symbol">C</span> = <span class="math-symbol">C</span><sub>t</sub> &minus; <span class="math-symbol">C</span><sub>d</sub> + <span class="math-symbol">C</span><sub>m</sub></span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 font-mono-num text-[11px] pt-1">
+            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+              <span class="text-slate-500 block text-[10px]">1. Meniscus (<span class="math-symbol">C</span><sub>m</sub>)</span>
+              <span class="font-bold text-slate-800">+ 0.5 g/L</span>
+            </div>
+            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+              <span class="text-slate-500 block text-[10px]">2. Temperature (<span class="math-symbol">C</span><sub>t</sub>)</span>
+              <span id="stat-ct-val" class="font-bold text-slate-800">+ 0.0 g/L (at 27&deg;C)</span>
+            </div>
+            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+              <span class="text-slate-500 block text-[10px]">3. Dispersing Agent (<span class="math-symbol">C</span><sub>d</sub>)</span>
+              <span class="font-bold text-slate-800">&minus; 2.5 g/L (Calgon)</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- Observation Log Table -->
+    <section class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5 space-y-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Sedimentation Observation Record Table</h3>
+          <p class="text-xs text-slate-500">Stokes' law formulation applied across standardized settling periods</p>
+        </div>
+        <button id="btn-clear-table" class="text-xs text-rose-600 hover:underline font-bold">Clear Observations</button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs font-mono-num border-collapse">
+          <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+            <tr>
+              <th class="p-2.5">Elapsed Time (<span class="math-symbol">t</span> min)</th>
+              <th class="p-2.5">Hydrometer (<span class="math-symbol">R</span><sub>h</sub>)</th>
+              <th class="p-2.5">Corrected (<span class="math-symbol">R</span>)</th>
+              <th class="p-2.5">Effective Depth (<span class="math-symbol">H</span><sub>e</sub> cm)</th>
+              <th class="p-2.5">Velocity (<span class="math-symbol">v</span> cm/min)</th>
+              <th class="p-2.5">Particle Dia (<span class="math-symbol">D</span> mm)</th>
+              <th class="p-2.5 text-right">% Finer (<span class="math-symbol">N</span> %)</th>
+            </tr>
+          </thead>
+          <tbody id="observation-tbody" class="divide-y divide-slate-100 font-medium">
+            <!-- Dynamically populated rows -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- PDF Student Metadata Modal -->
+  <div id="modal-report-setup" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">Hydrometer Laboratory Practical Report</h3>
+          <p class="text-xs text-slate-500">Grain Size Analysis for Silts and Clays (IS: 2720 Part 4 / ASTM D7928)</p>
+        </div>
+        <button type="button" id="btn-close-pdf-modal" class="text-slate-400 hover:text-slate-600">&times;</button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Student Full Name</label>
+          <input type="text" id="rep-student-name" placeholder="e.g. Ramesh Pujari" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Roll No / USN</label>
+          <input type="text" id="rep-student-id" placeholder="e.g. 3BR21CV018" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono-num">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Class / Department</label>
+          <input type="text" id="rep-batch" placeholder="e.g. Geotechnical Engineering Lab - Batch A" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Date of Experiment</label>
+          <input type="date" id="rep-date" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
+        <button type="button" id="btn-cancel-pdf" class="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
+        <button type="button" id="btn-download-pdf-exec" class="px-5 py-2 text-xs font-bold text-white bg-sky-700 hover:bg-sky-800 rounded-xl shadow-xs transition-all">Download PDF Report</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* EXPERIMENTAL MATHEMATICAL ENGINE ACCORDING TO STOKES' LAW */
+    const labState = {
+      soilKey: 'black_cotton',
+      dryMass: 50.0,       // Md (g)
+      tempC: 27,           // Bath Temperature (°C)
+      Gs: 2.68,            // Specific gravity
+      currentTimeMin: 2.0, // Current selected interval
+      isAutoPlaying: false,
+      autoTimer: null,
+      
+      observations: []
+    };
+
+    // Fine-grained soil database (Silt & Clay fractions)
+    const soilProfiles = {
+      black_cotton: {
+        name: "Black Cotton Soil (Vertisol Clay)",
+        Gs: 2.70,
+        siltPct: 30.0,
+        clayPct: 65.0,
+        // Standard 152H time series (t min => [Rh, He cm])
+        timeSeries: {
+          0.5: { rh: 44.0, he: 8.5 },
+          1.0: { rh: 41.5, he: 9.3 },
+          2.0: { rh: 38.0, he: 10.2 },
+          4.0: { rh: 34.0, he: 11.2 },
+          15.0: { rh: 28.0, he: 12.8 },
+          45.0: { rh: 22.5, he: 14.1 },
+          120.0: { rh: 18.0, he: 15.2 }
+        }
+      },
+      alluvial_silt: {
+        name: "Gangetic Alluvial Silt Loam",
+        Gs: 2.65,
+        siltPct: 62.0,
+        clayPct: 22.0,
+        timeSeries: {
+          0.5: { rh: 40.0, he: 9.6 },
+          1.0: { rh: 35.0, he: 10.9 },
+          2.0: { rh: 28.5, he: 12.6 },
+          4.0: { rh: 22.0, he: 14.2 },
+          15.0: { rh: 15.0, he: 16.0 },
+          45.0: { rh: 11.0, he: 17.0 },
+          120.0: { rh: 8.5, he: 17.6 }
+        }
+      },
+      red_kaolinite: {
+        name: "Red Kaolinitic Silt-Clay (Alfisol)",
+        Gs: 2.66,
+        siltPct: 40.0,
+        clayPct: 36.0,
+        timeSeries: {
+          0.5: { rh: 42.0, he: 9.1 },
+          1.0: { rh: 38.0, he: 10.2 },
+          2.0: { rh: 33.0, he: 11.5 },
+          4.0: { rh: 27.0, he: 13.0 },
+          15.0: { rh: 20.0, he: 14.8 },
+          45.0: { rh: 15.5, he: 15.9 },
+          120.0: { rh: 12.0, he: 16.8 }
+        }
+      },
+      pure_bentonite: {
+        name: "Bentonite Colloidal Clay",
+        Gs: 2.75,
+        siltPct: 10.0,
+        clayPct: 88.0,
+        timeSeries: {
+          0.5: { rh: 48.0, he: 7.5 },
+          1.0: { rh: 46.5, he: 7.9 },
+          2.0: { rh: 45.0, he: 8.3 },
+          4.0: { rh: 42.5, he: 8.9 },
+          15.0: { rh: 39.0, he: 9.8 },
+          45.0: { rh: 35.0, he: 10.9 },
+          120.0: { rh: 31.0, he: 11.9 }
+        }
+      }
+    };
+
+    let hydrometerChart = null;
+
+    function initChart() {
+      const ctx = document.getElementById('hydrometerChart').getContext('2d');
+      hydrometerChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          datasets: [
+            {
+              label: 'Observed Hydrometer Trial Points',
+              data: [],
+              borderColor: '#0284c7',
+              backgroundColor: '#0284c7',
+              pointRadius: 6,
+              pointHoverRadius: 8,
+              showLine: false
+            },
+            {
+              label: 'Stokes Sedimentation Curve',
+              data: [],
+              borderColor: '#0284c7',
+              borderWidth: 2.5,
+              tension: 0.3,
+              pointRadius: 0,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              type: 'logarithmic',
+              min: 0.0008,
+              max: 0.1,
+              reverse: true, // Standard geotechnical: 0.1 mm -> 0.001 mm
+              title: { display: true, text: 'Particle Diameter, D (mm) [Logarithmic Scale]', font: { weight: 'bold', size: 11 } },
+              ticks: {
+                callback: function(v) {
+                  const allowed = [0.1, 0.075, 0.05, 0.02, 0.01, 0.005, 0.002, 0.001];
+                  if (allowed.some(a => Math.abs(a - v) < 0.0001)) {
+                    return v.toString();
+                  }
+                  return '';
+                }
+              },
+              grid: { color: '#f1f5f9' }
+            },
+            y: {
+              min: 0,
+              max: 100,
+              title: { display: true, text: 'Percentage Finer by Weight, N (%)', font: { weight: 'bold', size: 11 } },
+              ticks: { stepSize: 10 },
+              grid: { color: '#f1f5f9' }
+            }
+          }
+        }
+      });
+    }
+
+    /* Calculate Stokes' Law Parameters for given time step */
+    function computeStokesStep(timeMin) {
+      const profile = soilProfiles[labState.soilKey];
+      const stepData = profile.timeSeries[timeMin] || { rh: 30.0, he: 12.0 };
+      
+      const Rh = stepData.rh;
+      const He = stepData.he;
+
+      // 1. Temperature Correction Ct: calibrated at 27°C (IS standard)
+      // Ct = (T - 27) * 0.20
+      const Ct = (labState.tempC - 27) * 0.20;
+
+      // 2. Meniscus correction Cm = +0.5, Dispersing agent Cd = -2.5
+      const Cm = 0.5;
+      const Cd = 2.5;
+      const totalC = Ct - Cd + Cm;
+      const R = Rh + totalC; // Fully corrected hydrometer reading
+
+      // 3. Stokes velocity factor K:
+      // K = sqrt( [30 * eta] / [980 * (Gs - 1) * rho_w] )
+      // At 27°C, water viscosity eta ~ 0.0085 poise
+      const eta = 0.0085 * (1 - 0.02 * (labState.tempC - 27)); // Viscosity adjustment
+      const K = Math.sqrt((30 * eta) / (980 * (labState.Gs - 1) * 1.0));
+
+      // 4. Particle Diameter D (mm)
+      // D = K * sqrt(He / t)
+      const D = K * Math.sqrt(He / timeMin);
+
+      // 5. Percentage Finer N (%)
+      // For 152H hydrometer (calibrated for Gs = 2.65):
+      // a = [Gs / (Gs - 1)] * [1.65 / 2.65]
+      const a = (labState.Gs / (labState.Gs - 1)) * (1.65 / 2.65);
+      const N = Math.min(100, Math.max(0, (R * a / labState.dryMass) * 100));
+
+      return { timeMin, Rh, R, He, D, N, Ct };
+    }
+
+    function updateSimulationVisuals(timeMin) {
+      labState.currentTimeMin = timeMin;
+      const step = computeStokesStep(timeMin);
+
+      // Sinking animation: as Rh drops from 50 to 10, hydrometer sinks deeper (He increases)
+      // Map He (7cm to 17cm) to translateY pixel bounds (0px to 95px)
+      const yOffset = (step.He - 7.5) * 8.5;
+      document.getElementById('hydrometer-unit').style.transform = `translateY(${yOffset}px)`;
+
+      // Turbidity clearing: higher settling time => clear supernatant layer at top
+      const progressFrac = Math.min(1.0, Math.log10(timeMin + 1) / Math.log10(121));
+      const opacity = Math.max(0.2, 0.9 - (progressFrac * 0.55));
+      document.getElementById('turbidity-layer').style.background = 
+        `linear-gradient(180deg, rgba(254, 243, 199, ${0.1 + progressFrac * 0.4}) 0%, rgba(146, 64, 14, ${opacity}) 40%, rgba(69, 26, 3, 0.95) 100%)`;
+
+      // Settled sediment bed accumulation at cylinder base
+      document.getElementById('settled-soil-bed').style.height = `${4 + progressFrac * 22}px`;
+
+      // Text readouts
+      document.getElementById('elapsed-time-tag').textContent = `Elapsed Time: ${timeMin} min`;
+      document.getElementById('stat-rh-val').textContent = step.Rh.toFixed(1);
+      document.getElementById('stat-he-val').textContent = `${step.He.toFixed(1)} cm`;
+      document.getElementById('stat-dia-val').textContent = `${step.D.toFixed(3)} mm`;
+      document.getElementById('stat-finer-val').textContent = `${step.N.toFixed(1)} %`;
+      document.getElementById('stat-ct-val').textContent = `${step.Ct >= 0 ? '+' : ''}${step.Ct.toFixed(2)} g/L`;
+
+      // Update button highlight
+      document.querySelectorAll('.time-step-btn').forEach(btn => {
+        if (parseFloat(btn.dataset.time) === timeMin) {
+          btn.className = "time-step-btn py-1.5 px-1 bg-sky-700 text-white rounded-lg shadow-2xs";
+        } else {
+          btn.className = "time-step-btn py-1.5 px-1 bg-white border border-slate-300 rounded-lg hover:bg-sky-50 text-slate-700";
+        }
+      });
+    }
+
+    function recordCurrentReading() {
+      const step = computeStokesStep(labState.currentTimeMin);
+      
+      // Avoid duplicates for same time
+      const exists = labState.observations.some(o => o.timeMin === step.timeMin);
+      if (!exists) {
+        labState.observations.push(step);
+        labState.observations.sort((a, b) => a.D - b.D);
+        renderTableAndCurve();
+      }
+    }
+
+    function renderTableAndCurve() {
+      const tbody = document.getElementById('observation-tbody');
+      tbody.innerHTML = '';
+
+      const chartPoints = [];
+      labState.observations.forEach(o => {
+        const vel = o.He / o.timeMin;
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50';
+        tr.innerHTML = `
+          <td class="p-2.5 font-bold text-slate-800">${o.timeMin} min</td>
+          <td class="p-2.5">${o.Rh.toFixed(1)}</td>
+          <td class="p-2.5 font-semibold text-slate-700">${o.R.toFixed(1)}</td>
+          <td class="p-2.5">${o.He.toFixed(1)}</td>
+          <td class="p-2.5 text-slate-500">${vel.toFixed(2)}</td>
+          <td class="p-2.5 font-bold text-indigo-700">${o.D.toFixed(4)}</td>
+          <td class="p-2.5 text-right font-black text-emerald-800">${o.N.toFixed(1)}%</td>
+        `;
+        tbody.appendChild(tr);
+
+        chartPoints.push({ x: o.D, y: o.N });
+      });
+
+      // Update Chart points & smooth spline
+      hydrometerChart.data.datasets[0].data = chartPoints;
+      hydrometerChart.data.datasets[1].data = chartPoints;
+      hydrometerChart.update();
+    }
+
+    function toggleAutoPlayback() {
+      if (labState.isAutoPlaying) {
+        stopAutoPlayback();
+      } else {
+        labState.isAutoPlaying = true;
+        document.getElementById('label-playback-btn').textContent = "Pause Progression";
+        const times = [0.5, 1, 2, 4, 15, 45, 120];
+        let idx = 0;
+
+        labState.autoTimer = setInterval(() => {
+          if (idx >= times.length) {
+            stopAutoPlayback();
+          } else {
+            updateSimulationVisuals(times[idx]);
+            recordCurrentReading();
+            idx++;
+          }
+        }, 1100);
+      }
+    }
+
+    function stopAutoPlayback() {
+      labState.isAutoPlaying = false;
+      clearInterval(labState.autoTimer);
+      labState.autoTimer = null;
+      document.getElementById('label-playback-btn').textContent = "Play Time Progression (Auto Settle)";
+    }
+
+    function generatePdfReport() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+      const name = document.getElementById('rep-student-name').value.trim() || 'Student Investigator';
+      const id = document.getElementById('rep-student-id').value.trim() || 'N/A';
+      const batch = document.getElementById('rep-batch').value.trim() || 'Geotechnical / Soil Physics Laboratory';
+      const date = document.getElementById('rep-date').value || new Date().toISOString().split('T')[0];
+
+      const profile = soilProfiles[labState.soilKey];
+
+      // Header Banner
+      doc.setFillColor(3, 105, 161);
+      doc.rect(0, 0, 210, 24, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text("HYDROMETER SEDIMENTATION ANALYSIS REPORT (IS: 2720 PART 4)", 14, 15);
+
+      // Student and Test Metadata
+      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Student Name: ${name}`, 14, 34);
+      doc.text(`Roll / ID No: ${id}`, 14, 40);
+      doc.text(`Batch / Class: ${batch}`, 14, 46);
+      doc.text(`Test Date: ${date}`, 120, 34);
+      doc.text(`Tested Material: ${profile.name}`, 120, 40);
+      doc.text(`Initial Dry Mass (Md): ${labState.dryMass} g  |  Temp: ${labState.tempC}°C`, 120, 46);
+
+      // Embed Gradation Curve Chart
+      const chartCanvas = document.getElementById('hydrometerChart');
+      if (chartCanvas && labState.observations.length > 0) {
+        const chartImg = chartCanvas.toDataURL('image/png', 1.0);
+        doc.addImage(chartImg, 'PNG', 14, 52, 182, 78);
+      }
+
+      // Observation Table Data
+      const tableData = labState.observations.map(o => [
+        `${o.timeMin} min`,
+        o.Rh.toFixed(1),
+        o.R.toFixed(1),
+        `${o.He.toFixed(1)} cm`,
+        `${(o.He / o.timeMin).toFixed(2)} cm/min`,
+        `${o.D.toFixed(4)} mm`,
+        `${o.N.toFixed(1)} %`
+      ]);
+
+      doc.autoTable({
+        startY: 134,
+        head: [['Elapsed Time', 'Observed Rh', 'Corrected R', 'Eff. Depth He', 'Velocity (v)', 'Particle Dia (D)', '% Finer (N)']],
+        body: tableData,
+        theme: 'striped',
+        headStyles: { fillColor: [3, 105, 161], fontStyle: 'bold', fontSize: 7.5 },
+        styles: { fontSize: 7.5, cellPadding: 2 }
+      });
+
+      // Engineering Interpretations
+      const finalY = doc.lastAutoTable.finalY + 12;
+      if (finalY < 250) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.text("GEOTECHNICAL & PEDOLOGICAL FRACTION SUMMARY:", 14, finalY);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+
+        const notes = [
+          `1. Stokes' law validity governs spherical settling under laminar flow (particle diameters 0.075 mm down to 0.001 mm).`,
+          `2. Silt Fraction (0.075 - 0.002 mm): Estimated at ~${profile.siltPct}% of sample weight.`,
+          `3. Clay Fraction (< 0.002 mm / 2 µm colloidal size): Estimated at ~${profile.clayPct}% of sample weight.`,
+          `4. Meniscus (+0.5), Temperature (${labState.tempC > 27 ? '+' : ''}${((labState.tempC - 27) * 0.2).toFixed(2)}), and Calgon dispersant (-2.5) corrections strictly applied.`
+        ];
+
+        notes.forEach((l, i) => doc.text(l, 14, finalY + 6 + (i * 5)));
+      }
+
+      // Signatures
+      const sigY = 272;
+      doc.line(14, sigY, 70, sigY);
+      doc.text("Student Signature", 24, sigY + 4);
+      doc.line(140, sigY, 196, sigY);
+      doc.text("Laboratory In-Charge", 144, sigY + 4);
+
+      doc.save(`Hydrometer_Analysis_${id.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      document.getElementById('modal-report-setup').classList.add('hidden');
+    }
+
+    function setupEventListeners() {
+      // Time step buttons
+      document.querySelectorAll('.time-step-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const t = parseFloat(e.currentTarget.dataset.time);
+          updateSimulationVisuals(t);
+        });
+      });
+
+      // Record reading button
+      document.getElementById('btn-take-reading').addEventListener('click', recordCurrentReading);
+
+      // Auto playback
+      document.getElementById('btn-auto-playback').addEventListener('click', toggleAutoPlayback);
+
+      // Soil type change
+      document.getElementById('soil-type-select').addEventListener('change', (e) => {
+        labState.soilKey = e.target.value;
+        const profile = soilProfiles[labState.soilKey];
+        labState.Gs = profile.Gs;
+        document.getElementById('input-gs-val').value = profile.Gs.toFixed(2);
+        labState.observations = [];
+        updateSimulationVisuals(2.0);
+        renderTableAndCurve();
+      });
+
+      // Dry mass input
+      document.getElementById('input-dry-mass').addEventListener('input', (e) => {
+        const v = parseFloat(e.target.value);
+        if (!isNaN(v) && v > 0) {
+          labState.dryMass = v;
+          updateSimulationVisuals(labState.currentTimeMin);
+        }
+      });
+
+      // Temp slider
+      document.getElementById('temp-slider').addEventListener('input', (e) => {
+        labState.tempC = parseInt(e.target.value);
+        document.getElementById('label-temp-val').textContent = `${labState.tempC}.0 °C`;
+        updateSimulationVisuals(labState.currentTimeMin);
+      });
+
+      // Gs input
+      document.getElementById('input-gs-val').addEventListener('input', (e) => {
+        const v = parseFloat(e.target.value);
+        if (!isNaN(v) && v > 0) {
+          labState.Gs = v;
+          updateSimulationVisuals(labState.currentTimeMin);
+        }
+      });
+
+      // Clear table
+      document.getElementById('btn-clear-table').addEventListener('click', () => {
+        labState.observations = [];
+        renderTableAndCurve();
+      });
+
+      // Reset
+      document.getElementById('btn-reset-exp').addEventListener('click', () => {
+        stopAutoPlayback();
+        labState.observations = [];
+        renderTableAndCurve();
+        updateSimulationVisuals(2.0);
+      });
+
+      // PDF modal
+      const modal = document.getElementById('modal-report-setup');
+      document.getElementById('btn-export-pdf').addEventListener('click', () => modal.classList.remove('hidden'));
+      document.getElementById('btn-close-pdf-modal').addEventListener('click', () => modal.classList.add('hidden'));
+      document.getElementById('btn-cancel-pdf').addEventListener('click', () => modal.classList.add('hidden'));
+      document.getElementById('btn-download-pdf-exec').addEventListener('click', generatePdfReport);
+      document.getElementById('rep-date').value = new Date().toISOString().split('T')[0];
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initChart();
+      setupEventListeners();
+      
+      // Load standard defaults and pre-populate all 7 time interval steps
+      updateSimulationVisuals(2.0);
+      [0.5, 1, 2, 4, 15, 45, 120].forEach(t => {
+        labState.currentTimeMin = t;
+        recordCurrentReading();
+      });
+      updateSimulationVisuals(2.0);
+    });
+  </script>
+</body>
+</html>

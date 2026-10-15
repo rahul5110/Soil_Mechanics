@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atterberg Limits & Soil Plasticity Virtual Laboratory Studio</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <!-- jsPDF & autoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .math-symbol {
+      font-style: italic;
+      font-family: "Times New Roman", Times, serif;
+    }
+
+    /* Stable GPU-accelerated Cup Bounce */
+    .cup-unit {
+      will-change: transform;
+      transition: transform 0.05s ease-out;
+    }
+    .cup-lifted {
+      transform: translateY(-10px) !important;
+    }
+    .cup-dropped {
+      transform: translateY(0px) !important;
+    }
+
+    /* Metallic Casagrande Cup Gradient */
+    .brass-cup {
+      background: radial-gradient(circle at 35% 25%, #fef08a 0%, #eab308 35%, #ca8a04 70%, #854d0e 100%);
+      box-shadow: inset 0 2px 5px rgba(255,255,255,0.7), 0 8px 18px -4px rgba(15,23,42,0.3);
+    }
+
+    /* Mercury Surface Texture */
+    .mercury-surface {
+      background: radial-gradient(circle at 30% 25%, #f8fafc 0%, #cbd5e1 35%, #94a3b8 70%, #475569 100%);
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.8), 0 4px 10px rgba(0,0,0,0.25);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-rose-600 to-indigo-600 flex items-center justify-center text-white shadow-sm ring-2 ring-rose-100">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Atterberg Limits & Plasticity Studio</h1>
+            <span class="text-[11px] bg-rose-50 text-rose-700 font-semibold px-2 py-0.5 rounded-full border border-rose-200">IS: 2720 (Parts 5 &amp; 6) &bull; ASTM D4318</span>
+          </div>
+          <p class="text-xs text-slate-500 hidden sm:block">Casagrande Liquid Limit &bull; Plastic Limit Thread Rolling &bull; Mercury Shrinkage Limit</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button id="btn-reset-current" class="px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-300 transition-colors flex items-center space-x-1">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span>Reset Apparatus</span>
+        </button>
+        <button id="btn-export-pdf" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg shadow-sm transition-all flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Consolidated Lab PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs (3 Main Windows) -->
+  <div class="bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-2 sm:space-x-4">
+      <button id="tab-ll" class="tab-btn py-3 px-4 text-xs sm:text-sm font-bold border-b-2 border-rose-600 text-rose-600 flex items-center space-x-2 transition-all">
+        <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+        <span>Window 1: Liquid Limit (Casagrande Water Addition &amp; Blow Trials)</span>
+      </button>
+      <button id="tab-pl" class="tab-btn py-3 px-4 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2 transition-all">
+        <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+        <span>Window 2: Plastic Limit (3mm Thread Rolling)</span>
+      </button>
+      <button id="tab-sl" class="tab-btn py-3 px-4 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2 transition-all">
+        <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+        <span>Window 3: Shrinkage Limit (Mercury Displacement)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Global Soil Selection & Dynamic Status Ribbon -->
+  <div class="bg-slate-100 border-b border-slate-200 py-2.5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-2">
+        <label for="global-soil-select" class="text-xs font-bold uppercase text-slate-700">Soil Specimen:</label>
+        <select id="global-soil-select" class="bg-white border border-slate-300 rounded-lg px-3 py-1 text-xs sm:text-sm font-bold text-slate-800 focus:ring-2 focus:ring-rose-500">
+          <option value="black_cotton" selected>Black Cotton Soil (High Plasticity Vertisol Clay - CH)</option>
+          <option value="gangetic_alluvium">Gangetic Alluvial Silt (Intermediate Plasticity - MI/CI)</option>
+          <option value="red_clay">Red Lithosol Clay (Inorganic Clay of Low Plasticity - CL)</option>
+          <option value="bentonite">Sodium Bentonite (Super-Swelling Smectite - CH)</option>
+          <option value="kaolin">Kaolinite China Clay (Non-swelling Kaolin - CL)</option>
+        </select>
+      </div>
+
+      <!-- Real-Time Plasticity State Badges -->
+      <div class="flex items-center space-x-3 text-xs font-mono-num font-bold">
+        <span class="text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">Interpolated LL (<span class="math-symbol">w</span><sub>L</sub>): <b id="head-ll-val">--</b></span>
+        <span class="text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">PL (<span class="math-symbol">w</span><sub>P</sub>): <b id="head-pl-val">28.0%</b></span>
+        <span class="text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">SL (<span class="math-symbol">w</span><sub>S</sub>): <b id="head-sl-val">12.5%</b></span>
+        <span class="text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">Plasticity Index (<span class="math-symbol">I</span><sub>P</sub>): <b id="head-pi-val">--</b></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Multi-Window Body -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+    <!-- ========================================================================= -->
+    <!-- WINDOW 1: LIQUID LIMIT (CASAGRANDE CUP WITH EXTENDED WATER & BLOW RANGE)   -->
+    <!-- ========================================================================= -->
+    <div id="window-ll" class="window-pane space-y-6">
+      
+      <!-- Top Water Addition & Soil Preparation Control Bar -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-slate-200">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+          
+          <div class="md:col-span-4">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-1">Dry Soil Specimen (<span class="math-symbol">M</span><sub>dry</sub>)</span>
+            <div class="flex items-center space-x-2">
+              <span class="text-sm font-bold font-mono-num text-slate-800 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 w-32 text-center">120.0 g</span>
+              <span class="text-xs text-slate-500 font-semibold">Passed through 425 &micro;m IS Sieve</span>
+            </div>
+          </div>
+
+          <!-- Extended Water Volume Control (starts from low levels like 20 - 30 mL) -->
+          <div class="md:col-span-5 bg-rose-50/60 p-3 rounded-xl border border-rose-200">
+            <div class="flex items-center justify-between text-xs font-bold text-rose-950 mb-1">
+              <span>Distilled Water Added (<span class="math-symbol">V</span><sub>water</sub>)</span>
+              <span class="font-mono-num text-rose-700 bg-white px-2.5 py-0.5 rounded border border-rose-300 font-bold" id="label-water-added">78.0 mL</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <input type="range" id="water-slider" min="15" max="150" value="78" step="1" class="w-full accent-rose-600 cursor-pointer">
+              <div class="flex space-x-1">
+                <button type="button" id="btn-water-minus" class="px-2 py-1 bg-white border border-rose-300 text-rose-800 rounded font-bold text-xs hover:bg-rose-100">&minus;2mL</button>
+                <button type="button" id="btn-water-plus" class="px-2 py-1 bg-white border border-rose-300 text-rose-800 rounded font-bold text-xs hover:bg-rose-100">+2mL</button>
+              </div>
+            </div>
+            <div class="flex justify-between text-[10px] text-slate-600 font-mono-num mt-1 font-semibold">
+              <span>Dry / Stiff (&le;30mL)</span>
+              <span>Trial Moisture (<span class="math-symbol">w</span>): <b id="disp-calc-moisture" class="text-rose-800">65.0%</b></span>
+              <span>Wet / Fluid (&ge;100mL)</span>
+            </div>
+          </div>
+
+          <!-- Remix / Cut Groove Button -->
+          <div class="md:col-span-3 flex flex-col space-y-2">
+            <button id="btn-remix-cup" class="w-full py-2.5 px-3 text-xs font-bold text-white bg-slate-800 hover:bg-slate-900 active:scale-95 rounded-xl shadow-xs transition-all flex items-center justify-center space-x-1.5">
+              <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span>Remix Soil &amp; Cut Standard 2mm Groove</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left 6 Cols: Casagrande Cup Rig -->
+        <section class="lg:col-span-6 bg-white rounded-2xl p-5 shadow-xs border border-slate-200 flex flex-col justify-between min-h-[540px]">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div>
+              <h2 class="text-sm font-bold text-slate-800">Casagrande Standard Apparatus</h2>
+              <p class="text-xs text-slate-500">10 mm vertical drop &bull; Standard 2 mm bottom groove cut</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-mono-num font-bold bg-rose-50 text-rose-700 px-3 py-1 rounded-full border border-rose-200" id="blow-counter-tag">Blows: 0</span>
+            </div>
+          </div>
+
+          <!-- Mechanical Cup Stage -->
+          <div class="flex flex-col items-center justify-center py-6 my-auto relative">
+            
+            <!-- Cam & Crank Handle -->
+            <div class="absolute right-6 top-10 flex flex-col items-center select-none">
+              <div id="cam-crank" class="w-16 h-4 bg-slate-700 rounded-full origin-left transition-transform duration-75 cursor-pointer shadow-md flex items-center justify-end pr-1" title="Click or use buttons to crank">
+                <div class="w-3 h-3 bg-amber-400 rounded-full"></div>
+              </div>
+              <span class="text-[10px] font-mono-num text-slate-400 mt-2 font-bold">Crank (2 rps)</span>
+            </div>
+
+            <!-- Suspended Brass Cup Assembly -->
+            <div id="casagrande-cup-unit" class="w-56 h-36 relative flex flex-col items-center justify-center cup-unit">
+              
+              <!-- Spherical Brass Cup Shell -->
+              <div class="w-48 h-28 brass-cup rounded-b-full border-2 border-yellow-600 relative overflow-hidden flex flex-col items-center justify-start pt-2">
+                
+                <!-- Soil Pat Layer inside Cup -->
+                <div class="w-40 h-20 bg-[#6c3912] rounded-b-full relative overflow-hidden flex items-center justify-center p-1">
+                  
+                  <!-- Left Soil Wedge -->
+                  <div id="soil-wedge-left" class="absolute left-1 inset-y-1 w-[46%] bg-[#542d0e] rounded-bl-full transition-all duration-150"></div>
+
+                  <!-- Central 2mm Groove Gap -->
+                  <div id="groove-gap" class="w-2.5 h-full bg-[#fef08a] z-10 transition-all duration-150 shadow-inner flex items-center justify-center">
+                    <span class="text-[7px] text-yellow-900 font-mono-num font-bold rotate-90 select-none">2mm</span>
+                  </div>
+
+                  <!-- Right Soil Wedge -->
+                  <div id="soil-wedge-right" class="absolute right-1 inset-y-1 w-[46%] bg-[#542d0e] rounded-br-full transition-all duration-150"></div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- Heavy Vulcanized Hard Rubber Base Plate -->
+            <div class="w-64 h-12 bg-slate-900 rounded-xl border-t-4 border-slate-700 shadow-2xl flex flex-col items-center justify-center text-slate-400 text-[10px] font-mono-num relative z-10 mt-1">
+              <span class="text-white font-bold">Standard Hard Rubber Base Block</span>
+              <span>10 mm Standard Drop Clearance</span>
+            </div>
+
+          </div>
+
+          <!-- Bottom Interaction Controls -->
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-2">
+              <button id="btn-single-blow" class="px-3.5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-95 rounded-xl shadow-xs transition-all flex items-center space-x-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                <span>Tap 1 Blow</span>
+              </button>
+              <button id="btn-auto-crank" class="px-3.5 py-2 text-xs font-bold text-rose-900 bg-rose-100 hover:bg-rose-200 active:scale-95 rounded-xl border border-rose-300 transition-all flex items-center space-x-1.5">
+                <span id="crank-label">Rotate Crank Automatically</span>
+              </button>
+            </div>
+
+            <div>
+              <button id="btn-record-trial" disabled class="px-3.5 py-2 text-xs font-bold text-slate-400 bg-slate-200 rounded-xl transition-all cursor-not-allowed">
+                Save Trial Point
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right 6 Cols: Semi-Log Flow Curve & Trials Table (REQUIRES MINIMUM 2 TRIALS TO DRAW GRAPH) -->
+        <section class="lg:col-span-6 space-y-4">
+          
+          <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-5 flex flex-col">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100 mb-2">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">Semi-Log Flow Curve</h3>
+                <p class="text-xs text-slate-500">Number of Blows (<span class="math-symbol">N</span>) vs. Moisture Content (<span class="math-symbol">w</span> %)</p>
+              </div>
+              <span class="text-xs font-mono-num font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200" id="flow-curve-ll-result">
+                LL at 25 Blows: --
+              </span>
+            </div>
+            
+            <div class="relative w-full h-[280px]">
+              <canvas id="flowCurveChart"></canvas>
+            </div>
+
+            <!-- Minimum 2 trials guidance note -->
+            <div id="flow-curve-instruction-banner" class="mt-2 p-2 bg-amber-50 rounded-xl border border-amber-200 text-center text-[11px] text-amber-900 font-semibold">
+              <span>Notice: Minimum <b>2 trials</b> at different water volumes are required to establish the flow line and interpolate LL at 25 blows.</span>
+            </div>
+          </div>
+
+          <!-- Trial Table (Students conduct multiple trials) -->
+          <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">Conducted Laboratory Trials (Target: 15 &ndash; 35 blows)</h4>
+              <button id="btn-clear-trials" class="text-[11px] text-rose-600 hover:underline font-bold">Clear All Trials</button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs font-mono-num border-collapse">
+                <thead class="bg-slate-100 text-slate-600 font-bold">
+                  <tr>
+                    <th class="p-2">Trial #</th>
+                    <th class="p-2">Water (mL)</th>
+                    <th class="p-2">Moisture (<span class="math-symbol">w</span> %)</th>
+                    <th class="p-2">Blows (<span class="math-symbol">N</span>)</th>
+                    <th class="p-2 text-right">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="ll-trials-tbody" class="divide-y divide-slate-100 font-medium">
+                  <tr>
+                    <td colspan="5" class="p-3 text-center text-slate-400 font-normal">No trials recorded yet. Adjust water volume, tap blows until groove closes, then click "Save Trial Point".</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- WINDOW 2: PLASTIC LIMIT (THREAD ROLLING)   -->
+    <!-- ========================================== -->
+    <div id="window-pl" class="window-pane space-y-6 hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <section class="lg:col-span-6 bg-white rounded-2xl p-5 shadow-xs border border-slate-200 flex flex-col justify-between min-h-[520px]">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div>
+              <h2 class="text-sm font-bold text-slate-800">Ground Glass Plate Rolling Method</h2>
+              <p class="text-xs text-slate-500">Roll soil thread uniformly down to 3.0 mm diameter standard gauge</p>
+            </div>
+            <span id="pl-state-badge" class="text-xs font-mono-num font-bold bg-amber-50 text-amber-800 px-2.5 py-1 rounded-full border border-amber-200">Diameter: 6.0 mm (Intact)</span>
+          </div>
+
+          <div class="flex flex-col items-center justify-center py-6 my-auto relative">
+            <div class="w-56 h-3 bg-gradient-to-r from-slate-400 via-slate-200 to-slate-400 rounded-full border border-slate-400 shadow-sm mb-6 flex items-center justify-center">
+              <span class="text-[8px] font-mono-num font-bold text-slate-600">3.0 mm Metallic Reference Gauge Rod</span>
+            </div>
+
+            <div class="w-72 sm:w-80 h-44 rounded-2xl bg-gradient-to-br from-slate-100/90 to-blue-50/50 border-2 border-slate-300 shadow-inner p-3 relative flex flex-col items-center justify-center overflow-hidden">
+              <span class="absolute top-2 left-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Frosted Glass Plate</span>
+
+              <!-- Smooth Animated Soil Cylindrical Thread -->
+              <div id="soil-thread" class="bg-[#5a2e0c] rounded-full transition-all duration-200 relative shadow-md flex items-center justify-around overflow-hidden" style="width: 220px; height: 16px;">
+                <div id="thread-crack-1" class="hidden w-1 h-full bg-amber-200 opacity-90"></div>
+                <div id="thread-crack-2" class="hidden w-1 h-full bg-amber-200 opacity-90"></div>
+                <div id="thread-crack-3" class="hidden w-1 h-full bg-amber-200 opacity-90"></div>
+              </div>
+
+              <div class="absolute bottom-2 text-center text-[10px] font-mono-num text-slate-500">
+                Rate of rolling: 80 to 90 strokes/min using palm of the hand
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+            <button id="btn-roll-thread" class="px-4 py-2 text-xs font-bold text-white bg-amber-700 hover:bg-amber-800 active:scale-95 rounded-xl shadow-xs transition-all flex items-center space-x-1.5">
+              <span>Roll Soil Thread (Forward &amp; Backward)</span>
+            </button>
+            <button id="btn-reset-thread" class="px-3 py-2 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded-xl hover:bg-slate-100 transition-all">
+              Reset New Thread
+            </button>
+          </div>
+        </section>
+
+        <section class="lg:col-span-6 space-y-4">
+          <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5 space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Plastic Limit Scientific Criterion</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              The Plastic Limit (<span class="math-symbol">w</span><sub>P</sub>) is the lowest water content at which soil behaves plastically. It is determined as the moisture content at which a thread of soil just crumbles when rolled to <b>3.0 mm diameter</b>.
+            </p>
+            <div class="grid grid-cols-2 gap-3 pt-2 font-mono-num text-xs">
+              <div class="bg-amber-50 p-3 rounded-xl border border-amber-200">
+                <span class="text-[10px] text-amber-800 font-bold block">Plastic Limit (<span class="math-symbol">w</span><sub>P</sub>)</span>
+                <span id="card-pl-val" class="text-xl font-black text-amber-950">28.0%</span>
+              </div>
+              <div class="bg-purple-50 p-3 rounded-xl border border-purple-200">
+                <span class="text-[10px] text-purple-800 font-bold block">Plasticity Index (<span class="math-symbol">I</span><sub>P</sub> = <span class="math-symbol">w</span><sub>L</sub> &minus; <span class="math-symbol">w</span><sub>P</sub>)</span>
+                <span id="card-pi-val" class="text-xl font-black text-purple-950">40.5%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5 space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">Stages of Soil Consistency</h4>
+            <div class="w-full h-8 rounded-xl overflow-hidden flex border border-slate-300 font-mono-num text-[10px] font-bold text-center leading-8 text-white shadow-inner">
+              <div class="bg-amber-900 w-[20%]">Solid</div>
+              <div class="bg-amber-600 w-[20%]">Semi-Solid</div>
+              <div class="bg-blue-600 w-[35%]">Plastic Range (<span class="math-symbol">I</span><sub>P</sub>)</div>
+              <div class="bg-cyan-500 w-[25%]">Liquid</div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- WINDOW 3: SHRINKAGE LIMIT (MERCURY METHOD)  -->
+    <!-- ========================================== -->
+    <div id="window-sl" class="window-pane space-y-6 hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <section class="lg:col-span-6 bg-white rounded-2xl p-5 shadow-xs border border-slate-200 flex flex-col justify-between min-h-[520px]">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div>
+              <h2 class="text-sm font-bold text-slate-800">Mercury Displacement Apparatus</h2>
+              <p class="text-xs text-slate-500">Archimedes principle using porcelain cup &amp; glass prong plate</p>
+            </div>
+            <span class="text-xs font-mono-num font-bold bg-blue-50 text-blue-800 px-2.5 py-1 rounded-full border border-blue-200" id="sl-state-tag">State 1: Dry Soil Cake Ready</span>
+          </div>
+
+          <div class="flex flex-col items-center justify-center py-6 my-auto relative">
+            <div class="flex items-end justify-center gap-12">
+              
+              <div class="flex flex-col items-center">
+                <span class="text-[11px] font-bold text-slate-600 mb-1">Oven-Dried Soil Pat</span>
+                <div id="soil-pat-cake" class="w-16 h-8 bg-[#854d0e] rounded-b-xl border-2 border-amber-900 shadow-md flex items-center justify-center transition-transform duration-300">
+                  <span class="text-[9px] font-bold text-white font-mono-num">Vd = 16.2cm&sup3;</span>
+                </div>
+                <span class="text-[10px] font-mono-num text-slate-500 mt-2">Dry Mass (<span class="math-symbol">M</span><sub>d</sub>): <b>28.5 g</b></span>
+              </div>
+
+              <div class="flex flex-col items-center relative">
+                <span class="text-[11px] font-bold text-slate-600 mb-1">Mercury Cup Vessel</span>
+                <div class="w-28 h-20 rounded-b-2xl bg-slate-200 border-2 border-slate-400 relative overflow-hidden flex flex-col justify-end shadow-inner">
+                  <div class="w-full h-16 mercury-surface relative flex items-start justify-center">
+                    <div class="w-full h-2 bg-slate-100/70 rounded-full shadow-xs"></div>
+                  </div>
+                </div>
+                <div class="w-36 h-4 bg-slate-300 rounded-b-lg border border-slate-400 -mt-1 flex items-center justify-center">
+                  <span class="text-[8px] font-mono-num text-slate-600">Displaced Hg Trough</span>
+                </div>
+                <div id="glass-prong" class="hidden absolute -top-8 w-16 h-8 border-b-2 border-cyan-400 flex justify-between px-1 pointer-events-none">
+                  <div class="w-0.5 h-6 bg-cyan-400"></div>
+                  <div class="w-0.5 h-6 bg-cyan-400"></div>
+                  <div class="w-0.5 h-6 bg-cyan-400"></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+            <button id="btn-submerge-pat" class="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 active:scale-95 rounded-xl shadow-xs transition-all flex items-center space-x-1.5">
+              <span>Press Soil Pat into Mercury</span>
+            </button>
+            <span class="text-xs font-mono-num font-bold text-blue-900 bg-blue-100/70 px-3 py-1.5 rounded-lg border border-blue-200">
+              Displaced Mercury: <b id="stat-hg-mass">220.3 g</b>
+            </span>
+          </div>
+        </section>
+
+        <section class="lg:col-span-6 space-y-4">
+          <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5 space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Standard Mercury Displacement Equations (IS: 2720 Part 6)</h3>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 font-mono-num text-xs space-y-1 text-slate-700">
+              <p>1. Dry Volume (<span class="math-symbol">V</span><sub>d</sub>) = <span class="math-symbol">M</span><sub>Hg</sub> / 13.6 g/cm&sup3;</p>
+              <p>2. Shrinkage Limit (<span class="math-symbol">w</span><sub>S</sub>) = [ (<span class="math-symbol">M</span><sub>1</sub> &minus; <span class="math-symbol">M</span><sub>d</sub>) &minus; (<span class="math-symbol">V</span><sub>1</sub> &minus; <span class="math-symbol">V</span><sub>d</sub>)&times;<span class="math-symbol">&rho;</span><sub>w</sub> ] / <span class="math-symbol">M</span><sub>d</sub> &times; 100</p>
+            </div>
+            <div class="grid grid-cols-2 gap-3 pt-2 font-mono-num text-xs">
+              <div class="bg-blue-50 p-3 rounded-xl border border-blue-200">
+                <span class="text-[10px] text-blue-800 font-bold block">Shrinkage Limit (<span class="math-symbol">w</span><sub>S</sub>)</span>
+                <span id="card-sl-val" class="text-xl font-black text-blue-950">12.5%</span>
+              </div>
+              <div class="bg-cyan-50 p-3 rounded-xl border border-cyan-200">
+                <span class="text-[10px] text-cyan-800 font-bold block">Shrinkage Ratio (<span class="math-symbol">S</span><sub>R</sub>)</span>
+                <span id="card-sr-val" class="text-xl font-black text-cyan-950">1.76</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- GLOBAL CASAGRANDE PLASTICITY CHART (A-LINE CLASSIFICATION)     -->
+    <!-- ============================================================== -->
+    <section class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5 mt-6 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Casagrande Plasticity Chart (IS: 1498 / USCS ASTM D2487)</h3>
+          <p class="text-xs text-slate-500">Diagnostic A-Line (<span class="math-symbol">I</span><sub>P</sub> = 0.73 &times; [<span class="math-symbol">w</span><sub>L</sub> &minus; 20]) separating Inorganic Clays from Silts</p>
+        </div>
+        <span class="text-xs font-mono-num font-bold px-3 py-1 bg-purple-100 text-purple-900 rounded-lg border border-purple-200" id="soil-classification-symbol">
+          Classification: CH (High Plasticity Clay)
+        </span>
+      </div>
+      <div class="relative w-full h-[320px]">
+        <canvas id="plasticityChart"></canvas>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- PDF Student Submission Dialog -->
+  <div id="modal-report-setup" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">Laboratory Practical Report</h3>
+          <p class="text-xs text-slate-500">Comprehensive Atterberg Limits & Plasticity Chart Analysis</p>
+        </div>
+        <button type="button" id="btn-close-pdf-modal" class="text-slate-400 hover:text-slate-600">&times;</button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Student Full Name</label>
+          <input type="text" id="rep-student-name" placeholder="e.g. Ramesh Pujari" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Roll No / USN</label>
+          <input type="text" id="rep-student-id" placeholder="e.g. 3BR21CV018" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:outline-none font-mono-num">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Class / Department</label>
+          <input type="text" id="rep-batch" placeholder="e.g. Geotechnical Engineering Lab - Batch A" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Experiment Date</label>
+          <input type="date" id="rep-date" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:outline-none">
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
+        <button type="button" id="btn-cancel-pdf" class="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
+        <button type="button" id="btn-download-pdf-exec" class="px-5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition-all">Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* EXPERIMENTAL STATE & DATA */
+    const labState = {
+      activeTab: 'll',
+      soilKey: 'black_cotton',
+      blowCount: 0,
+      grooveClosed: false,
+      isAutoCranking: false,
+      crankTimer: null,
+      
+      drySoilMass: 120.0, // g
+      waterAddedMl: 78.0,  // mL
+      currentMoisturePct: 65.0,
+      
+      // Recorded user trials for Liquid Limit
+      userTrials: [],
+      interpolatedLL: null,
+      
+      // Plastic limit state
+      threadDiameter: 6.0,
+      isCrumbling: false,
+
+      // Soil properties
+      pl: 28.0,
+      sl: 12.5,
+      pi: 40.5
+    };
+
+    const soilDatabase = {
+      black_cotton: {
+        name: "Black Cotton Soil (Vertisol Clay)",
+        code: "CH",
+        trueLL: 68.5,
+        flowIndexB: 14.0, // Slope B in w = LL - B*log10(N/25)
+        defaultWater: 82.0, // mL
+        minWater: 40.0,
+        maxWater: 125.0,
+        pl: 28.0,
+        sl: 12.5,
+        desc: "Expansive montmorillonite clay. High plastic range with notable cracking upon drying."
+      },
+      gangetic_alluvium: {
+        name: "Gangetic Alluvial Silt",
+        code: "MI / CI",
+        trueLL: 42.0,
+        flowIndexB: 12.5,
+        defaultWater: 50.0, // mL
+        minWater: 25.0,
+        maxWater: 80.0,
+        pl: 24.5,
+        sl: 16.0,
+        desc: "Fertile alluvial floodplain deposit with moderate cohesion and balanced silt-clay fractions."
+      },
+      red_clay: {
+        name: "Red Lithosol Clay (Alfisol)",
+        code: "CL",
+        trueLL: 34.0,
+        flowIndexB: 11.0,
+        defaultWater: 40.0, // mL
+        minWater: 20.0,
+        maxWater: 65.0,
+        pl: 21.0,
+        sl: 18.5,
+        desc: "Low to medium plasticity inorganic clay common in southern dryland regions."
+      },
+      bentonite: {
+        name: "Sodium Bentonite",
+        code: "CH",
+        trueLL: 110.0,
+        flowIndexB: 18.0,
+        defaultWater: 132.0, // mL
+        minWater: 70.0,
+        maxWater: 180.0,
+        pl: 38.0,
+        sl: 8.5,
+        desc: "Extremely high plasticity swelling clay used in slurry trench cut-offs and geo-membranes."
+      },
+      kaolin: {
+        name: "Kaolinite China Clay",
+        code: "ML / CL",
+        trueLL: 48.0,
+        flowIndexB: 12.0,
+        defaultWater: 58.0, // mL
+        minWater: 28.0,
+        maxWater: 90.0,
+        pl: 32.0,
+        sl: 22.0,
+        desc: "Non-swelling low-activity 1:1 clay mineral used in pottery and ceramics."
+      }
+    };
+
+    let flowChart = null;
+    let plasticityChart = null;
+
+    function switchTab(tabId) {
+      labState.activeTab = tabId;
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-rose-600', 'text-rose-600');
+        btn.classList.add('border-transparent', 'text-slate-500');
+        btn.querySelector('span:first-child').className = 'w-2 h-2 rounded-full bg-slate-300';
+      });
+
+      const activeBtn = document.getElementById(`tab-${tabId}`);
+      activeBtn.classList.remove('border-transparent', 'text-slate-500');
+      activeBtn.classList.add('border-rose-600', 'text-rose-600');
+      activeBtn.querySelector('span:first-child').className = 'w-2 h-2 rounded-full bg-rose-600';
+
+      document.querySelectorAll('.window-pane').forEach(p => p.classList.add('hidden'));
+      document.getElementById(`window-${tabId}`).classList.remove('hidden');
+
+      if (tabId === 'll' && flowChart) flowChart.resize();
+      if (plasticityChart) plasticityChart.resize();
+    }
+
+    function initCharts() {
+      // Flow Curve Chart
+      const ctxFlow = document.getElementById('flowCurveChart').getContext('2d');
+      flowChart = new Chart(ctxFlow, {
+        type: 'line',
+        data: {
+          datasets: [
+            {
+              label: 'Student Recorded Trials',
+              data: [],
+              borderColor: '#e11d48',
+              backgroundColor: '#e11d48',
+              pointRadius: 6,
+              pointHoverRadius: 8,
+              showLine: false
+            },
+            {
+              label: 'Best-Fit Semi-Log Flow Line (w vs log N)',
+              data: [],
+              borderColor: '#e11d48',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false
+            },
+            {
+              label: '25 Blow Standard Intersection (LL)',
+              data: [],
+              borderColor: '#2563eb',
+              borderWidth: 1.5,
+              borderDash: [5, 4],
+              pointRadius: 0,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              type: 'logarithmic',
+              min: 5,
+              max: 120, // Expanded scale without artificial capping
+              title: { display: true, text: 'Number of Blows (N) [Log Scale]', font: { weight: 'bold', size: 11 } },
+              ticks: {
+                callback: function(v) {
+                  if ([5, 10, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120].includes(v)) return v;
+                  return '';
+                }
+              },
+              grid: { color: '#f1f5f9' }
+            },
+            y: {
+              title: { display: true, text: 'Moisture Content (w %)', font: { weight: 'bold', size: 11 } },
+              grid: { color: '#f1f5f9' }
+            }
+          }
+        }
+      });
+
+      // Plasticity Chart
+      const ctxPl = document.getElementById('plasticityChart').getContext('2d');
+      plasticityChart = new Chart(ctxPl, {
+        type: 'line',
+        data: {
+          datasets: [
+            {
+              label: "A-Line: IP = 0.73 × (wL - 20)",
+              data: [
+                { x: 20, y: 0 },
+                { x: 50, y: 0.73 * (50 - 20) },
+                { x: 100, y: 0.73 * (100 - 20) }
+              ],
+              borderColor: '#4f46e5',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false
+            },
+            {
+              label: 'Soil Plasticity Position (wL, IP)',
+              data: [],
+              borderColor: '#e11d48',
+              backgroundColor: '#e11d48',
+              pointRadius: 8,
+              pointHoverRadius: 10,
+              showLine: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              min: 0,
+              max: 120,
+              title: { display: true, text: 'Liquid Limit, wL (%)', font: { weight: 'bold', size: 11 } },
+              grid: { color: '#f1f5f9' }
+            },
+            y: {
+              min: 0,
+              max: 80,
+              title: { display: true, text: 'Plasticity Index, IP (%)', font: { weight: 'bold', size: 11 } },
+              grid: { color: '#f1f5f9' }
+            }
+          }
+        }
+      });
+    }
+
+    function updateWaterState(newVol) {
+      const soil = soilDatabase[labState.soilKey];
+      const clampedVol = Math.max(soil.minWater, Math.min(soil.maxWater, Math.round(newVol)));
+      labState.waterAddedMl = clampedVol;
+
+      document.getElementById('label-water-added').textContent = `${labState.waterAddedMl.toFixed(1)} mL`;
+      document.getElementById('water-slider').value = labState.waterAddedMl;
+
+      // Moisture % = (Water Mass / Dry Soil Mass) * 100
+      labState.currentMoisturePct = (labState.waterAddedMl / labState.drySoilMass) * 100;
+      document.getElementById('disp-calc-moisture').textContent = `${labState.currentMoisturePct.toFixed(1)}%`;
+
+      resetGrooveOnly();
+    }
+
+    function calculateTargetBlows() {
+      // Natural Casagrande physics: w = LL - B * log10(N / 25)
+      // log10(N / 25) = (LL - w) / B => N = 25 * 10^((LL - w)/B)
+      // No artificial 60-blow cap! Allows realistic low-water blows up to 120+
+      const soil = soilDatabase[labState.soilKey];
+      const B = soil.flowIndexB || 13.0;
+      const w = labState.currentMoisturePct;
+      
+      const logRatio = (soil.trueLL - w) / B;
+      const rawN = 25 * Math.pow(10, logRatio);
+      
+      // Minimum realistic physical blows = 6, maximum without cap = 140
+      return Math.max(6, Math.min(140, Math.round(rawN)));
+    }
+
+    function tapCupBlow() {
+      if (labState.grooveClosed) return;
+
+      labState.blowCount++;
+      document.getElementById('blow-counter-tag').textContent = `Blows: ${labState.blowCount}`;
+
+      // Stable GPU-accelerated transition
+      const cup = document.getElementById('casagrande-cup-unit');
+      cup.classList.add('cup-lifted');
+      setTimeout(() => {
+        cup.classList.remove('cup-lifted');
+      }, 50);
+
+      const crank = document.getElementById('cam-crank');
+      crank.style.transform = `rotate(${labState.blowCount * 60}deg)`;
+
+      const requiredBlows = calculateTargetBlows();
+      const progress = Math.min(1.0, labState.blowCount / requiredBlows);
+      const gapElem = document.getElementById('groove-gap');
+      gapElem.style.width = `${Math.max(0, 10 * (1 - progress))}px`;
+
+      if (labState.blowCount >= requiredBlows) {
+        labState.grooveClosed = true;
+        stopAutoCrank();
+        gapElem.style.width = '0px';
+        gapElem.innerHTML = '';
+        document.getElementById('blow-counter-tag').textContent = `Blows: ${labState.blowCount} (Closed!)`;
+        document.getElementById('blow-counter-tag').className = 'text-xs font-mono-num font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full border border-emerald-300';
+        
+        // Enable Save Trial Button
+        const recBtn = document.getElementById('btn-record-trial');
+        recBtn.disabled = false;
+        recBtn.className = 'px-3.5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-95 rounded-xl shadow-xs transition-all';
+      }
+    }
+
+    function toggleAutoCrank() {
+      if (labState.isAutoCranking) {
+        stopAutoCrank();
+      } else {
+        labState.isAutoCranking = true;
+        document.getElementById('crank-label').textContent = 'Pause Crank';
+        labState.crankTimer = setInterval(() => {
+          if (labState.grooveClosed) {
+            stopAutoCrank();
+          } else {
+            tapCupBlow();
+          }
+        }, 110);
+      }
+    }
+
+    function stopAutoCrank() {
+      labState.isAutoCranking = false;
+      clearInterval(labState.crankTimer);
+      labState.crankTimer = null;
+      document.getElementById('crank-label').textContent = 'Rotate Crank Automatically';
+    }
+
+    function resetGrooveOnly() {
+      stopAutoCrank();
+      labState.blowCount = 0;
+      labState.grooveClosed = false;
+      document.getElementById('blow-counter-tag').textContent = 'Blows: 0';
+      document.getElementById('blow-counter-tag').className = 'text-xs font-mono-num font-bold bg-rose-50 text-rose-700 px-3 py-1 rounded-full border border-rose-200';
+      
+      const gapElem = document.getElementById('groove-gap');
+      gapElem.style.width = '10px';
+      gapElem.innerHTML = '<span class="text-[7px] text-yellow-900 font-mono-num font-bold rotate-90 select-none">2mm</span>';
+
+      const recBtn = document.getElementById('btn-record-trial');
+      recBtn.disabled = true;
+      recBtn.className = 'px-3.5 py-2 text-xs font-bold text-slate-400 bg-slate-200 rounded-xl transition-all cursor-not-allowed';
+    }
+
+    function recordCurrentTrial() {
+      if (!labState.grooveClosed) return;
+
+      const newTrial = {
+        waterMl: labState.waterAddedMl,
+        w: parseFloat(labState.currentMoisturePct.toFixed(1)),
+        blows: labState.blowCount
+      };
+
+      labState.userTrials.push(newTrial);
+      renderTrialsTable();
+      computeInterpolatedLL();
+
+      // Reset for next trial
+      const recBtn = document.getElementById('btn-record-trial');
+      recBtn.disabled = true;
+      recBtn.className = 'px-3.5 py-2 text-xs font-bold text-slate-400 bg-slate-200 rounded-xl transition-all cursor-not-allowed';
+    }
+
+    function renderTrialsTable() {
+      const tbody = document.getElementById('ll-trials-tbody');
+      if (labState.userTrials.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="p-3 text-center text-slate-400 font-normal">No trials recorded yet. Adjust water volume, tap blows until groove closes, then click "Save Trial Point".</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      labState.userTrials.forEach((t, i) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50';
+        tr.innerHTML = `
+          <td class="p-2 font-bold text-slate-800">Trial #${i + 1}</td>
+          <td class="p-2">${t.waterMl.toFixed(1)} mL</td>
+          <td class="p-2 font-bold text-rose-700">${t.w.toFixed(1)}%</td>
+          <td class="p-2 font-extrabold ${t.blows >= 20 && t.blows <= 30 ? 'text-emerald-700' : 'text-slate-800'}">${t.blows}</td>
+          <td class="p-2 text-right"><span class="text-emerald-700 font-bold">&check; Closed</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function computeInterpolatedLL() {
+      const trials = labState.userTrials;
+      const banner = document.getElementById('flow-curve-instruction-banner');
+
+      // Update scatter trial points on flow curve
+      const pts = trials.map(t => ({ x: t.blows, y: t.w }));
+      flowChart.data.datasets[0].data = pts;
+
+      // CRITICAL REQUIREMENT: Minimum 2 trials needed to draw flow line and interpolate LL
+      if (trials.length < 2) {
+        flowChart.data.datasets[1].data = [];
+        flowChart.data.datasets[2].data = [];
+        flowChart.update();
+
+        labState.interpolatedLL = null;
+        document.getElementById('flow-curve-ll-result').textContent = `LL at 25 Blows: Need 2+ Trials`;
+        document.getElementById('head-ll-val').textContent = `--`;
+        document.getElementById('head-pi-val').textContent = `--`;
+        document.getElementById('card-pi-val').textContent = `--`;
+
+        banner.classList.remove('hidden');
+        banner.innerHTML = `<span>Recorded Trial #1 (${trials[0].blows} blows at ${trials[0].w}%). <b>Conduct at least 1 more trial at different water level</b> to plot flow line and find 25-blow LL.</span>`;
+
+        plasticityChart.data.datasets[1].data = [];
+        plasticityChart.update();
+        return;
+      }
+
+      // Hide instructional banner once 2+ trials exist
+      banner.classList.add('hidden');
+
+      // Linear regression on log10(N) vs w
+      let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+      const n = trials.length;
+      trials.forEach(t => {
+        const logN = Math.log10(t.blows);
+        sumX += logN;
+        sumY += t.w;
+        sumXY += logN * t.w;
+        sumX2 += logN * logN;
+      });
+
+      const denominator = (n * sumX2 - sumX * sumX);
+      let slope = -13.0;
+      let intercept = trials[0].w - slope * Math.log10(trials[0].blows);
+
+      if (Math.abs(denominator) > 0.0001) {
+        slope = (n * sumXY - sumX * sumY) / denominator;
+        intercept = (sumY - slope * sumX) / n;
+      }
+
+      // LL is moisture at log10(25) = 1.39794
+      const calcLL = intercept + slope * Math.log10(25);
+      labState.interpolatedLL = calcLL;
+
+      // Draw Flow Line across graph extent (5 to 120 blows)
+      flowChart.data.datasets[1].data = [
+        { x: 5, y: intercept + slope * Math.log10(5) },
+        { x: 120, y: intercept + slope * Math.log10(120) }
+      ];
+
+      // Draw 25-blow standard ray intersection
+      flowChart.data.datasets[2].data = [
+        { x: 5, y: calcLL },
+        { x: 25, y: calcLL },
+        { x: 25, y: 0 }
+      ];
+      flowChart.update();
+
+      // Update Results Cards
+      document.getElementById('flow-curve-ll-result').textContent = `LL at 25 Blows: ${calcLL.toFixed(1)}%`;
+      document.getElementById('head-ll-val').textContent = `${calcLL.toFixed(1)}%`;
+
+      labState.pi = Math.max(0, calcLL - labState.pl);
+      document.getElementById('head-pi-val').textContent = `${labState.pi.toFixed(1)}%`;
+      document.getElementById('card-pi-val').textContent = `${labState.pi.toFixed(1)}%`;
+
+      // Update Plasticity Chart Coordinate
+      plasticityChart.data.datasets[1].data = [{ x: calcLL, y: labState.pi }];
+      plasticityChart.update();
+    }
+
+    /* PLASTIC LIMIT THREAD ROLLING */
+    function rollSoilThread() {
+      if (labState.isCrumbling) return;
+
+      labState.threadDiameter = Math.max(3.0, labState.threadDiameter - 0.5);
+      const thread = document.getElementById('soil-thread');
+      thread.style.height = `${labState.threadDiameter * 2.8}px`;
+
+      document.getElementById('pl-state-badge').textContent = `Diameter: ${labState.threadDiameter.toFixed(1)} mm`;
+
+      if (labState.threadDiameter <= 3.0) {
+        labState.isCrumbling = true;
+        document.getElementById('thread-crack-1').classList.remove('hidden');
+        document.getElementById('thread-crack-2').classList.remove('hidden');
+        document.getElementById('thread-crack-3').classList.remove('hidden');
+
+        document.getElementById('pl-state-badge').textContent = '3.0 mm (Crumbling & Fissuring Point!)';
+        document.getElementById('pl-state-badge').className = 'text-xs font-mono-num font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full border border-emerald-300';
+      }
+    }
+
+    function resetSoilThread() {
+      labState.threadDiameter = 6.0;
+      labState.isCrumbling = false;
+      const thread = document.getElementById('soil-thread');
+      thread.style.height = '16px';
+      document.getElementById('thread-crack-1').classList.add('hidden');
+      document.getElementById('thread-crack-2').classList.add('hidden');
+      document.getElementById('thread-crack-3').classList.add('hidden');
+      document.getElementById('pl-state-badge').textContent = 'Diameter: 6.0 mm (Intact)';
+      document.getElementById('pl-state-badge').className = 'text-xs font-mono-num font-bold bg-amber-50 text-amber-800 px-2.5 py-1 rounded-full border border-amber-200';
+    }
+
+    /* MERCURY SUBMERSION */
+    function submergeSoilCake() {
+      const cake = document.getElementById('soil-pat-cake');
+      const prongs = document.getElementById('glass-prong');
+      prongs.classList.remove('hidden');
+      cake.style.transform = 'translateY(18px)';
+
+      document.getElementById('sl-state-tag').textContent = 'State 2: Fully Submerged in Mercury';
+      document.getElementById('sl-state-tag').className = 'text-xs font-mono-num font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full border border-emerald-300';
+    }
+
+    function resetMercuryApparatus() {
+      document.getElementById('soil-pat-cake').style.transform = 'translateY(0)';
+      document.getElementById('glass-prong').classList.add('hidden');
+      document.getElementById('sl-state-tag').textContent = 'State 1: Dry Soil Cake Ready';
+      document.getElementById('sl-state-tag').className = 'text-xs font-mono-num font-bold bg-blue-50 text-blue-800 px-2.5 py-1 rounded-full border border-blue-200';
+    }
+
+    function loadSoilPreset(key) {
+      const data = soilDatabase[key];
+      if (!data) return;
+
+      labState.soilKey = key;
+      labState.pl = data.pl;
+      labState.sl = data.sl;
+      labState.userTrials = [];
+      labState.interpolatedLL = null;
+
+      document.getElementById('head-pl-val').textContent = `${data.pl.toFixed(1)}%`;
+      document.getElementById('head-sl-val').textContent = `${data.sl.toFixed(1)}%`;
+      document.getElementById('card-pl-val').textContent = `${data.pl.toFixed(1)}%`;
+      document.getElementById('card-sl-val').textContent = `${data.sl.toFixed(1)}%`;
+      document.getElementById('head-ll-val').textContent = '--';
+      document.getElementById('head-pi-val').textContent = '--';
+      document.getElementById('card-pi-val').textContent = '--';
+      document.getElementById('flow-curve-ll-result').textContent = 'LL at 25 Blows: --';
+
+      document.getElementById('soil-classification-symbol').textContent = `Classification: [${data.code}] ${data.name}`;
+
+      // Update Slider Range to fit selected soil type
+      const slider = document.getElementById('water-slider');
+      slider.min = data.minWater;
+      slider.max = data.maxWater;
+      updateWaterState(data.defaultWater);
+
+      renderTrialsTable();
+
+      // Clear Flow Curve datasets
+      flowChart.data.datasets[0].data = [];
+      flowChart.data.datasets[1].data = [];
+      flowChart.data.datasets[2].data = [];
+      flowChart.update();
+
+      // Reset banner
+      const banner = document.getElementById('flow-curve-instruction-banner');
+      banner.classList.remove('hidden');
+      banner.innerHTML = `<span>Notice: Minimum <b>2 trials</b> at different water volumes are required to establish the flow line and interpolate LL at 25 blows.</span>`;
+
+      plasticityChart.data.datasets[1].data = [];
+      plasticityChart.update();
+
+      resetGrooveOnly();
+      resetSoilThread();
+      resetMercuryApparatus();
+    }
+
+    function generatePdf() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+      const name = document.getElementById('rep-student-name').value.trim() || 'Student Investigator';
+      const id = document.getElementById('rep-student-id').value.trim() || 'N/A';
+      const batch = document.getElementById('rep-batch').value.trim() || 'Geotechnical Engineering Lab';
+      const date = document.getElementById('rep-date').value || new Date().toISOString().split('T')[0];
+
+      const soil = soilDatabase[labState.soilKey];
+      const llStr = labState.interpolatedLL ? `${labState.interpolatedLL.toFixed(1)} %` : 'Need Minimum 2 Trials';
+      const piStr = labState.interpolatedLL ? `${(labState.interpolatedLL - labState.pl).toFixed(1)} %` : 'N/A';
+
+      doc.setFillColor(225, 29, 72);
+      doc.rect(0, 0, 210, 24, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text('ATTERBERG LIMITS & SOIL PLASTICITY LABORATORY REPORT', 14, 15);
+
+      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Student Name: ${name}`, 14, 34);
+      doc.text(`Roll / ID No: ${id}`, 14, 40);
+      doc.text(`Batch / Class: ${batch}`, 14, 46);
+      doc.text(`Test Date: ${date}`, 120, 34);
+      doc.text(`Soil Sample: ${soil.name}`, 120, 40);
+      doc.text(`Classification: [${soil.code}]`, 120, 46);
+
+      doc.autoTable({
+        startY: 54,
+        head: [['Consistency Parameter', 'Evaluated Result', 'Standard Test Specification']],
+        body: [
+          ['Interpolated Liquid Limit (wL)', llStr, 'Moisture at 25 blows on semi-log flow line (Min. 2 trials)'],
+          ['Plastic Limit (wP)', `${labState.pl.toFixed(1)} %`, 'Crumbling point of 3.0 mm soil thread'],
+          ['Plasticity Index (IP = wL - wP)', piStr, 'Range of plastic behavior'],
+          ['Shrinkage Limit (wS)', `${labState.sl.toFixed(1)} %`, 'Mercury displacement volumetric boundary'],
+          ['Conducted Blow Trials', `${labState.userTrials.length} trials recorded`, 'ASTM D4318 / IS 2720-5']
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [225, 29, 72], fontStyle: 'bold' },
+        styles: { fontSize: 8.5, cellPadding: 2.8 }
+      });
+
+      const chartCanvas = document.getElementById('flowCurveChart');
+      if (chartCanvas && labState.userTrials.length >= 2) {
+        const chartImg = chartCanvas.toDataURL('image/png', 1.0);
+        doc.addImage(chartImg, 'PNG', 14, 110, 182, 70);
+      }
+
+      const finalY = 190;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text('PRACTICAL LAB OBSERVATION:', 14, finalY);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.text(`1. Tested material: ${soil.name}. ${soil.desc}`, 14, finalY + 6);
+      doc.text(`2. Water addition directly regulates shear resistance; higher moisture reduces blow counts to close the groove.`, 14, finalY + 12);
+      doc.text(`3. Minimum 2 trials ensure reliable semi-logarithmic flow line regression to find the 25-blow Liquid Limit.`, 14, finalY + 18);
+
+      const sigY = finalY + 40;
+      if (sigY < 280) {
+        doc.line(14, sigY, 70, sigY);
+        doc.text("Student Signature", 24, sigY + 5);
+        doc.line(140, sigY, 196, sigY);
+        doc.text("Laboratory Instructor", 142, sigY + 5);
+      }
+
+      doc.save(`Atterberg_Limits_${id.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      document.getElementById('modal-report-setup').classList.add('hidden');
+    }
+
+    function setupEventListeners() {
+      // Tab Switching
+      document.getElementById('tab-ll').addEventListener('click', () => switchTab('ll'));
+      document.getElementById('tab-pl').addEventListener('click', () => switchTab('pl'));
+      document.getElementById('tab-sl').addEventListener('click', () => switchTab('sl'));
+
+      // Global Soil Selection
+      document.getElementById('global-soil-select').addEventListener('change', (e) => loadSoilPreset(e.target.value));
+
+      // Water Addition Controls
+      document.getElementById('water-slider').addEventListener('input', (e) => updateWaterState(parseFloat(e.target.value)));
+      document.getElementById('btn-water-minus').addEventListener('click', () => updateWaterState(labState.waterAddedMl - 2));
+      document.getElementById('btn-water-plus').addEventListener('click', () => updateWaterState(labState.waterAddedMl + 2));
+      document.getElementById('btn-remix-cup').addEventListener('click', resetGrooveOnly);
+
+      // Casagrande Blows
+      document.getElementById('btn-single-blow').addEventListener('click', tapCupBlow);
+      document.getElementById('btn-auto-crank').addEventListener('click', toggleAutoCrank);
+      document.getElementById('cam-crank').addEventListener('click', tapCupBlow);
+      document.getElementById('btn-record-trial').addEventListener('click', recordCurrentTrial);
+      document.getElementById('btn-clear-trials').addEventListener('click', () => {
+        labState.userTrials = [];
+        labState.interpolatedLL = null;
+        renderTrialsTable();
+        computeInterpolatedLL();
+      });
+
+      // Plastic Limit
+      document.getElementById('btn-roll-thread').addEventListener('click', rollSoilThread);
+      document.getElementById('btn-reset-thread').addEventListener('click', resetSoilThread);
+
+      // Shrinkage Limit
+      document.getElementById('btn-submerge-pat').addEventListener('click', submergeSoilCake);
+
+      // Reset
+      document.getElementById('btn-reset-current').addEventListener('click', () => {
+        resetGrooveOnly();
+        resetSoilThread();
+        resetMercuryApparatus();
+      });
+
+      // PDF
+      const modal = document.getElementById('modal-report-setup');
+      document.getElementById('btn-export-pdf').addEventListener('click', () => modal.classList.remove('hidden'));
+      document.getElementById('btn-close-pdf-modal').addEventListener('click', () => modal.classList.add('hidden'));
+      document.getElementById('btn-cancel-pdf').addEventListener('click', () => modal.classList.add('hidden'));
+      document.getElementById('btn-download-pdf-exec').addEventListener('click', generatePdf);
+      document.getElementById('rep-date').value = new Date().toISOString().split('T')[0];
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initCharts();
+      setupEventListeners();
+      loadSoilPreset('black_cotton');
+    });
+  </script>
+</body>
+</html>

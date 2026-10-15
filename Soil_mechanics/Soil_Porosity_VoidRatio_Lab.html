@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soil Porosity & Void Ratio Virtual Laboratory | Interactive Soil Physics</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <!-- jsPDF & autoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .math-symbol {
+      font-style: italic;
+      font-family: "Times New Roman", Times, serif;
+    }
+
+    /* Glass cylinder reflections */
+    .cylinder-glass {
+      background: linear-gradient(90deg, 
+        rgba(255,255,255,0.4) 0%, 
+        rgba(240,249,255,0.15) 15%, 
+        rgba(255,255,255,0.05) 50%, 
+        rgba(200,230,255,0.2) 85%, 
+        rgba(255,255,255,0.5) 100%);
+      box-shadow: inset 0 0 15px rgba(186, 230, 253, 0.4), 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+    }
+
+    /* Water stream pouring animation */
+    @keyframes pourStream {
+      0% { opacity: 0.8; height: 0%; }
+      50% { opacity: 0.95; height: 100%; }
+      100% { opacity: 0.8; height: 100%; }
+    }
+    .water-stream {
+      animation: pourStream 0.4s ease-out forwards;
+      background: linear-gradient(180deg, rgba(56, 189, 248, 0.9), rgba(14, 165, 233, 0.7));
+    }
+
+    /* Subtle water surface wave */
+    @keyframes meniscusWave {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.15); }
+    }
+    .meniscus {
+      animation: meniscusWave 2.5s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Top Navigation -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-sm ring-2 ring-blue-100">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Soil Porosity & Void Ratio Lab</h1>
+            <span class="text-[11px] bg-blue-50 text-blue-700 font-semibold px-2 py-0.5 rounded-full border border-blue-200">2 mm Sieved Soil &bull; Saturation Method</span>
+          </div>
+          <p class="text-xs text-slate-500 hidden sm:block">Soil Physics Practical &bull; Phase Relationships (<span class="math-symbol">n</span> &amp; <span class="math-symbol">e</span>)</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button id="btn-reset-exp" class="px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-300 transition-colors flex items-center space-x-1">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span>Reset Lab</span>
+        </button>
+        <button id="btn-export-pdf" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-all flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Lab Report PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+
+    <!-- Top Soil Type & Cylinder Selection Cards -->
+    <section class="bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-slate-200">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-center">
+        
+        <!-- Soil Texture Selector -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">1. Select 2 mm Sieved Soil Type</label>
+          <select id="soil-type-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="sandy_loam" selected>Sandy Loam (Porosity ~ 38%, Void Ratio ~ 0.61)</option>
+            <option value="coarse_sand">Coarse Sand (Porosity ~ 32%, Void Ratio ~ 0.47)</option>
+            <option value="loam">Loam Soil (Porosity ~ 44%, Void Ratio ~ 0.79)</option>
+            <option value="clayey_loam">Clayey Loam (Porosity ~ 50%, Void Ratio ~ 1.00)</option>
+            <option value="custom">Custom Soil Parameters...</option>
+          </select>
+          <p class="text-[11px] text-slate-500 mt-1">Air-dried soil passed through standard 2 mm IS sieve.</p>
+        </div>
+
+        <!-- Initial Graduated Cylinder Setup -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">2. Cylinder &amp; Soil Bulk Volume (<span class="math-symbol">V</span><sub>t</sub>)</label>
+          <div class="flex items-center space-x-2">
+            <input type="number" id="input-total-volume" value="250" min="50" max="1000" step="10" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold font-mono-num text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <span class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl border border-slate-200">mL (cm&sup3;)</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1">Dry soil tapped to calibrated graduation mark.</p>
+        </div>
+
+        <!-- Water Burette / Measuring Jar Setup -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">3. Supply Burette Water Reservoir (<span class="math-symbol">V</span><sub>initial</sub>)</label>
+          <div class="flex items-center space-x-2">
+            <input type="number" id="input-burette-start" value="200" min="50" max="500" step="10" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold font-mono-num text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <span class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl border border-slate-200">mL</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1">Initial distilled water volume taken in dispensing burette.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Center Stage: The Live Animated Interactive Experiment -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Left 7 Cols: Physics Laboratory Simulation Apparatus -->
+      <section class="lg:col-span-7 bg-white rounded-2xl p-5 shadow-xs border border-slate-200 flex flex-col items-center justify-between min-h-[560px] relative overflow-hidden">
+        
+        <!-- Live Status Bar -->
+        <div class="w-full flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center space-x-2">
+            <div id="status-dot" class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></div>
+            <span id="experiment-stage-text" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Step 1: Soil Loaded in Cylinder (Dry State)</span>
+          </div>
+          <span class="text-[11px] font-mono-num font-semibold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200" id="saturation-pct-badge">Saturation: 0.0%</span>
+        </div>
+
+        <!-- Animated Apparatus Center (Burette Pouring into Graduated Cylinder) -->
+        <div class="w-full flex items-end justify-center gap-12 sm:gap-20 py-6 my-auto relative">
+
+          <!-- 1. Dispensing Burette / Measuring Cylinder -->
+          <div class="flex flex-col items-center">
+            <span class="text-[11px] font-bold text-slate-500 mb-1 flex items-center gap-1">
+              <span>Burette / Supply Jar</span>
+            </span>
+
+            <!-- Burette Tube Body -->
+            <div class="w-16 sm:w-20 h-80 rounded-t-lg rounded-b-2xl cylinder-glass border-2 border-slate-300 relative flex flex-col justify-end p-1 shadow-inner">
+              
+              <!-- Graduations Marks -->
+              <div class="absolute inset-y-2 left-1 flex flex-col justify-between text-[9px] font-mono-num text-slate-400 select-none pointer-events-none">
+                <span>- 200</span>
+                <span>- 150</span>
+                <span>- 100</span>
+                <span>- 50</span>
+                <span>- 0</span>
+              </div>
+
+              <!-- Burette Water Liquid Level -->
+              <div id="burette-water-level" class="w-full bg-gradient-to-t from-cyan-600 to-sky-400 rounded-b-xl transition-all duration-300 relative flex items-start justify-center" style="height: 100%;">
+                <div class="w-full h-1.5 bg-sky-200/60 rounded-full meniscus"></div>
+                <span id="label-burette-vol" class="absolute -top-6 text-[10px] font-mono-num font-bold text-cyan-700 bg-cyan-50 px-1.5 py-0.5 rounded shadow-2xs">200 mL</span>
+              </div>
+
+              <!-- Stopcock Valve / Spout -->
+              <div class="absolute -bottom-4 right-0 w-6 h-6 flex items-center justify-center">
+                <div id="stopcock-valve" class="w-4 h-2 bg-slate-700 rounded transition-transform cursor-pointer" title="Click to toggle stopcock valve"></div>
+              </div>
+            </div>
+
+            <span class="text-[10px] font-mono-num text-slate-500 mt-4">Remaining: <b id="stat-burette-rem" class="text-slate-800">200.0 mL</b></span>
+          </div>
+
+          <!-- Dynamic Water Pouring Stream (Visible during active dispensing) -->
+          <div id="pouring-stream" class="hidden absolute top-28 left-[38%] sm:left-[41%] w-1.5 h-44 water-stream rounded-full z-20 pointer-events-none"></div>
+
+          <!-- 2. Soil Graduated Cylinder (2 mm sieved soil + saturation wetting front) -->
+          <div class="flex flex-col items-center">
+            <span class="text-[11px] font-bold text-slate-700 mb-1 flex items-center gap-1">
+              <span>Soil Core Cylinder (<span class="math-symbol">V</span><sub>t</sub>)</span>
+            </span>
+
+            <!-- Glass Cylinder Body -->
+            <div class="w-36 sm:w-44 h-80 rounded-t-md rounded-b-xl cylinder-glass border-2 border-slate-400/80 relative flex flex-col justify-end p-1.5 overflow-hidden shadow-md">
+              
+              <!-- Cylinder Calibrated Graduation Markings -->
+              <div class="absolute inset-y-2 right-2 flex flex-col justify-between text-[10px] font-mono-num font-semibold text-slate-500 select-none pointer-events-none z-10">
+                <span>— 250 mL</span>
+                <span>— 200 mL</span>
+                <span>— 150 mL</span>
+                <span>— 100 mL</span>
+                <span>— 50 mL</span>
+                <span>— 0 mL</span>
+              </div>
+
+              <!-- SOIL MATRIX CONTAINER -->
+              <div id="cylinder-soil-bed" class="w-full h-full rounded-b-lg relative overflow-hidden flex flex-col justify-end">
+                
+                <!-- Dry 2mm Soil Layer (Granular Texture) -->
+                <div class="absolute inset-0 bg-[#d97706]/70 flex flex-wrap content-start p-1 opacity-90 overflow-hidden" id="dry-soil-texture" style="background: radial-gradient(circle, #b45309 20%, #d97706 70%, #92400e 100%);">
+                  <!-- CSS Soil Pores Texture -->
+                  <div class="w-full h-full bg-[radial-gradient(#78350f_1.5px,transparent_1.5px)] [background-size:8px_8px] opacity-60"></div>
+                </div>
+
+                <!-- Wetting Front / Saturated Void Water Infiltration (Rises from bottom to top) -->
+                <div id="wetting-water-front" class="w-full bg-cyan-600/75 transition-all duration-300 relative z-5 flex items-start justify-center backdrop-blur-[0.5px]" style="height: 0%;">
+                  <!-- Rising meniscus line -->
+                  <div class="w-full h-2 bg-cyan-300/80 rounded-full shadow-xs"></div>
+                  <!-- Displaced air bubbles animation -->
+                  <div id="air-bubbles" class="hidden absolute inset-0 overflow-hidden pointer-events-none">
+                    <span class="absolute w-2 h-2 bg-white/70 rounded-full animate-ping left-4 top-1"></span>
+                    <span class="absolute w-2.5 h-2.5 bg-white/70 rounded-full animate-ping right-6 top-3"></span>
+                  </div>
+                </div>
+
+                <!-- Surface Water Excess (When fully saturated) -->
+                <div id="surface-water-film" class="hidden absolute top-0 inset-x-0 h-3 bg-cyan-400/80 z-20 transition-all border-b border-cyan-200"></div>
+
+              </div>
+
+            </div>
+
+            <!-- Heavy Base Stand for Stability -->
+            <div class="w-48 sm:w-56 h-3.5 bg-slate-800 rounded-full -mt-1 shadow-md"></div>
+            <span class="text-[10px] font-mono-num text-slate-500 mt-2">Pore Water Infiltrated (<span class="math-symbol">V</span><sub>v</sub>): <b id="stat-infiltrated-vol" class="text-blue-600">0.0 mL</b></span>
+          </div>
+
+        </div>
+
+        <!-- Interactive Control Bar: Pour Water Button & Flow Speed Slider -->
+        <div class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div class="flex items-center space-x-2">
+            <button id="btn-pour-step" class="px-3.5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 active:scale-95 rounded-xl shadow-xs transition-all flex items-center space-x-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+              <span>Pour 10 mL Water</span>
+            </button>
+            <button id="btn-auto-saturate" class="px-3.5 py-2 text-xs font-bold text-cyan-800 bg-cyan-100 hover:bg-cyan-200 active:scale-95 rounded-xl border border-cyan-300 transition-all flex items-center space-x-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+              <span id="auto-btn-text">Auto Infiltrate to Saturation</span>
+            </button>
+          </div>
+
+          <div class="flex items-center space-x-2 text-xs font-semibold text-slate-600">
+            <span>Pouring Speed:</span>
+            <input type="range" id="flow-speed-slider" min="1" max="5" value="3" class="w-24 accent-blue-600">
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right 5 Cols: Dynamic Calculations & Phase Diagram Visualization -->
+      <section class="lg:col-span-5 space-y-4">
+        
+        <!-- Live Primary Geotechnical Phase Metric Cards -->
+        <div class="grid grid-cols-2 gap-3">
+          
+          <!-- Porosity (n) -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs relative overflow-hidden">
+            <div class="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
+              <span>Soil Porosity</span>
+              <span class="text-blue-600 font-bold font-mono-num text-sm"><span class="math-symbol">n</span> (%)</span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-black text-blue-700 font-mono-num" id="val-porosity">0.0%</div>
+            <p class="text-[11px] text-slate-500 mt-1 font-mono-num">
+              <span class="math-symbol">n</span> = (<span class="math-symbol">V</span><sub>v</sub> / <span class="math-symbol">V</span><sub>t</sub>) &times; 100
+            </p>
+            <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
+              <div id="porosity-bar" class="bg-blue-600 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Void Ratio (e) -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs relative overflow-hidden">
+            <div class="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
+              <span>Void Ratio</span>
+              <span class="text-indigo-600 font-bold font-mono-num text-sm"><span class="math-symbol">e</span></span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-black text-indigo-700 font-mono-num" id="val-void-ratio">0.00</div>
+            <p class="text-[11px] text-slate-500 mt-1 font-mono-num">
+              <span class="math-symbol">e</span> = <span class="math-symbol">V</span><sub>v</sub> / <span class="math-symbol">V</span><sub>s</sub> = <span class="math-symbol">n</span> / (1 &minus; <span class="math-symbol">n</span>)
+            </p>
+            <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
+              <div id="void-ratio-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Dynamic 3-Phase Soil Volumetric Breakdown Block -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3">
+          <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+            <span>Soil Phase Volume Distribution (<span class="math-symbol">V</span><sub>t</sub> = <span class="math-symbol">V</span><sub>s</sub> + <span class="math-symbol">V</span><sub>v</sub>)</span>
+            <span class="text-blue-600 font-mono-num font-semibold" id="label-total-vt">250.0 mL</span>
+          </h3>
+
+          <!-- Visual Phase Strip Bar -->
+          <div class="w-full h-8 rounded-xl overflow-hidden flex border border-slate-200 shadow-inner font-mono-num text-[11px] font-bold text-white text-center leading-8">
+            <div id="phase-bar-solids" class="bg-amber-700 transition-all duration-300" style="width: 62%;">Solids (<span class="math-symbol">V</span><sub>s</sub>)</div>
+            <div id="phase-bar-water" class="bg-cyan-500 transition-all duration-300" style="width: 0%;">Water</div>
+            <div id="phase-bar-air" class="bg-slate-300 text-slate-700 transition-all duration-300 flex-1">Air Voids</div>
+          </div>
+
+          <!-- Volumetric Balance Table -->
+          <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono-num pt-1">
+            <div class="bg-amber-50 p-2 rounded-xl border border-amber-200">
+              <span class="text-[10px] text-amber-800 font-bold block">Solid Particles (<span class="math-symbol">V</span><sub>s</sub>)</span>
+              <span id="stat-solids-vol" class="font-bold text-slate-800 text-sm">155.0 mL</span>
+            </div>
+            <div class="bg-cyan-50 p-2 rounded-xl border border-cyan-200">
+              <span class="text-[10px] text-cyan-800 font-bold block">Pore Water (<span class="math-symbol">V</span><sub>w</sub>)</span>
+              <span id="stat-water-vol" class="font-bold text-cyan-800 text-sm">0.0 mL</span>
+            </div>
+            <div class="bg-slate-100 p-2 rounded-xl border border-slate-200">
+              <span class="text-[10px] text-slate-600 font-bold block">Remaining Air (<span class="math-symbol">V</span><sub>a</sub>)</span>
+              <span id="stat-air-vol" class="font-bold text-slate-700 text-sm">95.0 mL</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Educational Phase Relationship Inferences -->
+        <div class="bg-gradient-to-br from-blue-50/60 to-indigo-50/40 rounded-2xl border border-blue-200/80 p-4 space-y-2">
+          <h4 class="text-xs font-bold text-blue-900 uppercase tracking-wide flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Laboratory Observation &amp; Practical Inference</span>
+          </h4>
+          <p id="lab-inference-text" class="text-xs text-slate-700 leading-relaxed">
+            As water is poured into the 2 mm sieved soil, capillary tension draws water into microscopic pore throats, displacing trapped pore air upward as visible bubbles. Total pore volume is determined when soil reaches full 100% saturation without free water accumulating on the surface.
+          </p>
+          <div class="pt-1 flex items-center justify-between text-[11px] font-mono-num text-slate-500 border-t border-blue-100">
+            <span>Interconversion: <span class="math-symbol">n</span> = <span class="math-symbol">e</span> / (1 + <span class="math-symbol">e</span>)</span>
+            <span>Bulk Density (<span class="math-symbol">&rho;</span><sub>b</sub>): <b id="stat-est-rho" class="text-slate-800 font-bold">1.45 g/cm&sup3;</b></span>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- PDF Student Details Modal -->
+  <div id="modal-report-setup" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">Laboratory Practical Report</h3>
+          <p class="text-xs text-slate-500">Estimation of Soil Porosity (<span class="math-symbol">n</span>) and Void Ratio (<span class="math-symbol">e</span>)</p>
+        </div>
+        <button type="button" id="btn-close-pdf-modal" class="text-slate-400 hover:text-slate-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Student Full Name</label>
+          <input type="text" id="rep-student-name" placeholder="e.g. Anand Patil" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Roll No / ID Number</label>
+          <input type="text" id="rep-student-id" placeholder="e.g. AG21-104" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono-num">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Class / Department</label>
+          <input type="text" id="rep-batch" placeholder="e.g. Soil Science & Agro Chemistry" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Experiment Date</label>
+          <input type="date" id="rep-date" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
+        <button type="button" id="btn-cancel-pdf" class="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
+        <button type="button" id="btn-download-pdf-exec" class="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition-all flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Download PDF Document</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-medium transform translate-y-10 opacity-0 transition-all duration-300 pointer-events-none flex items-center space-x-2">
+    <span id="toast-message">Notification</span>
+  </div>
+
+  <script>
+    /* EXPERIMENT STATE & MATHEMATICAL ENGINE */
+    const labState = {
+      totalVolume: 250.0,       // Vt (mL / cm3)
+      buretteStart: 200.0,      // Initial Burette volume (mL)
+      waterPoured: 0.0,         // Vw added (mL)
+      targetPoreVolume: 95.0,   // Vv true capacity based on selected soil texture (mL)
+      targetPorosity: 0.38,     // 38%
+      targetVoidRatio: 0.613,   // e = 0.38 / (1 - 0.38)
+      isAutoPumping: false,
+      autoTimer: null
+    };
+
+    const soilPresets = {
+      sandy_loam: { porosity: 0.38, name: "Sandy Loam", desc: "Coarse-textured soil with rapid capillary wetting and low surface retention." },
+      coarse_sand: { porosity: 0.32, name: "Coarse Sand (2mm sieved)", desc: "Predominantly macro-pores; rapid air evacuation and lower total pore volume." },
+      loam: { porosity: 0.44, name: "Loam Soil", desc: "Balanced macro and micro-pore distribution with moderate moisture retention." },
+      clayey_loam: { porosity: 0.50, name: "Clayey Loam", desc: "Fine-textured matrix with higher total porosity but narrow pore necks." },
+      custom: { porosity: 0.40, name: "Custom Soil Sample", desc: "User-defined research soil sample." }
+    };
+
+    function updateCalculations() {
+      const Vt = labState.totalVolume;
+      const Vw = labState.waterPoured;
+      const trueVv = labState.targetPoreVolume;
+      
+      // Saturation degree
+      const saturationRatio = Math.min(1.0, Vw / trueVv);
+      const satPct = (saturationRatio * 100).toFixed(1);
+
+      // Estimated Porosity n = (Vw / Vt) * 100
+      const currentPorosityPct = (Vw / Vt) * 100;
+      
+      // Estimated Solids Volume Vs = Vt - Vw
+      const Vs = Math.max(0.1, Vt - Vw);
+
+      // Estimated Void ratio e = Vw / Vs (or n / (1-n))
+      const currentVoidRatio = Vw / Vs;
+
+      // Update Phase Bar & Metric Displays
+      document.getElementById('val-porosity').textContent = `${currentPorosityPct.toFixed(1)}%`;
+      document.getElementById('val-void-ratio').textContent = currentVoidRatio.toFixed(2);
+      
+      document.getElementById('porosity-bar').style.width = `${Math.min(100, (currentPorosityPct / 65) * 100)}%`;
+      document.getElementById('void-ratio-bar').style.width = `${Math.min(100, (currentVoidRatio / 1.5) * 100)}%`;
+
+      document.getElementById('stat-infiltrated-vol').textContent = `${Vw.toFixed(1)} mL`;
+      document.getElementById('stat-burette-rem').textContent = `${(labState.buretteStart - Vw).toFixed(1)} mL`;
+      document.getElementById('saturation-pct-badge').textContent = `Saturation: ${satPct}%`;
+
+      // Burette Liquid Visual Height
+      const buretteFraction = Math.max(0, (labState.buretteStart - Vw) / labState.buretteStart);
+      document.getElementById('burette-water-level').style.height = `${buretteFraction * 100}%`;
+      document.getElementById('label-burette-vol').textContent = `${(labState.buretteStart - Vw).toFixed(0)} mL`;
+
+      // Cylinder Wetting Front Visual Height
+      const wettingHeightFraction = saturationRatio;
+      document.getElementById('wetting-water-front').style.height = `${wettingHeightFraction * 100}%`;
+
+      // Volumetric Phase Bar Strip
+      const pctSolids = ((Vt - trueVv) / Vt) * 100;
+      const pctWater = (Vw / Vt) * 100;
+      const pctAir = Math.max(0, ((trueVv - Vw) / Vt) * 100);
+
+      document.getElementById('phase-bar-solids').style.width = `${pctSolids}%`;
+      document.getElementById('phase-bar-water').style.width = `${pctWater}%`;
+      document.getElementById('phase-bar-air').style.width = `${pctAir}%`;
+
+      document.getElementById('stat-solids-vol').textContent = `${(Vt - trueVv).toFixed(1)} mL`;
+      document.getElementById('stat-water-vol').textContent = `${Vw.toFixed(1)} mL`;
+      document.getElementById('stat-air-vol').textContent = `${Math.max(0, trueVv - Vw).toFixed(1)} mL`;
+
+      // Particle density approx 2.65 g/cm3 -> Bulk density = (1 - n) * 2.65
+      const trueN = labState.targetPorosity;
+      const rhoB = (1 - trueN) * 2.65;
+      document.getElementById('stat-est-rho').textContent = `${rhoB.toFixed(2)} g/cm³`;
+
+      // Status text updates
+      const statusText = document.getElementById('experiment-stage-text');
+      const bubbles = document.getElementById('air-bubbles');
+      const surfaceFilm = document.getElementById('surface-water-film');
+
+      if (Vw === 0) {
+        statusText.textContent = "Step 1: Soil Loaded in Cylinder (Dry State)";
+        bubbles.classList.add('hidden');
+        surfaceFilm.classList.add('hidden');
+      } else if (Vw < trueVv) {
+        statusText.textContent = `Step 2: Infiltrating & Displacing Pore Air (${satPct}% Saturated)`;
+        bubbles.classList.remove('hidden');
+        surfaceFilm.classList.add('hidden');
+      } else {
+        statusText.textContent = "Step 3: Pore Saturation Achieved (Full Pore Volume Measured)";
+        bubbles.classList.add('hidden');
+        surfaceFilm.classList.remove('hidden');
+        
+        // Stop auto timer if running
+        if (labState.isAutoPumping) {
+          stopAutoPour();
+        }
+      }
+    }
+
+    function pourWater(amount = 10.0) {
+      if (labState.waterPoured >= labState.targetPoreVolume) {
+        showToast("Soil pores are 100% saturated! Extra water will form free ponding on surface.");
+        return;
+      }
+
+      // Show animated pouring stream
+      const stream = document.getElementById('pouring-stream');
+      stream.classList.remove('hidden');
+
+      const nextVal = Math.min(labState.targetPoreVolume, labState.waterPoured + amount);
+      labState.waterPoured = nextVal;
+
+      updateCalculations();
+
+      setTimeout(() => {
+        if (!labState.isAutoPumping) {
+          stream.classList.add('hidden');
+        }
+      }, 350);
+    }
+
+    function startAutoPour() {
+      labState.isAutoPumping = true;
+      document.getElementById('auto-btn-text').textContent = "Pause Infiltration";
+      document.getElementById('pouring-stream').classList.remove('hidden');
+
+      const speedVal = parseInt(document.getElementById('flow-speed-slider').value);
+      const intervalMs = Math.max(100, 500 - (speedVal * 70));
+
+      labState.autoTimer = setInterval(() => {
+        if (labState.waterPoured >= labState.targetPoreVolume) {
+          stopAutoPour();
+          showToast("Pores completely saturated! Vv determined accurately.");
+        } else {
+          pourWater(2.5);
+        }
+      }, intervalMs);
+    }
+
+    function stopAutoPour() {
+      labState.isAutoPumping = false;
+      clearInterval(labState.autoTimer);
+      labState.autoTimer = null;
+      document.getElementById('auto-btn-text').textContent = "Auto Infiltrate to Saturation";
+      document.getElementById('pouring-stream').classList.add('hidden');
+    }
+
+    function setSoilPreset(key) {
+      const preset = soilPresets[key];
+      if (!preset) return;
+
+      labState.targetPorosity = preset.porosity;
+      labState.targetVoidRatio = preset.porosity / (1 - preset.porosity);
+      labState.targetPoreVolume = labState.totalVolume * preset.porosity;
+      labState.waterPoured = 0.0;
+
+      document.getElementById('lab-inference-text').textContent = preset.desc + 
+        ` For this sample with bulk volume Vt = ${labState.totalVolume} mL, exactly ${labState.targetPoreVolume.toFixed(1)} mL of pore space is available for water occupation.`;
+
+      updateCalculations();
+      showToast(`Selected soil: ${preset.name}`);
+    }
+
+    function resetLab() {
+      stopAutoPour();
+      labState.waterPoured = 0.0;
+      updateCalculations();
+      showToast("Apparatus drained and reset to dry initial state.");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      toastMsg.textContent = msg;
+      toast.classList.remove('translate-y-10', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-10', 'opacity-0');
+      }, 2500);
+    }
+
+    function generatePdfReport() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+      const name = document.getElementById('rep-student-name').value.trim() || 'Student Researcher';
+      const id = document.getElementById('rep-student-id').value.trim() || 'Unspecified ID';
+      const batch = document.getElementById('rep-batch').value.trim() || 'Agricultural / Civil Laboratory';
+      const date = document.getElementById('rep-date').value || new Date().toISOString().split('T')[0];
+
+      const soilKey = document.getElementById('soil-type-select').value;
+      const soilName = soilPresets[soilKey]?.name || "2mm Sieved Soil";
+
+      // Header Banner
+      doc.setFillColor(30, 58, 138);
+      doc.rect(0, 0, 210, 24, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text('SOIL PHYSICS EXPERIMENT REPORT: POROSITY & VOID RATIO', 14, 15);
+
+      // Student Info
+      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Student Name: ${name}`, 14, 34);
+      doc.text(`Roll / ID No: ${id}`, 14, 40);
+      doc.text(`Class / Batch: ${batch}`, 14, 46);
+      doc.text(`Experiment Date: ${date}`, 120, 34);
+      doc.text(`Tested Material: ${soilName}`, 120, 40);
+      doc.text(`Method: Graduated Cylinder Water Saturation (2mm sieve)`, 120, 46);
+
+      // Phase Equations & Summary Box
+      const Vt = labState.totalVolume;
+      const Vw = labState.waterPoured;
+      const Vs = Math.max(0.1, Vt - Vw);
+      const porosity = (Vw / Vt) * 100;
+      const voidRatio = Vw / Vs;
+
+      doc.autoTable({
+        startY: 55,
+        head: [['Experimental Parameter', 'Observed Value', 'Formula / Phase Definition']],
+        body: [
+          ['Total Soil Core Bulk Volume (Vt)', `${Vt.toFixed(1)} mL (cm³)`, 'Initial calibrated cylinder mark'],
+          ['Initial Burette Reservoir (V_initial)', `${labState.buretteStart.toFixed(1)} mL`, 'Distilled water loaded in burette'],
+          ['Final Burette Reading (V_final)', `${(labState.buretteStart - Vw).toFixed(1)} mL`, 'Volume at meniscus balance'],
+          ['Volume of Water Added / Pores (Vv = Vw)', `${Vw.toFixed(1)} mL`, 'Vw = V_initial - V_final'],
+          ['Volume of Solid Particles (Vs)', `${Vs.toFixed(1)} mL`, 'Vs = Vt - Vv'],
+          ['Computed Soil Porosity (n)', `${porosity.toFixed(2)} %`, 'n = (Vv / Vt) × 100'],
+          ['Computed Soil Void Ratio (e)', `${voidRatio.toFixed(3)}`, 'e = Vv / Vs = n / (1 - n)']
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [37, 99, 235], fontStyle: 'bold' },
+        styles: { fontSize: 8.5, cellPadding: 3 }
+      });
+
+      // Scientific Inferences
+      const finalY = doc.lastAutoTable.finalY + 12;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text('LABORATORY INFERENCES & PHASE RELATIONSHIPS:', 14, finalY);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      
+      const inferenceNotes = [
+        `1. The measured porosity of ${porosity.toFixed(1)}% indicates the fraction of total soil bulk volume occupied by pore space.`,
+        `2. Void ratio e = ${voidRatio.toFixed(3)} compares the pore volume directly to the volume of incompressible solid mineral grains.`,
+        `3. Interconversion check: n = e / (1 + e) = ${(voidRatio / (1 + voidRatio) * 100).toFixed(2)}% confirms mathematical consistency.`,
+        `4. Pre-sieving the sample through a 2 mm mesh removes coarse gravels, standardizing the fine-earth fraction for uniform pore throat wetting.`
+      ];
+
+      inferenceNotes.forEach((line, idx) => {
+        doc.text(line, 14, finalY + 7 + (idx * 6));
+      });
+
+      // Signatures
+      const sigY = finalY + 45;
+      if (sigY < 280) {
+        doc.line(14, sigY, 70, sigY);
+        doc.text("Student's Signature", 24, sigY + 5);
+        doc.line(140, sigY, 196, sigY);
+        doc.text("Laboratory Instructor / Evaluator", 142, sigY + 5);
+      }
+
+      doc.save(`Soil_Porosity_Lab_${id.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      document.getElementById('modal-report-setup').classList.add('hidden');
+      showToast("PDF Laboratory Report Generated!");
+    }
+
+    function bindEventListeners() {
+      // Pour button
+      document.getElementById('btn-pour-step').addEventListener('click', () => pourWater(10.0));
+
+      // Auto Infiltrate button
+      document.getElementById('btn-auto-saturate').addEventListener('click', () => {
+        if (labState.isAutoPumping) {
+          stopAutoPour();
+        } else {
+          startAutoPour();
+        }
+      });
+
+      // Soil selector
+      document.getElementById('soil-type-select').addEventListener('change', (e) => {
+        setSoilPreset(e.target.value);
+      });
+
+      // Cylinder volume input
+      document.getElementById('input-total-volume').addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        if (!isNaN(val) && val > 0) {
+          labState.totalVolume = val;
+          labState.targetPoreVolume = val * labState.targetPorosity;
+          document.getElementById('label-total-vt').textContent = `${val.toFixed(1)} mL`;
+          updateCalculations();
+        }
+      });
+
+      // Reset
+      document.getElementById('btn-reset-exp').addEventListener('click', resetLab);
+
+      // PDF Modal
+      const modal = document.getElementById('modal-report-setup');
+      document.getElementById('btn-export-pdf').addEventListener('click', () => modal.classList.remove('hidden'));
+      document.getElementById('btn-close-pdf-modal').addEventListener('click', () => modal.classList.add('hidden'));
+      document.getElementById('btn-cancel-pdf').addEventListener('click', () => modal.classList.add('hidden'));
+      document.getElementById('btn-download-pdf-exec').addEventListener('click', generatePdfReport);
+
+      // Default Date
+      document.getElementById('rep-date').value = new Date().toISOString().split('T')[0];
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      bindEventListeners();
+      setSoilPreset('sandy_loam');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darcy's Law Permeameter &amp; Hydraulic Conductivity Studio</title>
+    <!-- Tailwind CSS for high-performance styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans for UI, JetBrains Mono for Engineering Numerics -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Range Sliders */
+        input[type="range"] {
+            accent-color: #0284c7;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #0284c7;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(2, 132, 199, 0.4);
+            border: 2px solid #ffffff;
+        }
+        /* Mathematical variable badge */
+        .math-var {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #0369a1;
+            padding: 0.12rem 0.38rem;
+            background: #f0f9ff;
+            border-radius: 0.375rem;
+            border: 1px solid #bae6fd;
+            font-size: 0.88em;
+            display: inline-block;
+        }
+        .math-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.bottom-2\.5{bottom:0.625rem}.right-3{right:0.75rem}.top-0{top:0px}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.mb-1{margin-bottom:0.25rem}.mt-0\.5{margin-top:0.125rem}.mt-auto{margin-top:auto}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-1\.5{height:0.375rem}.h-10{height:2.5rem}.h-2{height:0.5rem}.h-2\.5{height:0.625rem}.h-4{height:1rem}.h-6{height:1.5rem}.h-\[400px\]{height:400px}.h-full{height:100%}.min-h-screen{min-height:100vh}.w-10{width:2.5rem}.w-2{width:0.5rem}.w-2\.5{width:0.625rem}.w-4{width:1rem}.w-6{width:1.5rem}.w-full{width:100%}.max-w-\[1700px\]{max-width:1700px}.max-w-lg{max-width:32rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.cursor-pointer{cursor:pointer}.appearance-none{-webkit-appearance:none;appearance:none}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.space-y-1 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.25rem * var(--tw-space-y-reverse))}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-2\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.625rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.625rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-3\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.875rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.875rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.\!border-emerald-200{--tw-border-opacity:1 !important;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1)) !important}.\!border-purple-200{--tw-border-opacity:1 !important;border-color:rgb(233 213 255 / var(--tw-border-opacity, 1)) !important}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1))}.border-sky-200{--tw-border-opacity:1;border-color:rgb(186 230 253 / var(--tw-border-opacity, 1))}.border-sky-300{--tw-border-opacity:1;border-color:rgb(125 211 252 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-purple-200{--tw-border-opacity:1;border-color:rgb(233 213 255 / var(--tw-border-opacity, 1))}.\!bg-emerald-50{--tw-bg-opacity:1 !important;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1)) !important}.\!bg-purple-50{--tw-bg-opacity:1 !important;background-color:rgb(250 245 255 / var(--tw-bg-opacity, 1)) !important}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235 / var(--tw-bg-opacity, 1))}.bg-amber-500{--tw-bg-opacity:1;background-color:rgb(245 158 11 / var(--tw-bg-opacity, 1))}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1))}.bg-emerald-500{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-purple-50{--tw-bg-opacity:1;background-color:rgb(250 245 255 / var(--tw-bg-opacity, 1))}.bg-sky-100{--tw-bg-opacity:1;background-color:rgb(224 242 254 / var(--tw-bg-opacity, 1))}.bg-sky-50{--tw-bg-opacity:1;background-color:rgb(240 249 255 / var(--tw-bg-opacity, 1))}.bg-sky-500{--tw-bg-opacity:1;background-color:rgb(14 165 233 / var(--tw-bg-opacity, 1))}.bg-sky-600{--tw-bg-opacity:1;background-color:rgb(2 132 199 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-100\/80{background-color:rgb(241 245 249 / 0.8)}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.bg-slate-400{--tw-bg-opacity:1;background-color:rgb(148 163 184 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-50\/90{background-color:rgb(248 250 252 / 0.9)}.bg-slate-900\/50{background-color:rgb(15 23 42 / 0.5)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-purple-600{--tw-bg-opacity:1;background-color:rgb(147 51 234 / var(--tw-bg-opacity, 1))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.bg-gradient-to-tr{background-image:linear-gradient(to top right, var(--tw-gradient-stops))}.from-emerald-600{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-sky-600{--tw-gradient-from:#0284c7 var(--tw-gradient-from-position);--tw-gradient-to:rgb(2 132 199 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-cyan-500{--tw-gradient-to:rgb(6 182 212 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #06b6d4 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-blue-600{--tw-gradient-to:#2563eb var(--tw-gradient-to-position)}.to-teal-600{--tw-gradient-to:#0d9488 var(--tw-gradient-to-position)}.p-1{padding:0.25rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.px-1{padding-left:0.25rem;padding-right:0.25rem}.px-1\.5{padding-left:0.375rem;padding-right:0.375rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.pb-1\.5{padding-bottom:0.375rem}.pb-2{padding-bottom:0.5rem}.pb-2\.5{padding-bottom:0.625rem}.pt-0\.5{padding-top:0.125rem}.pt-1{padding-top:0.25rem}.pt-2{padding-top:0.5rem}.text-center{text-align:center}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.font-sans{font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[9px\]{font-size:9px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.\!text-emerald-700{--tw-text-opacity:1 !important;color:rgb(4 120 87 / var(--tw-text-opacity, 1)) !important}.\!text-purple-700{--tw-text-opacity:1 !important;color:rgb(126 34 206 / var(--tw-text-opacity, 1)) !important}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-amber-700{--tw-text-opacity:1;color:rgb(180 83 9 / var(--tw-text-opacity, 1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14 / var(--tw-text-opacity, 1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-purple-700{--tw-text-opacity:1;color:rgb(126 34 206 / var(--tw-text-opacity, 1))}.text-purple-800{--tw-text-opacity:1;color:rgb(107 33 168 / var(--tw-text-opacity, 1))}.text-sky-600{--tw-text-opacity:1;color:rgb(2 132 199 / var(--tw-text-opacity, 1))}.text-sky-700{--tw-text-opacity:1;color:rgb(3 105 161 / var(--tw-text-opacity, 1))}.text-sky-800{--tw-text-opacity:1;color:rgb(7 89 133 / var(--tw-text-opacity, 1))}.text-sky-900{--tw-text-opacity:1;color:rgb(12 74 110 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-emerald-600\/20{--tw-shadow-color:rgb(5 150 105 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.shadow-sky-500\/20{--tw-shadow-color:rgb(14 165 233 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.outline-none{outline:2px solid transparent;outline-offset:2px}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.selection\:bg-sky-100 *::selection{--tw-bg-opacity:1;background-color:rgb(224 242 254 / var(--tw-bg-opacity, 1))}.selection\:text-sky-900 *::selection{--tw-text-opacity:1;color:rgb(12 74 110 / var(--tw-text-opacity, 1))}.selection\:bg-sky-100::selection{--tw-bg-opacity:1;background-color:rgb(224 242 254 / var(--tw-bg-opacity, 1))}.selection\:text-sky-900::selection{--tw-text-opacity:1;color:rgb(12 74 110 / var(--tw-text-opacity, 1))}.hover\:bg-sky-500:hover{--tw-bg-opacity:1;background-color:rgb(14 165 233 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:from-emerald-500:hover{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-teal-500:hover{--tw-gradient-to:#14b8a6 var(--tw-gradient-to-position)}.hover\:text-sky-700:hover{--tw-text-opacity:1;color:rgb(3 105 161 / var(--tw-text-opacity, 1))}.hover\:text-slate-700:hover{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.hover\:text-slate-900:hover{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.focus\:border-sky-500:focus{--tw-border-opacity:1;border-color:rgb(14 165 233 / var(--tw-border-opacity, 1))}.focus\:bg-white:focus{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width: 640px){.sm\:block{display:block}.sm\:h-\[450px\]{height:450px}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:p-4{padding:1rem}.sm\:p-5{padding:1.25rem}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}}@media (min-width: 768px){.md\:inline-block{display:inline-block}.md\:inline{display:inline}.md\:hidden{display:none}}@media (min-width: 1024px){.lg\:col-span-4{grid-column:span 4 / span 4}.lg\:col-span-8{grid-column:span 8 / span 8}.lg\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}.lg\:p-6{padding:1.5rem}}</style></head>
+<body class="min-h-screen flex flex-col antialiased bg-slate-50 selection:bg-sky-100 selection:text-sky-900">
+
+    <header class="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-cyan-500 to-blue-600 flex items-center justify-center shadow-md shadow-sky-500/20 shrink-0">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="font-extrabold text-sm sm:text-base tracking-tight text-slate-900">
+                        Darcy's Law <span class="text-sky-600">Permeameter Studio</span>
+                    </h1>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 font-mono font-semibold hidden md:inline-block">
+                        ASTM D2434 &amp; D5084 Laboratory Simulator
+                    </span>
+                </div>
+                <p class="text-[11px] text-slate-500 font-medium hidden sm:block">
+                    Constant Head &amp; Falling Head Apparatus • Dynamic Seepage Vectors • Real-Time Lab Calculator
+                </p>
+            </div>
+        </div>
+
+        <!-- Mode Toggle & Direct Offline HTML Exporter -->
+        <div class="flex items-center gap-2.5">
+            <!-- Mode Switcher Tabs -->
+            <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
+                <button id="btn-mode-constant" onclick="switchPermeameterMode('constant')" class="px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
+                    Constant Head (ASTM D2434)
+                </button>
+                <button id="btn-mode-falling" onclick="switchPermeameterMode('falling')" class="px-3 py-1.5 rounded-lg transition-all bg-purple-600 text-white font-bold flex items-center gap-1.5 shadow-sm">
+                    Falling Head (ASTM D5084)
+                </button>
+            </div>
+
+            <!-- Direct 1-Click HTML File Downloader -->
+            <button onclick="downloadLaboratoryApp()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-600/20 flex items-center gap-1.5 transition transform active:scale-95 shrink-0" title="Download standalone offline HTML file">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                <span class="hidden md:inline">Download Lab (.html)</span>
+                <span class="md:hidden">Save</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-[1700px] w-full mx-auto p-3 sm:p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- =========================================================
+             LEFT PANEL: Controls, Soil Presets, & Custom Lab Entry
+             ========================================================= -->
+        <div class="lg:col-span-4 space-y-4">
+
+            <!-- Card 1: Soil Sample Selection -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                        1. Soil Sample Selection
+                    </h2>
+                    <span id="soil-classification-tag" class="text-[10px] font-mono text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200 font-semibold">SP / Medium Sand</span>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] text-slate-600 font-semibold mb-1">Standard Geotechnical Benchmark:</label>
+                    <select id="preset-select" onchange="loadSoilPreset(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold focus:outline-none focus:border-sky-500 cursor-pointer">
+                        <option value="coarse_sand">🏖️ Clean Coarse Sand (High K, Constant Head)</option>
+                        <option value="medium_sand" selected="">🏜️ Medium / Fine Sand (Standard Baseline)</option>
+                        <option value="silty_sand">🌾 Silty Sand / Loam (Transitional)</option>
+                        <option value="inorganic_silt">🧱 Inorganic Silt (Low K, Falling Head)</option>
+                        <option value="dense_clay">🏺 Compacted Clay (Ultra-Low K, Falling Head)</option>
+                        <option value="custom">✏️ [Custom User Soil Specimen]</option>
+                    </select>
+                </div>
+
+                <!-- Specimen Microstructural Grid -->
+                <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 font-mono text-center">
+                    <div>
+                        <span class="text-[9px] text-slate-500 block uppercase">Porosity (<span class="math-code text-sky-600">n</span>)</span>
+                        <span id="disp-porosity" class="text-xs font-bold text-slate-800">0.38</span>
+                    </div>
+                    <div>
+                        <span class="text-[9px] text-slate-500 block uppercase">Void Ratio (<span class="math-code text-amber-600">e</span>)</span>
+                        <span id="disp-void-ratio" class="text-xs font-bold text-slate-800">0.61</span>
+                    </div>
+                    <div>
+                        <span class="text-[9px] text-slate-500 block uppercase">Typical <span class="math-code text-emerald-600">K</span></span>
+                        <span id="disp-k-range" class="text-[10px] font-bold text-emerald-700">10⁻² to 10⁻³ cm/s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Permeameter Geometry & Heads -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        2. Permeameter Geometry &amp; Heads
+                    </h2>
+                    <span id="apparatus-label-badge" class="text-[10px] font-mono text-purple-800 bg-purple-50 px-2 py-0.5 rounded border border-purple-200 font-semibold">Falling Head Mode</span>
+                </div>
+
+                <div class="space-y-3.5 text-xs">
+                    <!-- Soil Column Length L -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-slate-700 font-semibold flex items-center gap-1.5">
+                                Specimen Length <span class="math-var">L</span>:
+                            </span>
+                            <span id="disp-length" class="font-mono font-bold text-sky-700">15.0 cm</span>
+                        </div>
+                        <input type="range" id="slider-length" min="5" max="30" step="0.5" value="15" oninput="updatePermeameterParams()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-[9px] text-slate-400 font-mono mt-0.5">
+                            <span>5 cm</span>
+                            <span>15 cm</span>
+                            <span>30 cm</span>
+                        </div>
+                    </div>
+
+                    <!-- Permeameter Diameter D (Area A) -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-slate-700 font-semibold flex items-center gap-1.5">
+                                Cylinder Diameter <span class="math-var">D</span>:
+                            </span>
+                            <span id="disp-diameter" class="font-mono font-bold text-sky-700">10.0 cm</span>
+                        </div>
+                        <input type="range" id="slider-diameter" min="4" max="20" step="0.5" value="10" oninput="updatePermeameterParams()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-[9px] text-slate-500 font-mono mt-0.5">
+                            <span>Area <span class="text-slate-600 font-semibold">A</span>: <span id="disp-calc-area" class="text-sky-800 font-bold">78.54 cm²</span></span>
+                            <span class="bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-slate-600">A = π·D² / 4</span>
+                        </div>
+                    </div>
+
+                    <!-- CONSTANT HEAD CONTROLS: Head Loss Delta H -->
+                    <div id="group-constant-controls" class="space-y-3 pt-1 border-t border-slate-100 hidden">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-slate-700 font-semibold flex items-center gap-1.5">
+                                    Head Loss Difference <span class="math-var !text-emerald-700 !bg-emerald-50 !border-emerald-200">Δh = h₁ − h₂</span>:
+                                </span>
+                                <span id="disp-constant-head" class="font-mono font-bold text-emerald-700">30.0 cm</span>
+                            </div>
+                            <input type="range" id="slider-constant-head" min="5" max="80" step="1" value="30" oninput="updatePermeameterParams()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-[9px] text-slate-400 font-mono mt-0.5">
+                                <span>Low Gradient (5 cm)</span>
+                                <span>Steep Gradient (80 cm)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FALLING HEAD CONTROLS: Standpipe Initial Head h1 and Inside Diameter d -->
+                    <div id="group-falling-controls" class="space-y-3 pt-1 border-t border-slate-100">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-slate-700 font-semibold flex items-center gap-1.5">
+                                    Initial Standpipe Head <span class="math-var !text-purple-700 !bg-purple-50 !border-purple-200">h₁</span>:
+                                </span>
+                                <span id="disp-falling-h1" class="font-mono font-bold text-purple-700">60.0 cm</span>
+                            </div>
+                            <input type="range" id="slider-falling-h1" min="20" max="90" step="1" value="60" oninput="updatePermeameterParams()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-slate-700 font-semibold flex items-center gap-1.5">
+                                    Standpipe Inside Diameter <span class="math-var !text-purple-700 !bg-purple-50 !border-purple-200">d</span>:
+                                </span>
+                                <span id="disp-standpipe-d" class="font-mono font-bold text-purple-700">0.80 cm</span>
+                            </div>
+                            <input type="range" id="slider-standpipe-d" min="0.2" max="2.5" step="0.1" value="0.8" oninput="updatePermeameterParams()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="text-[9px] text-slate-600 font-mono mt-0.5 flex justify-between items-center">
+                                <span>Standpipe Area <span class="text-purple-700 font-semibold">a</span>: <span id="disp-standpipe-a" class="text-purple-700 font-bold">0.503 cm²</span></span>
+                                <span class="bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-slate-500">a = π·d² / 4</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Water Temperature T (Dynamic Viscosity Correction Factor RT) -->
+                    <div class="pt-2 border-t border-slate-100">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-slate-700 font-semibold flex items-center gap-1.5">
+                                Water Temp <span class="math-var">T</span>:
+                            </span>
+                            <span id="disp-temp" class="font-mono font-bold text-sky-700">27.0 °C (RT = 0.748)</span>
+                        </div>
+                        <input type="range" id="slider-temp" min="10" max="40" step="1" value="27" oninput="updatePermeameterParams()" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-[9px] text-slate-400 font-mono mt-0.5">
+                            <span>Cold (10°C)</span>
+                            <span>Standard (20°C, RT = 1.0)</span>
+                            <span>Tropical (40°C)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Animation Time Control Buttons -->
+                <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <button onclick="toggleSimulationPlayback()" id="btn-play-pause" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm">
+                        <span id="play-icon">⏸</span> <span id="play-label">Pause Flow</span>
+                    </button>
+                    <button onclick="resetPermeameterTest()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition border border-slate-200">
+                        ↺ Restart Run
+                    </button>
+                    <div class="flex items-center gap-1 font-mono text-[10px]">
+                        <span class="text-slate-500">Speed:</span>
+                        <button onclick="setSimSpeed(1.0)" id="speed-1x" class="px-2 py-1 rounded bg-sky-100 text-sky-800 border border-sky-300 font-bold">1x</button>
+                        <button onclick="setSimSpeed(3.0)" id="speed-3x" class="px-2 py-1 rounded bg-slate-100 text-slate-600 hover:bg-slate-200">3x</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Laboratory Bench Data Entry -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        3. Laboratory Bench Data Entry
+                    </h3>
+                    <button onclick="toggleCustomDataModal()" class="text-[10px] text-sky-600 hover:text-sky-700 font-mono underline font-medium">
+                        Guide
+                    </button>
+                </div>
+
+                <p class="text-[11px] text-slate-600 leading-relaxed">
+                    Have empirical numbers from your university laboratory test? Type your measured values below to compute hydraulic conductivity (<span class="math-var !text-emerald-700 !bg-emerald-50 !border-emerald-200">K_T</span> and <span class="math-var">K₂₀°C</span>) and verify Darcy's Law compliance.
+                </p>
+
+                <!-- Constant Head Inputs -->
+                <div id="custom-constant-fields" class="grid grid-cols-2 gap-2 text-xs hidden">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                            Collected Volume <span class="math-var">Q</span> (mL):
+                        </label>
+                        <input type="number" id="input-custom-q" value="425" step="1" oninput="solveCustomLabData()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-800 font-mono text-xs focus:border-sky-500 focus:bg-white outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                            Collection Time <span class="math-var">t</span> (seconds):
+                        </label>
+                        <input type="number" id="input-custom-t" value="120" step="1" oninput="solveCustomLabData()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-800 font-mono text-xs focus:border-sky-500 focus:bg-white outline-none">
+                    </div>
+                </div>
+
+                <!-- Falling Head Inputs -->
+                <div id="custom-falling-fields" class="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                            Final Head <span class="math-var !text-purple-700 !bg-purple-50 !border-purple-200">h₂</span> (cm):
+                        </label>
+                        <input type="number" id="input-custom-h2" value="28.5" step="0.5" oninput="solveCustomLabData()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-800 font-mono text-xs focus:border-sky-500 focus:bg-white outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                            Elapsed Time <span class="math-var !text-purple-700 !bg-purple-50 !border-purple-200">t</span> (seconds):
+                        </label>
+                        <input type="number" id="input-custom-falling-t" value="240" step="5" oninput="solveCustomLabData()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-800 font-mono text-xs focus:border-sky-500 focus:bg-white outline-none">
+                    </div>
+                </div>
+
+                <!-- Bench Solution Card -->
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 font-mono text-xs space-y-1">
+                    <div class="flex justify-between items-center text-slate-700">
+                        <span>Calculated <span class="text-emerald-700 font-bold">K_T</span> (test temp):</span>
+                        <span id="custom-res-kt" class="font-bold text-emerald-700">2.98 × 10⁻⁴ cm/s</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-700 border-t border-slate-200 pt-1">
+                        <span class="font-bold text-sky-900">Standard <span class="text-sky-700 font-bold">K₂₀°C</span> (<span class="text-slate-500 text-[10px]">K_T × R_T</span>):</span>
+                        <span id="custom-res-k20" class="font-bold text-sky-700 text-sm">2.23 × 10⁻⁴ cm/s</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] text-slate-500 pt-0.5">
+                        <span>Geotechnical Rating:</span>
+                        <span id="custom-res-rating" class="text-amber-700 font-semibold">Silty Sand / Loam (Low Permeability)</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- =========================================================
+             RIGHT PANEL: Interactive Permeameter Visualizer & Analytics
+             ========================================================= -->
+        <div class="lg:col-span-8 space-y-4">
+
+            <!-- STAGE 1: Canvas Visualizer of Constant / Falling Head Permeameter -->
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+                <div class="px-4 py-2.5 bg-slate-100/80 border-b border-slate-200 flex items-center justify-between text-xs font-semibold flex-wrap gap-2">
+                    <span class="text-slate-800 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+                        <span id="canvas-apparatus-title">Falling Head Permeameter Laboratory Apparatus (ASTM D5084)</span>
+                    </span>
+                    <div class="flex items-center gap-3 font-mono text-[11px]">
+                        <span class="text-slate-600">Elapsed: <strong id="disp-clock" class="text-sky-700">5.7 s</strong></span>
+                        <span class="text-slate-600">Beaker Outflow: <strong id="disp-beaker-vol" class="text-emerald-700">23.0 mL</strong></span>
+                    </div>
+                </div>
+
+                <!-- Clean Non-Obstructing Status Strip Above Canvas -->
+                <div class="bg-slate-50/90 border-b border-slate-200 px-4 py-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] font-mono">
+                    <div class="bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
+                        <span class="text-[9px] text-slate-500 block uppercase font-sans font-bold">Darcy Flux (q)</span>
+                        <span id="hud-flux" class="font-bold text-sky-700">0.0228 cm/s</span>
+                    </div>
+                    <div class="bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
+                        <span class="text-[9px] text-slate-500 block uppercase font-sans font-bold">Hydraulic Grad (i)</span>
+                        <span id="hud-gradient" class="font-bold text-amber-700">0.948</span>
+                    </div>
+                    <div class="bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
+                        <span class="text-[9px] text-slate-500 block uppercase font-sans font-bold">Seepage Vel (v_s)</span>
+                        <span id="hud-seepage" class="font-bold text-emerald-700">0.0600 cm/s</span>
+                    </div>
+                    <div class="bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
+                        <span class="text-[9px] text-slate-500 block uppercase font-sans font-bold">Flow Regime (Re)</span>
+                        <span id="hud-reynolds" class="font-bold text-purple-700 truncate block">0.1027 (Laminar (Darcy Valid: Re &lt; 1))</span>
+                    </div>
+                </div>
+
+                <!-- Simulation Canvas Stage (Clear of Any Overlays on Top of Apparatus) -->
+                <div class="relative w-full h-[400px] sm:h-[450px] bg-slate-50 overflow-hidden">
+                    <canvas id="permeameterCanvas" class="w-full h-full block" width="1225" height="562"></canvas>
+
+                    <!-- Flow Direction & Filter Stones Legend at Bottom -->
+                    <div class="absolute bottom-2.5 right-3 pointer-events-none bg-white/95 px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm text-[10px] font-mono text-slate-700 flex items-center gap-3 backdrop-blur">
+                        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-sky-500"></span> Flow: Upward</span>
+                        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-slate-400"></span> Porous Stones</span>
+                        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Outflow Weir</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STAGE 2: Real-Time Calculated Darcy Telemetry HUD -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <span>📊</span> Complete Hydraulic State &amp; Darcy Parameters
+                    </h3>
+                    <span class="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold">Dynamic Mathematical Solver</span>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Hydraulic Cond. (<span class="text-sky-700 font-mono font-bold">K_T</span>)</span>
+                        <span id="telemetry-k" class="text-lg sm:text-xl font-black font-mono text-sky-700">2.41 × 10⁻²</span>
+                        <span class="text-[9px] text-slate-500 block mt-0.5">cm/sec at current temp</span>
+                    </div>
+
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Hydraulic Gradient (<span class="text-amber-700 font-mono font-bold">i</span>)</span>
+                        <span id="telemetry-i" class="text-lg sm:text-xl font-black font-mono text-amber-700">0.948</span>
+                        <span class="text-[9px] text-slate-500 block mt-0.5 font-mono">i = Δh / L (Dimensionless)</span>
+                    </div>
+
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Discharge Rate (<span class="text-emerald-700 font-mono font-bold">Q / t</span>)</span>
+                        <span id="telemetry-discharge" class="text-lg sm:text-xl font-black font-mono text-emerald-700">0.01 cm³/s</span>
+                        <span class="text-[9px] text-slate-500 block mt-0.5">Volumetric outflow</span>
+                    </div>
+
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Seepage Velocity (<span class="text-purple-700 font-mono font-bold">v_s</span>)</span>
+                        <span id="telemetry-vs" class="text-lg sm:text-xl font-black font-mono text-purple-700">0.060 cm/s</span>
+                        <span class="text-[9px] text-slate-500 block mt-0.5 font-mono">v_s = v / n (Through pores)</span>
+                    </div>
+                </div>
+
+                <!-- Darcy's Law Mathematical Formula Deep Dive -->
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-1.5 font-mono">
+                        <span class="text-sky-800 font-bold" id="formula-header">Governing Formula: Falling Head Permeability</span>
+                        <span class="text-[10px] text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">ASTM D2434 Standard</span>
+                    </div>
+                    <div id="formula-latex" class="font-mono text-slate-900 text-xs sm:text-sm py-2 bg-white p-2.5 rounded-lg text-center font-bold border border-slate-200 shadow-sm text-sky-900">K_T = (a · L / A · t) · ln(h₁ / h₂)</div>
+                    <p id="formula-notes" class="text-[11px] text-slate-600 leading-relaxed">Where <span class="math-var !text-purple-700 !bg-purple-50 !border-purple-200">a</span> is standpipe area, <span class="math-var">A</span> is permeameter area, <span class="math-var">L</span> is length, and <span class="math-var">t</span> is time required for hydraulic head to drop from <span class="math-var !text-emerald-700 !bg-emerald-50 !border-emerald-200">h₁</span> down to <span class="math-var !text-purple-700 !bg-purple-50 !border-purple-200">h₂</span>.</p>
+                </div>
+            </div>
+
+            <!-- Conceptual Cards: Constant vs Falling Head Methodologies -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-1.5 shadow-sm">
+                    <h4 class="font-bold text-sky-700 flex items-center gap-1.5">
+                        <span>🧪</span> Constant Head Permeameter (ASTM D2434)
+                    </h4>
+                    <p class="text-slate-600 leading-relaxed text-[11px]">
+                        Used exclusively for <strong>coarse-grained soils</strong> (gravels and sands where <span class="text-sky-800 font-mono bg-sky-50 px-1 py-0.5 rounded">K &gt; 10⁻⁴ cm/s</span>). Water flows rapidly enough that an inflow reservoir with an overflow weir maintains a constant hydraulic head (<span class="text-emerald-800 font-mono bg-emerald-50 px-1 py-0.5 rounded">Δh</span>), while effluent water is gathered in a graduated beaker.
+                    </p>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-1.5 shadow-sm">
+                    <h4 class="font-bold text-purple-700 flex items-center gap-1.5">
+                        <span>⏱️</span> Falling Head Permeameter (ASTM D5084)
+                    </h4>
+                    <p class="text-slate-600 leading-relaxed text-[11px]">
+                        Used for <strong>fine-grained soils</strong> (silts and clays where <span class="text-purple-800 font-mono bg-purple-50 px-1 py-0.5 rounded">K &lt; 10⁻⁴ cm/s</span>). Flow through clay is too slow to measure in a beaker. Instead, water is supplied via a narrow standpipe (<span class="text-purple-800 font-mono bg-purple-50 px-1 py-0.5 rounded">a</span>). We measure the elapsed time <span class="text-purple-800 font-mono bg-purple-50 px-1 py-0.5 rounded">t</span> required for head to drop from <span class="text-emerald-800 font-mono bg-emerald-50 px-1 py-0.5 rounded">h₁</span> to <span class="text-purple-800 font-mono bg-purple-50 px-1 py-0.5 rounded">h₂</span>: <span class="text-amber-800 font-mono bg-amber-50 px-1 py-0.5 rounded">K = (a·L / A·t) · ln(h₁ / h₂)</span>.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal Explainer for Custom Data Entry -->
+    <div id="custom-help-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-xl">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                    Using Custom Soil Laboratory Data
+                </h3>
+                <button onclick="toggleCustomDataModal()" class="text-slate-400 hover:text-slate-700 font-bold text-sm">✕</button>
+            </div>
+            <div class="text-xs text-slate-600 space-y-2.5 leading-relaxed">
+                <p>1. <strong>Set Geometry:</strong> Adjust the Specimen Length (<span class="math-var">L</span>) and Diameter (<span class="math-var">D</span>) sliders on the left to match your permeameter mould dimensions.</p>
+                <p>2. <strong>Set Temperature:</strong> Adjust the water temperature slider to your lab thermometer reading. The tool automatically applies the viscosity correction factor <span class="text-sky-700 font-mono">RT = μ_T / μ_20°C</span> to report standard <span class="text-sky-700 font-mono">K₂₀°C</span>.</p>
+                <p>3. <strong>Enter Readings:</strong> For Constant Head, input your measured volume in mL and time in seconds. For Falling Head, input your initial head <span class="text-emerald-700 font-mono">h₁</span>, final head <span class="text-purple-700 font-mono">h₂</span>, and elapsed seconds.</p>
+                <p>4. The tool instantly solves for <span class="math-var">K</span>, checks whether Darcy's linear laminar regime holds (<span class="text-purple-700 font-mono">Re &lt; 1</span>), and classifies your soil according to standard geotechnical criteria.</p>
+            </div>
+            <button onclick="toggleCustomDataModal()" class="w-full py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs transition shadow-sm">
+                Got it, Return to Lab
+            </button>
+        </div>
+    </div>
+
+    <!-- Floating Footer -->
+    <footer class="mt-auto border-t border-slate-200 bg-white py-3 px-4 text-center text-xs text-slate-500 font-mono flex flex-col sm:flex-row items-center justify-between gap-2 max-w-[1700px] w-full mx-auto">
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+            <span>Darcy's Law Engine: <span class="text-slate-700 font-semibold">q = −K · (dh/dL)</span> • Standard Reference Temperature: 20 °C</span>
+        </div>
+        <div>
+            Developed for Soil &amp; Water Engineering Education &amp; Research
+        </div>
+    </footer>
+
+    <script>
+        // =============================================================
+        // 1. PHYSICAL CONSTANTS & SOIL DATABASE
+        // =============================================================
+        const SOIL_PRESETS = {
+            coarse_sand: {
+                name: "Clean Coarse Sand",
+                tag: "SW / Coarse Sand",
+                baseK: 0.045, // cm/s at 20°C
+                porosity: 0.36,
+                voidRatio: 0.56,
+                grainSize: 1.2, // mm (D10 proxy)
+                typicalRange: "10⁻¹ to 10⁻² cm/s",
+                defaultMode: "constant",
+                color: "#eab308"
+            },
+            medium_sand: {
+                name: "Medium / Fine Sand",
+                tag: "SP / Medium Sand",
+                baseK: 0.018, // cm/s
+                porosity: 0.38,
+                voidRatio: 0.61,
+                grainSize: 0.45,
+                typicalRange: "10⁻² to 10⁻³ cm/s",
+                defaultMode: "constant",
+                color: "#f59e0b"
+            },
+            silty_sand: {
+                name: "Silty Sand / Loam",
+                tag: "SM / Silty Sand",
+                baseK: 0.0025, // cm/s
+                porosity: 0.42,
+                voidRatio: 0.72,
+                grainSize: 0.15,
+                typicalRange: "10⁻³ to 10⁻⁴ cm/s",
+                defaultMode: "constant",
+                color: "#d97706"
+            },
+            inorganic_silt: {
+                name: "Inorganic Silt",
+                tag: "ML / Silt",
+                baseK: 0.000085, // cm/s (Falling head required)
+                porosity: 0.46,
+                voidRatio: 0.85,
+                grainSize: 0.04,
+                typicalRange: "10⁻⁴ to 10⁻⁵ cm/s",
+                defaultMode: "falling",
+                color: "#b45309"
+            },
+            dense_clay: {
+                name: "Compacted Clay",
+                tag: "CH / Dense Clay",
+                baseK: 0.00000045, // cm/s
+                porosity: 0.52,
+                voidRatio: 1.08,
+                grainSize: 0.005,
+                typicalRange: "< 10⁻⁶ cm/s",
+                defaultMode: "falling",
+                color: "#78350f"
+            },
+            custom: {
+                name: "Custom Soil Sample",
+                tag: "Custom Specimen",
+                baseK: 0.015,
+                porosity: 0.39,
+                voidRatio: 0.64,
+                grainSize: 0.5,
+                typicalRange: "User Defined",
+                defaultMode: "constant",
+                color: "#d97706"
+            }
+        };
+
+        // Active State Variables
+        let currentMode = "constant"; // 'constant' or 'falling'
+        let activePresetKey = "medium_sand";
+
+        // Permeameter Geometry
+        let specLengthL = 15.0; // cm
+        let specDiameterD = 10.0; // cm
+        let constantHeadDeltaH = 30.0; // cm
+        let fallingInitialH1 = 60.0; // cm
+        let standpipeDiameterD = 0.80; // cm
+        let waterTempC = 27.0; // °C
+
+        // Derived Physical Quantities
+        let specimenAreaA = 0.0;
+        let standpipeAreaA = 0.0;
+        let tempCorrectionRT = 1.0;
+        let currentK_T = 0.018;
+        let currentGradient = 2.0;
+        let dischargeRateQ = 0.0; // cm3/s
+        let seepageVelocityVs = 0.0; // cm/s
+        let darcyFluxQ = 0.0; // cm/s
+        let reynoldsRe = 0.0;
+
+        // Simulation Loop
+        let isSimRunning = true;
+        let simSpeed = 1.0;
+        let simTime = 0.0; // seconds
+        let currentFallingHead = 60.0; // cm
+        let accumulatedBeakerVol = 0.0; // mL
+
+        // Streamline Seepage Particles
+        const NUM_PARTICLES = 140;
+        let waterParticles = [];
+        for (let i = 0; i < NUM_PARTICLES; i++) {
+            waterParticles.push({
+                xNorm: Math.random(),
+                yNorm: Math.random(),
+                speed: 0.4 + Math.random() * 0.8
+            });
+        }
+
+        // Canvas Setup
+        const canvas = document.getElementById('permeameterCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // =============================================================
+        // 2. MATHEMATICAL & PHYSICS COMPUTATION ENGINE
+        // =============================================================
+        function computePermeameterPhysics() {
+            // A. Areas from diameters
+            specimenAreaA = (Math.PI * Math.pow(specDiameterD, 2)) / 4.0;
+            standpipeAreaA = (Math.PI * Math.pow(standpipeDiameterD, 2)) / 4.0;
+
+            document.getElementById('disp-calc-area').innerText = `${specimenAreaA.toFixed(2)} cm²`;
+            document.getElementById('disp-standpipe-a').innerText = `${standpipeAreaA.toFixed(3)} cm²`;
+
+            // B. ASTM Dynamic Viscosity Correction Factor RT:
+            // RT = mu_T / mu_20
+            tempCorrectionRT = Math.exp(1.784 - 0.0415 * waterTempC) / Math.exp(1.784 - 0.0415 * 20.0);
+            document.getElementById('disp-temp').innerText = `${waterTempC.toFixed(1)} °C (RT = ${tempCorrectionRT.toFixed(3)})`;
+
+            // C. Base Hydraulic Conductivity at Current Temperature
+            const soil = SOIL_PRESETS[activePresetKey];
+            currentK_T = soil.baseK / tempCorrectionRT;
+
+            // D. Mode Specific Hydraulics
+            if (currentMode === "constant") {
+                currentGradient = constantHeadDeltaH / specLengthL;
+                dischargeRateQ = currentK_T * currentGradient * specimenAreaA; // cm3/s
+                darcyFluxQ = currentK_T * currentGradient;
+                seepageVelocityVs = darcyFluxQ / soil.porosity;
+            } else {
+                currentGradient = currentFallingHead / specLengthL;
+                darcyFluxQ = currentK_T * currentGradient;
+                seepageVelocityVs = darcyFluxQ / soil.porosity;
+                // Instantaneous discharge from standpipe rate
+                dischargeRateQ = (standpipeAreaA * currentK_T * currentFallingHead) / specLengthL;
+            }
+
+            // E. Reynolds Number for Porous Media:
+            // Re = (rho * v * D10) / mu
+            const kinematicViscosity = 0.01; // cm2/s for water approx
+            const grainSizeCm = soil.grainSize / 10.0;
+            reynoldsRe = (darcyFluxQ * grainSizeCm) / kinematicViscosity;
+
+            // Update Telemetry UI
+            document.getElementById('telemetry-k').innerText = formatScientific(currentK_T);
+            document.getElementById('telemetry-i').innerText = currentGradient.toFixed(3);
+            document.getElementById('telemetry-discharge').innerText = `${dischargeRateQ.toFixed(2)} cm³/s`;
+            document.getElementById('telemetry-vs').innerText = `${seepageVelocityVs.toFixed(3)} cm/s`;
+
+            document.getElementById('hud-flux').innerText = `${darcyFluxQ.toFixed(4)} cm/s`;
+            document.getElementById('hud-gradient').innerText = currentGradient.toFixed(3);
+            document.getElementById('hud-seepage').innerText = `${seepageVelocityVs.toFixed(4)} cm/s`;
+
+            const reStatus = reynoldsRe < 1.0 ? "Laminar (Darcy Valid: Re < 1)" : "Turbulent (Darcy Invalid: Re > 1)";
+            document.getElementById('hud-reynolds').innerText = `${reynoldsRe.toFixed(4)} (${reStatus})`;
+        }
+
+        // =============================================================
+        // 3. LABORATORY BENCH CUSTOM DATA SOLVER
+        // =============================================================
+        function solveCustomLabData() {
+            let solvedK_T = 0.0;
+
+            if (currentMode === "constant") {
+                const Q_vol = parseFloat(document.getElementById('input-custom-q').value) || 0;
+                const t_sec = parseFloat(document.getElementById('input-custom-t').value) || 1;
+                // K_T = (Q * L) / (A * deltaH * t)
+                if (specimenAreaA > 0 && constantHeadDeltaH > 0 && t_sec > 0) {
+                    solvedK_T = (Q_vol * specLengthL) / (specimenAreaA * constantHeadDeltaH * t_sec);
+                }
+            } else {
+                const h2_cm = parseFloat(document.getElementById('input-custom-h2').value) || 1;
+                const t_sec = parseFloat(document.getElementById('input-custom-falling-t').value) || 1;
+                // K_T = (a * L / (A * t)) * ln(h1 / h2)
+                if (specimenAreaA > 0 && t_sec > 0 && fallingInitialH1 > h2_cm && h2_cm > 0) {
+                    solvedK_T = ((standpipeAreaA * specLengthL) / (specimenAreaA * t_sec)) * Math.log(fallingInitialH1 / h2_cm);
+                }
+            }
+
+            const solvedK_20 = solvedK_T * tempCorrectionRT;
+
+            document.getElementById('custom-res-kt').innerText = formatScientific(solvedK_T) + " cm/s";
+            document.getElementById('custom-res-k20').innerText = formatScientific(solvedK_20) + " cm/s";
+
+            // Geotechnical rating based on K20
+            let rating = "Impervious Clay";
+            if (solvedK_20 > 0.1) rating = "Clean Gravel (High Permeability)";
+            else if (solvedK_20 > 0.01) rating = "Clean Coarse Sand (Pervious)";
+            else if (solvedK_20 > 0.001) rating = "Fine Sand (Medium Permeability)";
+            else if (solvedK_20 > 0.00001) rating = "Silty Sand / Loam (Low Permeability)";
+            else if (solvedK_20 > 0.0000001) rating = "Inorganic Silt (Very Low Permeability)";
+            else rating = "Compacted Clay (Impervious / Core)";
+
+            document.getElementById('custom-res-rating').innerText = rating;
+        }
+
+        function formatScientific(val) {
+            if (val === 0 || isNaN(val)) return "0.00";
+            const exponent = Math.floor(Math.log10(Math.abs(val)));
+            const mantissa = val / Math.pow(10, exponent);
+            return `${mantissa.toFixed(2)} × 10${toSuperscript(exponent)}`;
+        }
+
+        function toSuperscript(num) {
+            const map = {
+                '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+                '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹'
+            };
+            return num.toString().split('').map(c => map[c] || c).join('');
+        }
+
+        // =============================================================
+        // 4. CANVAS DRAWING & SIMULATION ENGINE
+        // =============================================================
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.resetTransform();
+            ctx.scale(dpr, dpr);
+        }
+
+        function drawPermeameterApparatus() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const w = rect.width;
+            const h = rect.height;
+            ctx.clearRect(0, 0, w, h);
+
+            // Clean Lab Bench Background
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+            bgGrad.addColorStop(0, '#f8fafc');
+            bgGrad.addColorStop(1, '#f1f5f9');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, w, h);
+
+            // Technical Grid
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 0.5;
+            for (let x = 0; x < w; x += 35) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0); ctx.lineTo(x, h);
+                ctx.stroke();
+            }
+            for (let y = 0; y < h; y += 35) {
+                ctx.beginPath();
+                ctx.moveTo(0, y); ctx.lineTo(w, y);
+                ctx.stroke();
+            }
+
+            // Apparatus Coordinates
+            const cylinderW = Math.min(180, w * 0.24);
+            const cylinderH = Math.min(160, h * 0.42);
+            const cylinderX = w * 0.48 - (cylinderW / 2);
+            const cylinderY = h * 0.50 - (cylinderH / 2);
+
+            const soil = SOIL_PRESETS[activePresetKey];
+
+            // ---------------------------------------------------------
+            // A. CENTRAL PERMEAMETER CYLINDER & SOIL SPECIMEN
+            // ---------------------------------------------------------
+            // Cylinder Glass/Acrylic Fill
+            ctx.fillStyle = 'rgba(241, 245, 249, 0.9)';
+            ctx.fillRect(cylinderX, cylinderY, cylinderW, cylinderH);
+
+            // Porous Filter Stones (Top and Bottom)
+            const stoneH = 12;
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(cylinderX, cylinderY, cylinderW, stoneH);
+            ctx.fillRect(cylinderX, cylinderY + cylinderH - stoneH, cylinderW, stoneH);
+
+            // Porous Stone Texture
+            ctx.fillStyle = '#64748b';
+            for (let i = 0; i < cylinderW; i += 7) {
+                ctx.fillRect(cylinderX + i + 2, cylinderY + 4, 3, 3);
+                ctx.fillRect(cylinderX + i + 2, cylinderY + cylinderH - stoneH + 4, 3, 3);
+            }
+
+            // Soil Specimen Body
+            const soilY = cylinderY + stoneH;
+            const soilH = cylinderH - (2 * stoneH);
+            ctx.fillStyle = soil.color;
+            ctx.fillRect(cylinderX, soilY, cylinderW, soilH);
+
+            // Soil Grain Texture
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.14)';
+            const seedStep = Math.max(4, Math.round(soil.grainSize * 4.2));
+            for (let py = soilY + 3; py < soilY + soilH - 3; py += seedStep) {
+                for (let px = cylinderX + 4; px < cylinderX + cylinderW - 4; px += seedStep) {
+                    if ((px + py) % 3 === 0) {
+                        ctx.beginPath();
+                        ctx.arc(px, py, soil.grainSize * 0.7, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+
+            // Outer Cylinder Frame
+            ctx.strokeStyle = '#0284c7';
+            ctx.lineWidth = 2.0;
+            ctx.strokeRect(cylinderX, cylinderY, cylinderW, cylinderH);
+
+            // Specimen Length L Dimension Line
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 1.2;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(cylinderX - 16, soilY);
+            ctx.lineTo(cylinderX - 16, soilY + soilH);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 9.5px JetBrains Mono';
+            ctx.fillText(`L = ${specLengthL} cm`, cylinderX - 74, soilY + soilH / 2 + 3);
+
+            // ---------------------------------------------------------
+            // B. SEEPAGE VECTORS THROUGH SOIL MATRIX (UPWARD SATURATION)
+            // ---------------------------------------------------------
+            const flowSpeedMultiplier = Math.min(4.0, Math.max(0.15, (currentK_T * currentGradient) * 110));
+            ctx.fillStyle = '#0284c7';
+
+            waterParticles.forEach(p => {
+                const px = cylinderX + 6 + p.xNorm * (cylinderW - 12);
+                // Flow is upward through the soil matrix to prevent air entrapment
+                const py = (soilY + soilH) - (p.yNorm * soilH);
+
+                ctx.beginPath();
+                ctx.arc(px, py, 1.4, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (isSimRunning) {
+                    p.yNorm += (0.0035 * flowSpeedMultiplier * p.speed * simSpeed);
+                    if (p.yNorm > 1.0) p.yNorm = 0.0;
+                }
+            });
+
+            // ---------------------------------------------------------
+            // C. UPSTREAM INFLOW CHAMBER & BOTTOM PIPING
+            // ---------------------------------------------------------
+            ctx.strokeStyle = '#0284c7';
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(w * 0.16, cylinderY + cylinderH + 28);
+            ctx.lineTo(cylinderX + cylinderW / 2, cylinderY + cylinderH + 28);
+            ctx.lineTo(cylinderX + cylinderW / 2, cylinderY + cylinderH);
+            ctx.stroke();
+
+            // ---------------------------------------------------------
+            // D. SPECIFIC APPARATUS: CONSTANT HEAD VS FALLING HEAD
+            // ---------------------------------------------------------
+            if (currentMode === "constant") {
+                // Constant Head Supply Reservoir (Left side)
+                const resW = 75;
+                const resH = 140;
+                const resX = w * 0.12 - (resW / 2);
+                const resY = cylinderY - (constantHeadDeltaH * 2.1);
+
+                // Reservoir Box
+                ctx.fillStyle = 'rgba(224, 242, 254, 0.8)';
+                ctx.fillRect(resX, resY, resW, resH);
+                ctx.strokeStyle = '#0284c7';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(resX, resY, resW, resH);
+
+                // Water Level inside Reservoir
+                const waterTopY = resY + 22;
+                ctx.fillStyle = '#38bdf8';
+                ctx.fillRect(resX + 2, waterTopY, resW - 4, resH - 24);
+
+                // Overflow Spillway (Maintains Constant Head)
+                ctx.fillStyle = '#0284c7';
+                ctx.fillRect(resX - 22, waterTopY - 2, 22, 7);
+                ctx.fillStyle = 'rgba(2, 132, 199, 0.75)';
+                ctx.fillRect(resX - 20, waterTopY + 5, 4, 40); // Overflow stream
+                ctx.fillStyle = '#334155';
+                ctx.font = 'bold 8px JetBrains Mono';
+                ctx.fillText("Overflow Weir", resX - 44, waterTopY - 6);
+
+                // Tap water supply into reservoir
+                ctx.fillStyle = '#0284c7';
+                ctx.fillRect(resX + 18, resY - 18, 8, 25);
+                ctx.fillText("Water Supply", resX + 8, resY - 22);
+
+                // Supply pipe connecting down to bottom of permeameter
+                ctx.strokeStyle = '#0284c7';
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(resX + resW / 2, resY + resH);
+                ctx.lineTo(resX + resW / 2, cylinderY + cylinderH + 28);
+                ctx.lineTo(w * 0.16, cylinderY + cylinderH + 28);
+                ctx.stroke();
+
+                // Manometer 1 (Base Head h1)
+                const mano1X = cylinderX + 22;
+                const mano1H = (cylinderY + cylinderH) - (waterTopY + 10);
+                ctx.fillStyle = 'rgba(14, 165, 233, 0.35)';
+                ctx.fillRect(mano1X, waterTopY + 10, 8, mano1H);
+                ctx.strokeStyle = '#0284c7';
+                ctx.lineWidth = 1.3;
+                ctx.strokeRect(mano1X, waterTopY + 10, 8, mano1H);
+
+                // Manometer 2 (Top Head h2 - Tailwater level)
+                const tailwaterY = cylinderY - 10;
+                const mano2X = cylinderX + cylinderW - 32;
+                const mano2H = (cylinderY + cylinderH) - tailwaterY;
+                ctx.fillStyle = 'rgba(14, 165, 233, 0.35)';
+                ctx.fillRect(mano2X, tailwaterY, 8, mano2H);
+                ctx.strokeRect(mano2X, tailwaterY, 8, mano2H);
+
+                // Delta H Dimension Bracket between Manometers
+                ctx.strokeStyle = '#d97706';
+                ctx.lineWidth = 1.4;
+                ctx.beginPath();
+                ctx.moveTo(mano1X + 12, waterTopY + 10);
+                ctx.lineTo(mano2X - 4, waterTopY + 10);
+                ctx.moveTo(mano2X - 4, tailwaterY);
+                ctx.lineTo(mano1X + 12, tailwaterY);
+                ctx.moveTo(cylinderX + cylinderW / 2, waterTopY + 10);
+                ctx.lineTo(cylinderX + cylinderW / 2, tailwaterY);
+                ctx.stroke();
+
+                ctx.fillStyle = '#b45309';
+                ctx.font = 'bold 9.5px JetBrains Mono';
+                ctx.fillText(`Δh = ${constantHeadDeltaH} cm`, cylinderX + cylinderW / 2 + 8, (waterTopY + 10 + tailwaterY) / 2 + 3);
+
+            } else {
+                // Falling Head Standpipe Apparatus (ASTM D5084)
+                const standX = w * 0.20;
+                const standW = Math.max(8, standpipeDiameterD * 12);
+                const standTopY = cylinderY - 170;
+                const standBottomY = cylinderY + cylinderH + 28;
+
+                // Glass Standpipe Tube
+                ctx.fillStyle = 'rgba(243, 232, 255, 0.7)';
+                ctx.fillRect(standX, standTopY, standW, standBottomY - standTopY);
+                ctx.strokeStyle = '#7c3aed';
+                ctx.lineWidth = 1.6;
+                ctx.strokeRect(standX, standTopY, standW, standBottomY - standTopY);
+
+                // Dynamic falling water column
+                const tailwaterY = cylinderY - 10;
+                const dynamicY = tailwaterY - (currentFallingHead * 2.1);
+
+                ctx.fillStyle = '#a855f7';
+                ctx.fillRect(standX + 1, dynamicY, standW - 2, standBottomY - dynamicY);
+
+                // Graduated marks on standpipe
+                ctx.fillStyle = '#6b21a8';
+                for (let y = standTopY + 10; y < standBottomY; y += 15) {
+                    ctx.fillRect(standX + standW - 4, y, 4, 1);
+                }
+
+                // Initial Head h1 marker
+                const h1MarkY = tailwaterY - (fallingInitialH1 * 2.1);
+                ctx.strokeStyle = '#059669';
+                ctx.lineWidth = 1.3;
+                ctx.setLineDash([4, 3]);
+                ctx.beginPath();
+                ctx.moveTo(standX - 20, h1MarkY);
+                ctx.lineTo(standX + standW + 15, h1MarkY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = '#047857';
+                ctx.font = 'bold 9px JetBrains Mono';
+                ctx.fillText(`h₁ = ${fallingInitialH1} cm`, standX - 78, h1MarkY + 3);
+
+                // Current Falling Head h(t) marker
+                ctx.strokeStyle = '#d97706';
+                ctx.beginPath();
+                ctx.moveTo(standX + standW, dynamicY);
+                ctx.lineTo(standX + standW + 30, dynamicY);
+                ctx.stroke();
+                ctx.fillStyle = '#b45309';
+                ctx.fillText(`h(t) = ${currentFallingHead.toFixed(1)} cm`, standX + standW + 35, dynamicY + 3);
+
+                // Standpipe Area Callout
+                ctx.fillStyle = '#6b21a8';
+                ctx.fillText(`Standpipe a = ${standpipeAreaA.toFixed(3)} cm²`, standX - 75, standTopY - 6);
+            }
+
+            // ---------------------------------------------------------
+            // E. OUTLET OVERFLOW & BEAKER (Right Side)
+            // ---------------------------------------------------------
+            const tailpipeX = cylinderX + cylinderW;
+            const tailpipeY = cylinderY - 10;
+            ctx.fillStyle = '#0284c7';
+            ctx.fillRect(tailpipeX, tailpipeY, 32, 11);
+            ctx.fillRect(tailpipeX + 32, tailpipeY, 8, 52); // Downward spout
+
+            // Graduated Outflow Beaker
+            const beakerW = 60;
+            const beakerH = 85;
+            const beakerX = tailpipeX + 65;
+            const beakerY = cylinderY + 25;
+
+            ctx.fillStyle = 'rgba(241, 245, 249, 0.8)';
+            ctx.fillRect(beakerX, beakerY, beakerW, beakerH);
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 1.6;
+            ctx.strokeRect(beakerX, beakerY, beakerW, beakerH);
+
+            // Water Level in Beaker
+            const maxBeakerCap = 500;
+            const fillRatio = Math.min(1.0, accumulatedBeakerVol / maxBeakerCap);
+            const waterFillH = fillRatio * (beakerH - 6);
+
+            ctx.fillStyle = 'rgba(2, 132, 199, 0.55)';
+            ctx.fillRect(beakerX + 2, beakerY + beakerH - waterFillH, beakerW - 4, waterFillH);
+
+            // Graduated marks on beaker
+            ctx.fillStyle = '#334155';
+            ctx.font = 'bold 7px JetBrains Mono';
+            for (let i = 1; i <= 4; i++) {
+                const markY = beakerY + beakerH - (i * (beakerH / 5));
+                ctx.fillRect(beakerX + 2, markY, 6, 1);
+                ctx.fillText(`${i * 100} mL`, beakerX + 10, markY + 2.5);
+            }
+
+            // Falling droplets
+            if (isSimRunning && dischargeRateQ > 0.001) {
+                ctx.fillStyle = '#0284c7';
+                const dropY = (beakerY - 15) + ((simTime * 170) % 40);
+                ctx.beginPath();
+                ctx.arc(tailpipeX + 36, dropY, 2.2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Beaker Outflow Label
+            ctx.fillStyle = '#0369a1';
+            ctx.font = 'bold 9px JetBrains Mono';
+            ctx.fillText("OUTFLOW BEAKER", beakerX - 5, beakerY + beakerH + 15);
+            ctx.fillStyle = '#047857';
+            ctx.fillText(`Vol Q = ${accumulatedBeakerVol.toFixed(1)} mL`, beakerX - 5, beakerY + beakerH + 26);
+        }
+
+        // =============================================================
+        // 5. ANIMATION & EVENT LOOP
+        // =============================================================
+        let lastTimestamp = performance.now();
+
+        function animationLoop(timestamp) {
+            const dt = (timestamp - lastTimestamp) / 1000.0;
+            lastTimestamp = timestamp;
+
+            if (isSimRunning) {
+                simTime += dt * simSpeed;
+                document.getElementById('disp-clock').innerText = `${simTime.toFixed(1)} s`;
+
+                if (currentMode === "constant") {
+                    accumulatedBeakerVol += dischargeRateQ * dt * simSpeed;
+                    if (accumulatedBeakerVol > 500) accumulatedBeakerVol = 500;
+                } else {
+                    // Exponential head decay for Falling Head:
+                    // h(t) = h1 * exp(-(K * A / (a * L)) * t)
+                    const decayRate = (currentK_T * specimenAreaA) / (standpipeAreaA * specLengthL);
+                    currentFallingHead = fallingInitialH1 * Math.exp(-decayRate * simTime);
+                    if (currentFallingHead < 1.0) currentFallingHead = 1.0;
+                    
+                    accumulatedBeakerVol = standpipeAreaA * (fallingInitialH1 - currentFallingHead);
+                    computePermeameterPhysics();
+                }
+
+                document.getElementById('disp-beaker-vol').innerText = `${accumulatedBeakerVol.toFixed(1)} mL`;
+            }
+
+            drawPermeameterApparatus();
+            requestAnimationFrame(animationLoop);
+        }
+
+        // =============================================================
+        // 6. UI INTERACTION HANDLERS
+        // =============================================================
+        function switchPermeameterMode(mode) {
+            currentMode = mode;
+            const btnConst = document.getElementById('btn-mode-constant');
+            const btnFall = document.getElementById('btn-mode-falling');
+            const grpConst = document.getElementById('group-constant-controls');
+            const grpFall = document.getElementById('group-falling-controls');
+            const customConst = document.getElementById('custom-constant-fields');
+            const customFall = document.getElementById('custom-falling-fields');
+            const badge = document.getElementById('apparatus-label-badge');
+            const title = document.getElementById('canvas-apparatus-title');
+            const formulaHeader = document.getElementById('formula-header');
+            const formulaLatex = document.getElementById('formula-latex');
+            const formulaNotes = document.getElementById('formula-notes');
+
+            if (mode === "constant") {
+                btnConst.className = "px-3 py-1.5 rounded-lg transition-all bg-sky-600 text-white font-bold flex items-center gap-1.5 shadow-sm";
+                btnFall.className = "px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5";
+                grpConst.classList.remove('hidden');
+                grpFall.classList.add('hidden');
+                customConst.classList.remove('hidden');
+                customFall.classList.add('hidden');
+                badge.innerText = "Constant Head Mode";
+                badge.className = "text-[10px] font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-semibold";
+                title.innerText = "Constant Head Permeameter Laboratory Apparatus (ASTM D2434)";
+                formulaHeader.innerText = "Governing Formula: Constant Head Permeability";
+                formulaLatex.innerText = "K_T = (Q · L) / (A · Δh · t)";
+                formulaNotes.innerHTML = "Where <span class='math-var'>Q</span> is total volume collected in time <span class='math-var'>t</span>, <span class='math-var'>L</span> is specimen length, <span class='math-var'>A</span> is cross-sectional area, and <span class='math-var !text-emerald-700 !bg-emerald-50 !border-emerald-200'>Δh</span> is steady total head loss.";
+            } else {
+                btnConst.className = "px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5";
+                btnFall.className = "px-3 py-1.5 rounded-lg transition-all bg-purple-600 text-white font-bold flex items-center gap-1.5 shadow-sm";
+                grpConst.classList.add('hidden');
+                grpFall.classList.remove('hidden');
+                customConst.classList.add('hidden');
+                customFall.classList.remove('hidden');
+                badge.innerText = "Falling Head Mode";
+                badge.className = "text-[10px] font-mono text-purple-800 bg-purple-50 px-2 py-0.5 rounded border border-purple-200 font-semibold";
+                title.innerText = "Falling Head Permeameter Laboratory Apparatus (ASTM D5084)";
+                formulaHeader.innerText = "Governing Formula: Falling Head Permeability";
+                formulaLatex.innerText = "K_T = (a · L / A · t) · ln(h₁ / h₂)";
+                formulaNotes.innerHTML = "Where <span class='math-var !text-purple-700 !bg-purple-50 !border-purple-200'>a</span> is standpipe area, <span class='math-var'>A</span> is permeameter area, <span class='math-var'>L</span> is length, and <span class='math-var'>t</span> is time required for hydraulic head to drop from <span class='math-var !text-emerald-700 !bg-emerald-50 !border-emerald-200'>h₁</span> down to <span class='math-var !text-purple-700 !bg-purple-50 !border-purple-200'>h₂</span>.";
+            }
+
+            resetPermeameterTest();
+            solveCustomLabData();
+        }
+
+        function loadSoilPreset(key) {
+            activePresetKey = key;
+            const soil = SOIL_PRESETS[key];
+            document.getElementById('soil-classification-tag').innerText = soil.tag;
+            document.getElementById('disp-porosity').innerText = soil.porosity.toFixed(2);
+            document.getElementById('disp-void-ratio').innerText = soil.voidRatio.toFixed(2);
+            document.getElementById('disp-k-range').innerText = soil.typicalRange;
+
+            if (key !== "custom" && soil.defaultMode !== currentMode) {
+                switchPermeameterMode(soil.defaultMode);
+            } else {
+                resetPermeameterTest();
+            }
+        }
+
+        function updatePermeameterParams() {
+            specLengthL = parseFloat(document.getElementById('slider-length').value);
+            specDiameterD = parseFloat(document.getElementById('slider-diameter').value);
+            constantHeadDeltaH = parseFloat(document.getElementById('slider-constant-head').value);
+            fallingInitialH1 = parseFloat(document.getElementById('slider-falling-h1').value);
+            standpipeDiameterD = parseFloat(document.getElementById('slider-standpipe-d').value);
+            waterTempC = parseFloat(document.getElementById('slider-temp').value);
+
+            document.getElementById('disp-length').innerText = `${specLengthL.toFixed(1)} cm`;
+            document.getElementById('disp-diameter').innerText = `${specDiameterD.toFixed(1)} cm`;
+            document.getElementById('disp-constant-head').innerText = `${constantHeadDeltaH.toFixed(1)} cm`;
+            document.getElementById('disp-falling-h1').innerText = `${fallingInitialH1.toFixed(1)} cm`;
+            document.getElementById('disp-standpipe-d').innerText = `${standpipeDiameterD.toFixed(2)} cm`;
+
+            computePermeameterPhysics();
+            solveCustomLabData();
+        }
+
+        function toggleSimulationPlayback() {
+            isSimRunning = !isSimRunning;
+            document.getElementById('play-icon').innerText = isSimRunning ? '⏸' : '▶';
+            document.getElementById('play-label').innerText = isSimRunning ? 'Pause Flow' : 'Resume Flow';
+        }
+
+        function resetPermeameterTest() {
+            simTime = 0.0;
+            accumulatedBeakerVol = 0.0;
+            currentFallingHead = fallingInitialH1;
+            computePermeameterPhysics();
+            solveCustomLabData();
+        }
+
+        function setSimSpeed(speed) {
+            simSpeed = speed;
+            document.getElementById('speed-1x').className = speed === 1.0 ? 
+                "px-2 py-1 rounded bg-sky-100 text-sky-800 border border-sky-300 font-bold" : 
+                "px-2 py-1 rounded bg-slate-100 text-slate-600 hover:bg-slate-200";
+            document.getElementById('speed-3x').className = speed === 3.0 ? 
+                "px-2 py-1 rounded bg-sky-100 text-sky-800 border border-sky-300 font-bold" : 
+                "px-2 py-1 rounded bg-slate-100 text-slate-600 hover:bg-slate-200";
+        }
+
+        function toggleCustomDataModal() {
+            const modal = document.getElementById('custom-help-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        // =============================================================
+        // 7. OFFLINE STANDALONE HTML EXPORTER
+        // =============================================================
+        function downloadLaboratoryApp() {
+            try {
+                const fullHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                const blob = new Blob([fullHtml], { type: "text/html;charset=utf-8" });
+                const blobUrl = URL.createObjectURL(blob);
+                const tempLink = document.createElement("a");
+                tempLink.href = blobUrl;
+                tempLink.download = "darcy_permeameter_lab.html";
+                document.body.appendChild(tempLink);
+                tempLink.click();
+                setTimeout(() => {
+                    document.body.removeChild(tempLink);
+                    URL.revokeObjectURL(blobUrl);
+                }, 100);
+            } catch (err) {
+                console.error("Export error:", err);
+            }
+        }
+
+        // =============================================================
+        // 8. INITIALIZATION ON WINDOW LOAD
+        // =============================================================
+        window.onload = function() {
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            loadSoilPreset("medium_sand");
+            updatePermeameterParams();
+            requestAnimationFrame(animationLoop);
+        };
+    </script>
+
+</body></html>
