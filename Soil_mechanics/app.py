@@ -42,13 +42,37 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 MODULES = {
-    "proctor": {
-        "title": "Standard & Modified Proctor Compaction Test",
-        "file": "proctor_compaction_lab.html",
-        "standard": "ASTM D698 • D1557 • IS 2720",
-        "icon": "🚜",
+    "porosity": {
+        "title": "Soil Porosity (n) & Void Ratio (e) Laboratory",
+        "file": "Soil_Porosity_VoidRatio_Lab.html",
+        "standard": "IS 2720 (Part 3)",
+        "icon": "🧽",
         "height": 1100,
-        "summary": "Determine Maximum Dry Density (MDD), Optimum Moisture Content (OMC), and Zero Air Voids (ZAV) curves."
+        "summary": "2 mm sieved soil saturation method with volumetric phase breakdown (Solids, Water, Air voids)."
+    },
+    "sieve_shaker": {
+        "title": "Mechanical Sieve Shaker & Grain Size Distribution",
+        "file": "Comprehensive_Sieve_Shaker_Lab_Rays.html",
+        "standard": "IS 2720 (Part 4) • ASTM D6913",
+        "icon": "⚖️",
+        "height": 1150,
+        "summary": "Vibrating mechanical sieve shaker with D10/D30/D60 ray tracing and Hazen permeability."
+    },
+    "geosieve_pro": {
+        "title": "GeoSieve Pro: Interactive Particle Curve Studio",
+        "file": "GeoSieve_Pro_Studio.html",
+        "standard": "IS 1498 • ASTM D2487",
+        "icon": "📊",
+        "height": 1150,
+        "summary": "Geotechnical sieve analysis studio with mass loss audit and automated USCS soil classification."
+    },
+     "atterberg": {
+        "title": "Atterberg Limits & Soil Plasticity Studio",
+        "file": "Atterberg_Limits_Studio_MultiTrial.html",
+        "standard": "IS 2720 (Part 5 & 6) • ASTM D4318",
+        "icon": "🥣",
+        "height": 1200,
+        "summary": "Casagrande liquid limit, 3mm thread plastic limit, shrinkage limit, and Casagrande A-line chart."
     },
     "darcy": {
         "title": "Darcy's Law Permeameter & Hydraulic Conductivity",
@@ -66,38 +90,15 @@ MODULES = {
         "height": 1200,
         "summary": "Stokes' law sedimentation simulation for silt and clay fractions using a 152H hydrometer."
     },
-    "sieve_shaker": {
-        "title": "Mechanical Sieve Shaker & Grain Size Distribution",
-        "file": "Comprehensive_Sieve_Shaker_Lab_Rays.html",
-        "standard": "IS 2720 (Part 4) • ASTM D6913",
-        "icon": "⚖️",
-        "height": 1150,
-        "summary": "Vibrating mechanical sieve shaker with D10/D30/D60 ray tracing and Hazen permeability."
-    },
-    "atterberg": {
-        "title": "Atterberg Limits & Soil Plasticity Studio",
-        "file": "Atterberg_Limits_Studio_MultiTrial.html",
-        "standard": "IS 2720 (Part 5 & 6) • ASTM D4318",
-        "icon": "🥣",
-        "height": 1200,
-        "summary": "Casagrande liquid limit, 3mm thread plastic limit, shrinkage limit, and Casagrande A-line chart."
-    },
-    "porosity": {
-        "title": "Soil Porosity (n) & Void Ratio (e) Laboratory",
-        "file": "Soil_Porosity_VoidRatio_Lab.html",
-        "standard": "IS 2720 (Part 3)",
-        "icon": "🧽",
+    "proctor": {
+        "title": "Standard & Modified Proctor Compaction Test",
+        "file": "proctor_compaction_lab.html",
+        "standard": "ASTM D698 • D1557 • IS 2720",
+        "icon": "🚜",
         "height": 1100,
-        "summary": "2 mm sieved soil saturation method with volumetric phase breakdown (Solids, Water, Air voids)."
-    },
-    "geosieve_pro": {
-        "title": "GeoSieve Pro: Interactive Particle Curve Studio",
-        "file": "GeoSieve_Pro_Studio.html",
-        "standard": "IS 1498 • ASTM D2487",
-        "icon": "📊",
-        "height": 1150,
-        "summary": "Geotechnical sieve analysis studio with mass loss audit and automated USCS soil classification."
+        "summary": "Determine Maximum Dry Density (MDD), Optimum Moisture Content (OMC), and Zero Air Voids (ZAV) curves."
     }
+    
 }
 
 with st.sidebar:
