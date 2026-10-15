@@ -8,7 +8,7 @@ import streamlit.components.v1 as components
 # 1. PAGE SETUP (Must run first before anything else)
 # ==============================================================================
 st.set_page_config(
-    page_title="Soil Physics & Geotechnical Virtual Lab",
+    page_title="Soil Mechanics Lab",
     page_icon="🧪",
     layout="wide",
     initial_sidebar_state="expanded"
